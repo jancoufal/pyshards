@@ -103,5 +103,5 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-#netsuite
-netsuite/
+# idea project file
+*.iml
