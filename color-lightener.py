@@ -2,7 +2,6 @@
 
 import colorsys
 import turtle
-from time import sleep
 
 def main():
 	colors = [
@@ -20,13 +19,13 @@ def main():
 	square_size = 10
 	turtle_init(turtle, padding, square_size, len(lighten_colors), 2)
 
-	for x, c in enumerate(lighten_colors.keys()):
-		lc = lighten_colors[c]
-		print(f"{c!s} -> {lc!s}")
+	for y, light in enumerate([x * 0.1 for x in range(5)]):
+		for x, c in enumerate(colors):
+			lc = lighten_rgb(c, light)
 
-		turtle_draw_square(turtle, c, padding + x * (square_size + padding), 0, square_size)
-		turtle_draw_square(turtle, lc, padding + x * (square_size + padding), padding + square_size, square_size)
-		sleep(0.1)
+			print(f"{light:0.1f}: {c!s} -> {lc!s}")
+
+			turtle_draw_square(turtle, lc, padding + x * (square_size + padding), y * (padding + square_size), square_size)
 
 
 	turtle.getscreen()._root.mainloop()
@@ -46,7 +45,7 @@ def turtle_init(t, padding, square_size, x_square_count, y_square_count):
 		y_square_count * (square_size + padding),
 	)
 	t.penup()
-	# t.speed(1)
+	t.speed(0)
 	t.reset()
 	t.degrees()
 	t.setheading(0)
