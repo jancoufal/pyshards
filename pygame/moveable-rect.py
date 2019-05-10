@@ -20,31 +20,44 @@ def main():
 		position=Vector2d(*screen_rect.center),
 		direction=Vector2d(0, 5),
 		initial_rotation=0,
-		rotation_angle_step=15,
+		rotation_angle_step=5,
 	)
 
-	key_down_event = {
+	key_type_events = {
+		pygame.KEYDOWN: lambda _keys_pressed, _event: _keys_pressed.add(_event.key),
+		pygame.KEYUP: lambda _keys_pressed, _event: _keys_pressed.remove(_event.key),
+	}
+
+	keys_active = set()
+
+	key_mappings = {
 		pygame.K_UP: OrientedPoint2D.forward,
 		pygame.K_DOWN: OrientedPoint2D.backward,
 		pygame.K_LEFT: OrientedPoint2D.turn_left,
 		pygame.K_RIGHT: OrientedPoint2D.turn_right,
 	}
 
-	print(key_down_event)
+	timer = PrimitiveTimer(
+		timeout=25
+	)
 
 	while True:
-		for event in pygame.event.get():
+
+		if timer:
+
+			for key in keys_active:
+				if key in key_mappings.keys():
+					key_mappings[key](car_loc)
 
 			car_rot = pygame.transform.rotate(car_surf, car_loc.rotation_angle)
 			screen.blit(car_rot, car_loc.position.xy)
 
 			pygame.display.update()
 
-			# print(event)
-			print(car_loc)
+		for event in pygame.event.get():
 
-			if event.type == pygame.KEYDOWN and event.key in key_down_event.keys():
-				key_down_event[event.key](car_loc)
+			if event.type in key_type_events.keys():
+				key_type_events[event.type](keys_active, event)
 
 			if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.unicode == 'q'):
 				return
@@ -123,6 +136,26 @@ class OrientedPoint2D(object):
 		self._angle_actual += step
 		self._angle_actual %= 360
 		self._dir_actual = Vector2d.rotate(self._dir_initial, self._angle_actual)
+
+
+class PrimitiveTimer(object):
+	def __init__(self, timeout=250):
+		self._ticks = 0
+		self._timeout = timeout
+		self.reset()
+
+	@property
+	def ticks_elapsed(self):
+		return pygame.time.get_ticks() - self._ticks
+
+	def reset(self):
+		self._ticks = pygame.time.get_ticks()
+
+	def __bool__(self):
+		if self.ticks_elapsed > self._timeout:
+			self.reset()
+			return True
+		return False
 
 
 if __name__ == "__main__":
