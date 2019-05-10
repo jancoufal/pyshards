@@ -4,11 +4,12 @@ import math
 
 def main():
 	pygame.init()
-	pygame.display.set_caption("minimal program")
+	pygame.display.set_caption("moveable car")
 
 	screen_rect = pygame.Rect(0, 0, 500, 500)
 	screen = pygame.display.set_mode(screen_rect.size)
 
+	# car sprite
 	car_size = Vector2d(49, 90)
 	car_surf = pygame.Surface(car_size.xy)
 	car_surf.fill(pygame.Color("#cc000000"))
@@ -44,6 +45,8 @@ def main():
 	while True:
 
 		if timer:
+
+			screen.fill(pygame.Color("#00000000"))
 
 			for key in keys_active:
 				if key in key_mappings.keys():
