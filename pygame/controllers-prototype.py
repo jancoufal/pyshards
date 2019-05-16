@@ -26,8 +26,8 @@ def main():
 
 	event_type_handlers = {
 		pygame.QUIT: lambda e: game_loop.stop(),
-		pygame.KEYDOWN: lambda e: keys_pressed.add_key(e.key),
-		pygame.KEYUP: lambda e: keys_pressed.remove_key(e.key),
+		pygame.KEYDOWN: lambda e: keys_pressed.key_pressed(e.key),
+		pygame.KEYUP: lambda e: keys_pressed.key_released(e.key),
 	}
 
 	game_loop.start()
@@ -59,18 +59,32 @@ class GameLoopState(object):
 	def __str__(self):
 		return f"fps: {self.fps:0.2f}, duration: {self.duration_sec:0.1f} sec, frames: {self.frame_count}"
 
-	def start(self): self._active, self._frames, self._start_time = True, 0, time.perf_counter()
-	def stop(self): self._active = False
-	def update(self): self._frames += 1
+	def start(self):
+		self._active = True
+		self._frames = 0
+		self._start_time = time.perf_counter()
+
+	def stop(self):
+		self._active = False
+
+	def update(self):
+		self._frames += 1
 
 	@property
-	def active(self): return self._active
+	def active(self):
+		return self._active
+
 	@property
-	def frame_count(self): return self._frames
+	def frame_count(self):
+		return self._frames
+
 	@property
-	def duration_sec(self): return time.perf_counter() - self._start_time
+	def duration_sec(self):
+		return time.perf_counter() - self._start_time
+
 	@property
-	def fps(self): return self.frame_count / self.duration_sec
+	def fps(self):
+		return self.frame_count / self.duration_sec
 
 
 class ControllerManager(object):
@@ -135,7 +149,8 @@ class ControllerBase(object):
 		self._in = input_controllers
 		self._out = None
 
-	def __str__(self): return str(self._out)
+	def __str__(self):
+		return str(self._out)
 
 	@property
 	def value(self):
@@ -160,10 +175,10 @@ class ControllerKeysPressed(ControllerBase):
 	def _update(self):
 		return self._out
 
-	def add_key(self, key):
+	def key_pressed(self, key):
 		self._out.add(key)
 
-	def remove_key(self, key):
+	def key_released(self, key):
 		self._out.remove(key)
 
 
