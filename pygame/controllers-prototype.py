@@ -10,6 +10,13 @@ def main():
 	game_loop = GameLoopState()
 
 	keys_pressed = CtrlKeysPressed()
+
+	up_pressed = Ctrl1(lambda c0: pygame.K_UP in c0)
+	up_pressed.set_in1(keys_pressed)
+
+	down_pressed = Ctrl1(lambda c0: pygame.K_DOWN in c0)
+	down_pressed.set_in1(keys_pressed)
+
 	event_type_handlers = {
 		pygame.QUIT: lambda e: game_loop.stop(),
 		pygame.KEYDOWN: lambda e: keys_pressed.add_key(e.key),
@@ -26,7 +33,11 @@ def main():
 			if event.type in event_type_handlers.keys():
 				event_type_handlers[event.type](event)
 
+			up_pressed.update()
+			down_pressed.update()
+
 			print(keys_pressed)
+			print(f"up: {up_pressed}, down: {down_pressed}")
 
 		game_loop.update()
 
@@ -59,6 +70,7 @@ class Ctrl0(object):
 		self._up_fn = update_fn
 		self._out = None
 
+	def __str__(self): return str(self._out)
 	@property
 	def value(self): return self._out
 	def update(self): self._out = self._up_fn()
