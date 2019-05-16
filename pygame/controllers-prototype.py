@@ -9,18 +9,20 @@ def main():
 
 	game_loop = GameLoopState()
 
-	controller_mgr = ControllerManager()
+	ctrl_mgr = ControllerManager()
 
-	keys_pressed = controller_mgr.add(ControllerKeysPressed)
+	keys_pressed = ctrl_mgr.add(ControllerKeysPressed)
 
-	key_forward = controller_mgr.add(ControllerKeyValue, (pygame.K_UP, ))
-	key_forward_pressed = controller_mgr.add(ControllerKeyPressed, (keys_pressed, key_forward))
+	key_forward = ctrl_mgr.add(ControllerKeyValue, (pygame.K_UP,))
+	key_forward_pressed = ctrl_mgr.add(ControllerKeyPressed, (keys_pressed, key_forward))
 
-	key_backward = controller_mgr.add(ControllerKeyValue, (pygame.K_DOWN, ))
-	key_backward_pressed = controller_mgr.add(ControllerKeyPressed, (keys_pressed, key_backward))
+	key_backward = ctrl_mgr.add(ControllerKeyValue, (pygame.K_DOWN,))
+	key_backward_pressed = ctrl_mgr.add(ControllerKeyPressed, (keys_pressed, key_backward))
 
-	time_ticks = controller_mgr.add(ControllerTimeTicks)
-	time_delta = controller_mgr.add(ControllerTimeDelta, (time_ticks, ))
+	time_ticks = ctrl_mgr.add(ControllerTimeTicks)
+	time_delta = ctrl_mgr.add(ControllerTimeDelta, (time_ticks, ))
+
+	print(ctrl_mgr)
 
 	event_type_handlers = {
 		pygame.QUIT: lambda e: game_loop.stop(),
@@ -38,12 +40,13 @@ def main():
 			if event.type in event_type_handlers.keys():
 				event_type_handlers[event.type](event)
 
-			controller_mgr.update_all()
+			ctrl_mgr.update()
 
 			print(keys_pressed)
 			print(f"forward: {key_forward_pressed}, backward: {key_backward_pressed}")
 			print(f"time ticks: {time_ticks}, time delta: {time_delta}")
 
+		ctrl_mgr.update()
 		game_loop.update()
 
 
@@ -71,15 +74,33 @@ class GameLoopState(object):
 
 
 class ControllerManager(object):
+
+	class WaveContainer(object):
+		def __init__(self):
+			self._controllers = list()
+
+		def __iter__(self):
+			yield from self._controllers
+
+		def contains_any(self, items):
+			return len(set(self._controllers).intersection(items)) > 0
+
+		def append(self, controller):
+			self._controllers.append(controller)
+
 	def __init__(self):
-		# the key is going to be a "wave"
-		self._controllers = dict()
+		self._waves = list()
 
-	def add(self, controller_class, init_params=tuple()):
+	def __str__(self):
+		ret = ""
+		for idx, wave in enumerate(self._waves):
+			ret += f"wave #{idx}:\n"
+			for controller in wave:
+				ret += f"\t{controller!r}\n"
+		return ret
 
-		print(f"Adding controller {controller_class} with init params {init_params}")
-
-		if len(init_params) == 0:
+	def add(self, controller_class, init_params=None):
+		if init_params is None:
 			controller = controller_class()
 			self._add_to_wave(0, controller)
 		else:
@@ -88,21 +109,24 @@ class ControllerManager(object):
 
 		return controller
 
-	def update_all(self):
-		for wave in sorted(self._controllers.keys()):
-			for controller in self._controllers[wave]:
+	def update(self):
+		for wave in self._waves:
+			for controller in wave:
 				controller.update()
 
-	def _add_to_wave(self, wave, controller):
-		if wave not in self._controllers.keys():
-			self._controllers[wave] = set()
-		self._controllers[wave].add(controller)
+	def _add_to_wave(self, wave_index, controller):
+		if len(self._waves) <= wave_index:
+			new_waves_count = len(self._waves) - wave_index + 1
+			self._waves.extend([ControllerManager.WaveContainer() for _ in range(new_waves_count)])
+		self._waves[wave_index].append(controller)
 
 	def _find_highest_wave(self, input_controllers):
-		for wave in range(max(self._controllers.keys()), -1, -1):
-			if len(self._controllers[wave].intersection(input_controllers)):
-				return wave
-		return 0
+		# search in backwards
+		for wave_index in range(len(self._waves) - 1, -1, -1):
+			if self._waves[wave_index].contains_any(input_controllers):
+				return wave_index
+
+		return -1
 		# raise RuntimeError("None of the input controllers is present in the manager!")
 
 
