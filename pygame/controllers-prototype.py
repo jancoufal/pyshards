@@ -24,6 +24,8 @@ def main():
 	}
 
 	time_ticks = CtrlTimeTicks()
+	time_delta = CtrlTimeDelta()
+	time_delta.set_in1(time_ticks)
 
 	game_loop.start()
 	while game_loop.active:
@@ -38,10 +40,11 @@ def main():
 			up_pressed.update()
 			down_pressed.update()
 			time_ticks.update()
+			time_delta.update()
 
 			print(keys_pressed)
 			print(f"up: {up_pressed}, down: {down_pressed}")
-			print(f"time ticks: {time_ticks}")
+			print(f"time ticks: {time_ticks}, time delta: {time_delta}")
 
 		game_loop.update()
 
@@ -107,6 +110,17 @@ class Ctrl1(Ctrl0):
 
 	def set_in1(self, ctrl1): self._in1 = ctrl1
 	def update(self): self._out = self._up_fn(self._in1.value)
+
+
+class CtrlTimeDelta(Ctrl1):
+	def __init__(self):
+		super().__init__(lambda time_ticks: self._update(time_ticks))
+		self._last_ticks = 0
+
+	def _update(self, time_ticks):
+		delta = time_ticks - self._last_ticks
+		self._last_ticks = time_ticks
+		return delta
 
 
 if __name__ == "__main__":
