@@ -23,6 +23,8 @@ def main():
 		pygame.KEYUP: lambda e: keys_pressed.remove_key(e.key),
 	}
 
+	time_ticks = CtrlTimeTicks()
+
 	game_loop.start()
 	while game_loop.active:
 		for event in pygame.event.get():
@@ -35,9 +37,11 @@ def main():
 
 			up_pressed.update()
 			down_pressed.update()
+			time_ticks.update()
 
 			print(keys_pressed)
 			print(f"up: {up_pressed}, down: {down_pressed}")
+			print(f"time ticks: {time_ticks}")
 
 		game_loop.update()
 
@@ -78,7 +82,7 @@ class Ctrl0(object):
 
 class CtrlKeysPressed(Ctrl0):
 	def __init__(self):
-		super().__init__(lambda x: x)
+		super().__init__(lambda _: _)
 		self._out = set()
 
 	def __str__(self):
@@ -89,6 +93,11 @@ class CtrlKeysPressed(Ctrl0):
 
 	def remove_key(self, key):
 		self._out.remove(key)
+
+
+class CtrlTimeTicks(Ctrl0):
+	def __init__(self):
+		super().__init__(lambda: time.perf_counter())
 
 
 class Ctrl1(Ctrl0):
