@@ -9,22 +9,24 @@ def main():
 
 	game_loop = GameLoopState()
 
-	keys_pressed = ControllerKeysPressed()
+	controller_mgr = ControllerManager()
 
-	key_forward = ControllerKeyValue(pygame.K_UP)
-	key_forward_pressed = ControllerKeyPressed(keys_pressed, key_forward)
+	keys_pressed = controller_mgr.add(ControllerKeysPressed)
 
-	key_backward = ControllerKeyValue(pygame.K_DOWN)
-	key_backward_pressed = ControllerKeyPressed(keys_pressed, key_backward)
+	key_forward = controller_mgr.add(ControllerKeyValue, (pygame.K_UP, ))
+	key_forward_pressed = controller_mgr.add(ControllerKeyPressed, (keys_pressed, key_forward))
+
+	key_backward = controller_mgr.add(ControllerKeyValue, (pygame.K_DOWN, ))
+	key_backward_pressed = controller_mgr.add(ControllerKeyPressed, (keys_pressed, key_backward))
+
+	time_ticks = controller_mgr.add(ControllerTimeTicks)
+	time_delta = controller_mgr.add(ControllerTimeDelta, (time_ticks, ))
 
 	event_type_handlers = {
 		pygame.QUIT: lambda e: game_loop.stop(),
 		pygame.KEYDOWN: lambda e: keys_pressed.add_key(e.key),
 		pygame.KEYUP: lambda e: keys_pressed.remove_key(e.key),
 	}
-
-	time_ticks = ControllerTimeTicks()
-	time_delta = ControllerTimeDelta(time_ticks)
 
 	game_loop.start()
 	while game_loop.active:
@@ -36,13 +38,7 @@ def main():
 			if event.type in event_type_handlers.keys():
 				event_type_handlers[event.type](event)
 
-			key_forward.update()
-			key_forward_pressed.update()
-			key_backward.update()
-			key_backward_pressed.update()
-
-			time_ticks.update()
-			time_delta.update()
+			controller_mgr.update_all()
 
 			print(keys_pressed)
 			print(f"forward: {key_forward_pressed}, backward: {key_backward_pressed}")
@@ -72,6 +68,42 @@ class GameLoopState(object):
 	def duration_sec(self): return time.perf_counter() - self._start_time
 	@property
 	def fps(self): return self.frame_count / self.duration_sec
+
+
+class ControllerManager(object):
+	def __init__(self):
+		# the key is going to be a "wave"
+		self._controllers = dict()
+
+	def add(self, controller_class, init_params=tuple()):
+
+		print(f"Adding controller {controller_class} with init params {init_params}")
+
+		if len(init_params) == 0:
+			controller = controller_class()
+			self._add_to_wave(0, controller)
+		else:
+			controller = controller_class(*init_params)
+			self._add_to_wave(self._find_highest_wave(init_params) + 1, controller)
+
+		return controller
+
+	def update_all(self):
+		for wave in sorted(self._controllers.keys()):
+			for controller in self._controllers[wave]:
+				controller.update()
+
+	def _add_to_wave(self, wave, controller):
+		if wave not in self._controllers.keys():
+			self._controllers[wave] = set()
+		self._controllers[wave].add(controller)
+
+	def _find_highest_wave(self, input_controllers):
+		for wave in range(max(self._controllers.keys()), -1, -1):
+			if len(self._controllers[wave].intersection(input_controllers)):
+				return wave
+		return 0
+		# raise RuntimeError("None of the input controllers is present in the manager!")
 
 
 class ControllerBase(object):
