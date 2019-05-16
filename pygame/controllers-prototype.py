@@ -9,13 +9,13 @@ def main():
 
 	game_loop = GameLoopState()
 
-	keys_pressed = CtrlKeysPressed()
+	keys_pressed = ControllerKeysPressed()
 
-	up_pressed = Ctrl1(lambda c0: pygame.K_UP in c0)
-	up_pressed.set_in1(keys_pressed)
+	key_forward = ControllerKeyValue(pygame.K_UP)
+	key_forward_pressed = ControllerKeyPressed(keys_pressed, key_forward)
 
-	down_pressed = Ctrl1(lambda c0: pygame.K_DOWN in c0)
-	down_pressed.set_in1(keys_pressed)
+	key_backward = ControllerKeyValue(pygame.K_DOWN)
+	key_backward_pressed = ControllerKeyPressed(keys_pressed, key_backward)
 
 	event_type_handlers = {
 		pygame.QUIT: lambda e: game_loop.stop(),
@@ -23,9 +23,8 @@ def main():
 		pygame.KEYUP: lambda e: keys_pressed.remove_key(e.key),
 	}
 
-	time_ticks = CtrlTimeTicks()
-	time_delta = CtrlTimeDelta()
-	time_delta.set_in1(time_ticks)
+	time_ticks = ControllerTimeTicks()
+	time_delta = ControllerTimeDelta(time_ticks)
 
 	game_loop.start()
 	while game_loop.active:
@@ -37,13 +36,16 @@ def main():
 			if event.type in event_type_handlers.keys():
 				event_type_handlers[event.type](event)
 
-			up_pressed.update()
-			down_pressed.update()
+			key_forward.update()
+			key_forward_pressed.update()
+			key_backward.update()
+			key_backward_pressed.update()
+
 			time_ticks.update()
 			time_delta.update()
 
 			print(keys_pressed)
-			print(f"up: {up_pressed}, down: {down_pressed}")
+			print(f"forward: {key_forward_pressed}, backward: {key_backward_pressed}")
 			print(f"time ticks: {time_ticks}, time delta: {time_delta}")
 
 		game_loop.update()
@@ -72,24 +74,35 @@ class GameLoopState(object):
 	def fps(self): return self.frame_count / self.duration_sec
 
 
-class Ctrl0(object):
-	def __init__(self, update_fn):
-		self._up_fn = update_fn
+class ControllerBase(object):
+	def __init__(self, input_controllers=tuple()):
+		self._in = input_controllers
 		self._out = None
 
 	def __str__(self): return str(self._out)
+
 	@property
-	def value(self): return self._out
-	def update(self): self._out = self._up_fn()
+	def value(self):
+		return self._out
+
+	def update(self):
+		self._out = self._update()
+
+	def _update(self):
+		error_message = f"You have to derive from the {self.__class__.__name__} class and define your own _update() method."
+		raise NotImplementedError(error_message)
 
 
-class CtrlKeysPressed(Ctrl0):
+class ControllerKeysPressed(ControllerBase):
 	def __init__(self):
-		super().__init__(lambda _: _)
+		super().__init__()
 		self._out = set()
 
 	def __str__(self):
-		return f"CtrlKeysPressed({','.join(map(str, self._out))!s})"
+		return f"CtrlKeysPressed({','.join(map(str, self._out))})"
+
+	def _update(self):
+		return self._out
 
 	def add_key(self, key):
 		self._out.add(key)
@@ -98,28 +111,36 @@ class CtrlKeysPressed(Ctrl0):
 		self._out.remove(key)
 
 
-class CtrlTimeTicks(Ctrl0):
-	def __init__(self):
-		super().__init__(lambda: time.perf_counter())
+class ControllerKeyValue(ControllerBase):
+	def __init__(self, key):
+		super().__init__()
+		self._key = key
+
+	def _update(self):
+		return self._key
 
 
-class Ctrl1(Ctrl0):
-	def __init__(self, update_fn):
-		super().__init__(update_fn)
-		self._in1 = None
+class ControllerKeyPressed(ControllerBase):
+	def __init__(self, ctrl_keys_pressed, ctrl_key):
+		super().__init__((ctrl_keys_pressed, ctrl_key))
 
-	def set_in1(self, ctrl1): self._in1 = ctrl1
-	def update(self): self._out = self._up_fn(self._in1.value)
+	def _update(self):
+		return self._in[1].value in self._in[0].value
 
 
-class CtrlTimeDelta(Ctrl1):
-	def __init__(self):
-		super().__init__(lambda time_ticks: self._update(time_ticks))
+class ControllerTimeTicks(ControllerBase):
+	def _update(self):
+		return time.perf_counter()
+
+
+class ControllerTimeDelta(ControllerBase):
+	def __init__(self, ctrl_time_ticks):
+		super().__init__((ctrl_time_ticks, ))
 		self._last_ticks = 0
 
-	def _update(self, time_ticks):
-		delta = time_ticks - self._last_ticks
-		self._last_ticks = time_ticks
+	def _update(self):
+		delta = self._in[0].value - self._last_ticks
+		self._last_ticks = self._in[0].value
 		return delta
 
 
