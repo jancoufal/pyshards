@@ -1,6 +1,7 @@
 import pygame
 import math
 import numpy
+import random
 
 
 def main():
@@ -27,7 +28,7 @@ def main():
 
 	while not done:
 
-		clock.tick(10)
+		# clock.tick(10)
 
 		# animate
 		vertices = list(quad)
@@ -36,7 +37,7 @@ def main():
 		# m = Matrix3x3.get_translate(loop, loop)
 
 		# m = Matrix3x3.get_scale(loop / 100.0, loop / 200.0)
-		m = Matrix3x3.get_rotate(loop / 1.0)
+		m = Matrix3x3.get_rotate(loop / 100.0)
 		# m = Matrix3x3.get_shear_x(loop / 1.0)
 		# m = Matrix3x3.get_shear_y(loop / 1.0)
 		# m = Matrix3x3.get_shear(loop / 1.0, loop / 2.0)
@@ -47,8 +48,11 @@ def main():
 		m = Matrix3x3.get_translate(*screen_rect.center)
 		vertices = list(map(lambda v: v.transform(m), vertices))
 
-		screen.fill(bkg)
-		pygame.draw.aalines(screen, clr, True, tuple(map(Vector3.get_xy, vertices)), 5)
+		# random color
+		clr = pygame.color.Color(*(pygame.color.THECOLORS[random.choice(list(pygame.color.THECOLORS.keys()))]))
+
+		# screen.fill(bkg)
+		pygame.draw.aalines(screen, clr, True, tuple(map(Vector3.get_xy, vertices)), 1)
 		pygame.display.flip()
 
 		for event in pygame.event.get():
