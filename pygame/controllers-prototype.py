@@ -6,6 +6,7 @@ from controllers.Time import *
 from controllers.Input import *
 from controllers.Logic import *
 from controllers.Function import *
+from controllers.Filter import *
 
 
 def main():
@@ -47,6 +48,22 @@ def main():
 		pygame.KEYDOWN: lambda e: keys_pressed.key_pressed(e.key),
 		pygame.KEYUP: lambda e: keys_pressed.key_released(e.key),
 	}
+
+	fl = FilterLowStop(5, -555)
+	fh = FilterHighStop(7, -777)
+	fb = FilterBandStop(3, -333, 6, -666)
+	fst = FilterSchmittTrigger(2, 5, -222, -555, 0)
+
+	for i in range(10):
+		print(f"value: {i}, low stop: {fl(i)}, hi stop: {fh(i)}, band stop: {fb(i)}, schmitt: {fst(i)}")
+
+	for i in range(10, -1, -1):
+		print(f"value: {i}, low stop: {fl(i)}, hi stop: {fh(i)}, band stop: {fb(i)}, schmitt: {fst(i)}")
+
+	for i in range(10):
+		print(f"value: {i}, low stop: {fl(i)}, hi stop: {fh(i)}, band stop: {fb(i)}, schmitt: {fst(i)}")
+
+	return
 
 	game_loop.start()
 	while game_loop.active:
