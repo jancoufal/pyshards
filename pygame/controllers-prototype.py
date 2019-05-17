@@ -1,8 +1,11 @@
 import pygame
 from controllers.GameLoopState import GameLoopState
+from controllers.Base import ControllerStaticValue
 from controllers.Manager import ControllersManager
 from controllers.Time import *
 from controllers.Input import *
+from controllers.Logic import *
+from controllers.Function import *
 
 
 def main():
@@ -29,6 +32,14 @@ def main():
 	time_ticks = ctrl_mgr.add(ControllerTimeTicks)
 	time_delta = ctrl_mgr.add(ControllerTimeDelta, (time_ticks, ))
 
+	zero_value = ctrl_mgr.add(ControllerStaticValue, (0, ))
+	accelerate = ctrl_mgr.add(ControllerSwitch, (key_forward_pressed, zero_value, time_delta))
+
+	time_delta_minus = ctrl_mgr.add(ControllerMinus, (time_delta, ))
+	decelerate = ctrl_mgr.add(ControllerSwitch, (key_backward_pressed, zero_value, time_delta_minus))
+
+	speed_delta = ctrl_mgr.add(ControllerSum, (accelerate, decelerate))
+
 	print(ctrl_mgr)
 
 	event_type_handlers = {
@@ -52,9 +63,9 @@ def main():
 			if key_quit_pressed.value:
 				game_loop.stop()
 
-			print(keys_pressed)
-			print(f"forward: {key_forward_pressed}, backward: {key_backward_pressed}")
-			print(f"time ticks: {time_ticks}, time delta: {time_delta}")
+			# print(f"forward: {key_forward_pressed}, backward: {key_backward_pressed}")
+			# print(f"time ticks: {time_ticks}, time delta: {time_delta}")
+			print(f"speed delta: {speed_delta}")
 
 		ctrl_mgr.update()
 		game_loop.update()
