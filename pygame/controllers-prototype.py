@@ -49,9 +49,9 @@ def main():
 		pygame.KEYUP: lambda e: keys_pressed.key_released(e.key),
 	}
 
-	fl = FilterLowStop(5, -555)
-	fh = FilterHighStop(7, -777)
-	fb = FilterBandStop(3, -333, 6, -666)
+	fl = FilterLowLimit(5)
+	fh = FilterHighLimit(7)
+	fb = FilterBandLimit(3, 6)
 	fst = FilterSchmittTrigger(2, 5, -222, -555, 0)
 
 	for i in range(10):

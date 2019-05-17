@@ -1,25 +1,25 @@
-class FilterLowStop(object):
-	def __init__(self, low_limit, value_on_low):
+class FilterLowLimit(object):
+	def __init__(self, low_limit, value_on_low=None):
 		self._limit = low_limit
-		self._value = value_on_low
+		self._value = value_on_low if value_on_low is not None else low_limit
 
 	def __call__(self, value):
 		return value if value >= self._limit else self._value
 
 
-class FilterHighStop(object):
-	def __init__(self, hi_limit, value_on_hi):
+class FilterHighLimit(object):
+	def __init__(self, hi_limit, value_on_hi=None):
 		self._limit = hi_limit
-		self._value = value_on_hi
+		self._value = value_on_hi if value_on_hi is not None else hi_limit
 
 	def __call__(self, value):
 		return value if value <= self._limit else self._value
 
 
-class FilterBandStop(object):
-	def __init__(self, low_limit, value_on_low, hi_limit, value_on_hi):
-		self._stop_low = FilterLowStop(low_limit, value_on_low)
-		self._stop_high = FilterHighStop(hi_limit, value_on_hi)
+class FilterBandLimit(object):
+	def __init__(self, low_limit, hi_limit, value_on_low=None, value_on_hi=None):
+		self._stop_low = FilterLowLimit(low_limit, value_on_low)
+		self._stop_high = FilterHighLimit(hi_limit, value_on_hi)
 
 	def __call__(self, value):
 		return self._stop_high(self._stop_low(value))
