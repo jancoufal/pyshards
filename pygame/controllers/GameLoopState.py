@@ -36,5 +36,3 @@ class GameLoopState(object):
 	@property
 	def fps(self):
 		return self.frame_count / self.duration_sec
-
-

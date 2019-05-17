@@ -34,5 +34,3 @@ class ControllerKeyPressed(ControllerBase):
 
 	def _update(self):
 		return self._in[1].value in self._in[0].value
-
-
