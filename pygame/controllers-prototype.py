@@ -7,6 +7,7 @@ from controllers.Input import *
 from controllers.Logic import *
 from controllers.Function import *
 from controllers.Filter import *
+from controllers.Generator import *
 
 
 def main():
@@ -31,23 +32,35 @@ def main():
 	key_backward_pressed = ctrl_mgr.add(ControllerKeyPressed, (keys_pressed, key_backward))
 
 	time_ticks = ctrl_mgr.add(ControllerTimeTicks)
-	time_delta = ctrl_mgr.add(ControllerTimeDelta, (time_ticks, ))
+	time_delta = ctrl_mgr.add(ControllerTimeDelta, (time_ticks,))
 
-	zero_value = ctrl_mgr.add(ControllerStaticValue, (0, ))
+	zero_value = ctrl_mgr.add(ControllerStaticValue, (0,))
 	accelerate = ctrl_mgr.add(ControllerSwitch, (key_forward_pressed, zero_value, time_delta))
 
-	time_delta_minus = ctrl_mgr.add(ControllerMinus, (time_delta, ))
+	time_delta_minus = ctrl_mgr.add(ControllerMinus, (time_delta,))
 	decelerate = ctrl_mgr.add(ControllerSwitch, (key_backward_pressed, zero_value, time_delta_minus))
 
 	speed_delta = ctrl_mgr.add(ControllerSum, (accelerate, decelerate))
 
-	print(ctrl_mgr)
+	# print(ctrl_mgr)
 
 	event_type_handlers = {
 		pygame.QUIT: lambda e: game_loop.stop(),
 		pygame.KEYDOWN: lambda e: keys_pressed.key_pressed(e.key),
 		pygame.KEYUP: lambda e: keys_pressed.key_released(e.key),
 	}
+
+	gen_init = ctrl_mgr.add(ControllerStaticValue, (0,))
+	gen_step = ctrl_mgr.add(ControllerStaticValue, (1,))
+	gen_incr = ctrl_mgr.add(ControllerGeneratorIncrement, (gen_step, gen_init))
+	gen_decr = ctrl_mgr.add(ControllerGeneratorDecrement, (gen_step, gen_init))
+
+	for loop in range(20):
+		ctrl_mgr.update()
+
+		print(f"loop: {loop}, step: {gen_step}, incr: {gen_incr}, decr: {gen_decr}")
+
+	return
 
 	fl = FilterLowLimit(5)
 	fh = FilterHighLimit(7)
