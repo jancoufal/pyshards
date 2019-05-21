@@ -59,7 +59,7 @@ def main():
 	fil_hi_stop = ctrl_mgr.add(ControllerFilterHighLimit, (gen_incr, fil_hi_lim))
 
 	fil_lo_lim = ctrl_mgr.add(ControllerStaticValue, (-10,))
-	fil_lo_stop = ctrl_mgr.add(ControllerFilterLowLimit, (gen_decr, fil_lo_lim))
+	fil_lo_stop = ctrl_mgr.add(ControllerFilterLowLimit, (gen_decr, fil_lo_lim), back_write=(gen_decr,))
 
 	fil_band_stop = ctrl_mgr.add(ControllerFilterBandLimit, (gen_incr, fil_lo_lim, fil_hi_lim))
 

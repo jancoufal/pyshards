@@ -11,13 +11,15 @@ class ControllersManager(object):
 				ret += f"\t{controller!r}\n"
 		return ret
 
-	def add(self, controller_class, init_params=None):
+	def add(self, controller_class, init_params=None, back_write=tuple()):
 		if init_params is None:
 			controller = controller_class()
 			self._add_to_wave(0, controller)
 		else:
 			controller = controller_class(*init_params)
 			self._add_to_wave(self._find_highest_wave(init_params) + 1, controller)
+
+		controller.add_back_writes(back_write)
 
 		return controller
 
