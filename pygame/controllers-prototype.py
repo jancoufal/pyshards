@@ -55,10 +55,18 @@ def main():
 	gen_incr = ctrl_mgr.add(ControllerGeneratorIncrement, (gen_step, gen_init))
 	gen_decr = ctrl_mgr.add(ControllerGeneratorDecrement, (gen_step, gen_init))
 
+	fil_hi_lim = ctrl_mgr.add(ControllerStaticValue, (10,))
+	fil_hi_stop = ctrl_mgr.add(ControllerFilterHighLimit, (gen_incr, fil_hi_lim))
+
+	fil_lo_lim = ctrl_mgr.add(ControllerStaticValue, (-10,))
+	fil_lo_stop = ctrl_mgr.add(ControllerFilterLowLimit, (gen_decr, fil_lo_lim))
+
+	fil_band_stop = ctrl_mgr.add(ControllerFilterBandLimit, (gen_incr, fil_lo_lim, fil_hi_lim))
+
 	for loop in range(20):
 		ctrl_mgr.update()
 
-		print(f"loop: {loop}, step: {gen_step}, incr: {gen_incr}, decr: {gen_decr}")
+		print(f"loop: {loop}, step: {gen_step}, incr: {gen_incr}, hi stop: {fil_hi_stop}, decr: {gen_decr}, lo stop: {fil_lo_stop}")
 
 	return
 
@@ -76,7 +84,7 @@ def main():
 	for i in range(10):
 		print(f"value: {i}, low stop: {fl(i)}, hi stop: {fh(i)}, band stop: {fb(i)}, schmitt: {fst(i)}")
 
-	return
+	# return
 
 	game_loop.start()
 	while game_loop.active:

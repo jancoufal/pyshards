@@ -17,4 +17,3 @@ class ControllerGeneratorDecrement(ControllerBase):
 
 	def _update(self):
 		return self._in[1].value if self._out is None else self._out - self._in[0].value
-

@@ -1,43 +1,39 @@
-class FilterLowLimit(object):
-	def __init__(self, low_limit, value_on_low=None):
-		self._limit = low_limit
-		self._value = value_on_low if value_on_low is not None else low_limit
-
-	def __call__(self, value):
-		return value if value >= self._limit else self._value
+from .Base import ControllerBase
 
 
-class FilterHighLimit(object):
-	def __init__(self, hi_limit, value_on_hi=None):
-		self._limit = hi_limit
-		self._value = value_on_hi if value_on_hi is not None else hi_limit
+class ControllerFilterLowLimit(ControllerBase):
+	def __init__(self, ctrl_input, ctrl_low_limit):
+		super().__init__((ctrl_input, ctrl_low_limit))
 
-	def __call__(self, value):
-		return value if value <= self._limit else self._value
-
-
-class FilterBandLimit(object):
-	def __init__(self, low_limit, hi_limit, value_on_low=None, value_on_hi=None):
-		self._stop_low = FilterLowLimit(low_limit, value_on_low)
-		self._stop_high = FilterHighLimit(hi_limit, value_on_hi)
-
-	def __call__(self, value):
-		return self._stop_high(self._stop_low(value))
+	def _update(self):
+		return max(self._in[0].value, self._in[1].value)
 
 
-class FilterSchmittTrigger(object):
-	def __init__(self, low_threshold, hi_threshold, low_output, hi_output, init_output=0):
-		self._threshold_low = low_threshold
-		self._threshold_hi = hi_threshold
-		self._output_low = low_output
-		self._output_hi = hi_output
-		self._output_current = init_output
+class ControllerFilterHighLimit(ControllerBase):
+	def __init__(self, ctrl_input, ctrl_hi_limit):
+		super().__init__((ctrl_input, ctrl_hi_limit))
 
-	def __call__(self, value):
-		if value <= self._threshold_low:
-			self._output_current = self._output_low
-		elif value >= self._threshold_hi:
-			self._output_current = self._output_hi
+	def _update(self):
+		return min(self._in[0].value, self._in[1].value)
 
-		return self._output_current
 
+class ControllerFilterBandLimit(ControllerBase):
+	def __init__(self, ctrl_input, ctrl_low_limit, ctrl_hi_limit):
+		super().__init__((ctrl_input, ctrl_low_limit, ctrl_hi_limit))
+
+	def _update(self):
+		return min(max(self._in[0].value, self._in[1].value), self._in[2].value)
+
+
+class ControllerFilterSchmittTrigger(ControllerBase):
+	def __init__(self, ctrl_input, ctrl_low_threshold, ctrl_hi_threshold, ctrl_low_output, ctrl_hi_output, ctrl_init_output):
+		super().__init__((ctrl_input, ctrl_low_threshold, ctrl_hi_threshold, ctrl_low_output, ctrl_hi_output, ctrl_init_output))
+		self._output_control = ctrl_init_output
+
+	def _update(self):
+		if self._in[0].value <= self._in[1].value:
+			self._output_current = self._in[3]
+		elif self._in[0].value >= self._in[2].value:
+			self._output_current = self._in[4]
+
+		return self._output_current.value
