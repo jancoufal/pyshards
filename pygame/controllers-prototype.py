@@ -2,7 +2,6 @@ import pygame
 from controllers.GameLoopState import GameLoopState
 from controllers.Base import ControllerStaticValue
 from controllers.Manager import ControllersManager
-from controllers.Time import *
 from controllers.Input import *
 from controllers.Logic import *
 from controllers.Function import *
@@ -31,8 +30,8 @@ def main():
 	key_backward = ctrl_mgr.add(ControllerKeyValue, (pygame.K_DOWN,))
 	key_backward_pressed = ctrl_mgr.add(ControllerKeyPressed, (keys_pressed, key_backward))
 
-	time_ticks = ctrl_mgr.add(ControllerTimeTicks)
-	time_delta = ctrl_mgr.add(ControllerTimeDelta, (time_ticks,))
+	time_ticks = ctrl_mgr.add(ControllerGeneratorTimeTicks)
+	time_delta = ctrl_mgr.add(ControllerGeneratorTimeDelta, (time_ticks,))
 
 	zero_value = ctrl_mgr.add(ControllerStaticValue, (0,))
 	accelerate = ctrl_mgr.add(ControllerSwitch, (key_forward_pressed, zero_value, time_delta))
