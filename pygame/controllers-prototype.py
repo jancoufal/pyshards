@@ -7,6 +7,7 @@ from controllers.Logic import *
 from controllers.Function import *
 from controllers.Filter import *
 from controllers.Generator import *
+from controllers.Trigger import *
 
 
 def main():
@@ -62,10 +63,17 @@ def main():
 
 	fil_band_stop = ctrl_mgr.add(ControllerFilterBandLimit, (gen_incr, fil_lo_lim, fil_hi_lim))
 
+	trig_hi = ctrl_mgr.add(ControllerTriggerHigh, (gen_incr, fil_hi_lim))
+	trig_lo = ctrl_mgr.add(ControllerTriggerLow, (gen_incr, fil_hi_lim))
+
 	for loop in range(20):
 		ctrl_mgr.update()
 
-		print(f"loop: {loop}, step: {gen_step}, incr: {gen_incr}, hi stop: {fil_hi_stop}, decr: {gen_decr}, lo stop: {fil_lo_stop}")
+		print(f"loop: {loop}, step: {gen_step}, ", end="")
+		print(f"incr: {gen_incr}, hi stop: {fil_hi_stop}, ", end="")
+		print(f"decr: {gen_decr}, lo stop: {fil_lo_stop}, ", end="")
+		print(f"hi trigg: {trig_hi}, lo trigg: {trig_lo}, ", end="")
+		print()
 
 	return
 
