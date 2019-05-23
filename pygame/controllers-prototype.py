@@ -18,8 +18,12 @@ def main():
 	screen_color = pygame.Color("#00000000")
 	screen = pygame.display.set_mode(screen_rect.bottomright)
 
-	hint_font = pygame.font.Font(pygame.font.get_default_font(), 32)
-	hint_surface = hint_font.render("Press UP and DOWN arrows ('q' to quit).", False, pygame.Color("#ffffff00"))
+	font_name = "consolas"
+	font_file = pygame.font.match_font(font_name)
+	if font_file is None:
+		font_file = pygame.font.get_default_font()
+	hint_font = pygame.font.Font(font_file, 32)
+	hint_surface = hint_font.render("Press UP and DOWN arrows ('q' to quit).", True, pygame.Color("#ffffff00"))
 	screen.blit(hint_surface, (10, 10))
 
 	game_loop = GameLoopState()
