@@ -14,7 +14,9 @@ def main():
 
 	pygame.init()
 	pygame.display.set_caption("minimal program")
-	pygame.display.set_mode((240, 180))
+	screen = pygame.display.set_mode((800, 600))
+
+	line_color = pygame.Color("#00ff0000")
 
 	game_loop = GameLoopState()
 
@@ -75,23 +77,7 @@ def main():
 		print(f"hi trigg: {trig_hi}, lo trigg: {trig_lo}, ", end="")
 		print()
 
-	return
-
-	fl = FilterLowLimit(5)
-	fh = FilterHighLimit(7)
-	fb = FilterBandLimit(3, 6)
-	fst = FilterSchmittTrigger(2, 5, -222, -555, 0)
-
-	for i in range(10):
-		print(f"value: {i}, low stop: {fl(i)}, hi stop: {fh(i)}, band stop: {fb(i)}, schmitt: {fst(i)}")
-
-	for i in range(10, -1, -1):
-		print(f"value: {i}, low stop: {fl(i)}, hi stop: {fh(i)}, band stop: {fb(i)}, schmitt: {fst(i)}")
-
-	for i in range(10):
-		print(f"value: {i}, low stop: {fl(i)}, hi stop: {fh(i)}, band stop: {fb(i)}, schmitt: {fst(i)}")
-
-	# return
+	points = list()
 
 	game_loop.start()
 	while game_loop.active:
@@ -112,8 +98,17 @@ def main():
 			# print(f"time ticks: {time_ticks}, time delta: {time_delta}")
 			print(f"speed delta: {speed_delta}")
 
+		if len(points) == 0:
+			points.append([time_ticks.value, speed_delta.value + 300])
+		points.append([time_ticks.value * 5, - speed_delta.value * 10000 + 300])
+
+		pygame.draw.lines(screen, line_color, False, points, 1)
+
 		ctrl_mgr.update()
 		game_loop.update()
+
+		pygame.display.update()
+		pygame.time.wait(1)
 
 
 if __name__ == "__main__":
