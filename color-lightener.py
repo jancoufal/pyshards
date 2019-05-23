@@ -26,8 +26,9 @@ def main():
 			print(f"{light:0.1f}: {c!s} -> {lc!s}")
 
 			turtle_draw_square(turtle, lc, padding + x * (square_size + padding), y * (padding + square_size), square_size)
+			# turtle.stamp()
 
-
+	turtle.done()
 	turtle.getscreen()._root.mainloop()
 
 
@@ -73,6 +74,7 @@ def lighten_rgb(hexcode, light_amount):
 	c = colorsys.hls_to_rgb(*c)
 	c = truncate_values(c)
 	c = normalize_float_to_byte(c)
+	c = clamp_hi(c, 255)
 	c = byte_rgb_to_hex(c)
 	return c
 
@@ -96,6 +98,11 @@ def normalize_float_to_byte(floats):
 def truncate_values(values):
 	factor = 1000
 	return list(map(lambda v: int(v * factor) / factor, values))
+
+
+def clamp_hi(values, maximum):
+	return list(map(lambda v: min(v, maximum), values))
+
 
 if __name__ == '__main__':
 	main()

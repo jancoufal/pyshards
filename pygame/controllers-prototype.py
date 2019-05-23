@@ -14,9 +14,13 @@ def main():
 
 	pygame.init()
 	pygame.display.set_caption("minimal program")
-	screen = pygame.display.set_mode((800, 600))
+	screen_rect = pygame.Rect(0, 0, 800, 600)
+	screen_color = pygame.Color("#00000000")
+	screen = pygame.display.set_mode(screen_rect.bottomright)
 
-	line_color = pygame.Color("#00ff0000")
+	hint_font = pygame.font.Font(pygame.font.get_default_font(), 32)
+	hint_surface = hint_font.render("Press UP and DOWN arrows ('q' to quit).", False, pygame.Color("#ffffff00"))
+	screen.blit(hint_surface, (10, 10))
 
 	game_loop = GameLoopState()
 
@@ -77,7 +81,9 @@ def main():
 		print(f"hi trigg: {trig_hi}, lo trigg: {trig_lo}, ", end="")
 		print()
 
-	points = list()
+	line_speed_diff = LinesBuffer(screen, screen_rect, "#ffff0000")
+	line_acc = LinesBuffer(screen, screen_rect, "#00ff0000")
+	line_dec = LinesBuffer(screen, screen_rect, "#ff000000")
 
 	game_loop.start()
 	while game_loop.active:
@@ -98,17 +104,49 @@ def main():
 			# print(f"time ticks: {time_ticks}, time delta: {time_delta}")
 			print(f"speed delta: {speed_delta}")
 
-		if len(points) == 0:
-			points.append([time_ticks.value, speed_delta.value + 300])
-		points.append([time_ticks.value * 5, - speed_delta.value * 10000 + 300])
+		speed_x = time_ticks.value * 150
+		speed_y_factor = 10000
+		line_speed_diff.append_point(speed_x, - speed_delta.value * speed_y_factor)
+		line_acc.append_point(speed_x, - accelerate.value * speed_y_factor - screen_rect.centery // 2)
+		line_dec.append_point(speed_x, - decelerate.value * speed_y_factor + screen_rect.centery // 2)
 
-		pygame.draw.lines(screen, line_color, False, points, 1)
+		line_speed_diff.draw()
+		line_acc.draw()
+		line_dec.draw()
 
 		ctrl_mgr.update()
 		game_loop.update()
 
+		# debug
+		if (speed_x % screen_rect.width) > screen_rect.width - 1:
+			line_speed_diff.reset()
+			line_acc.reset()
+			line_dec.reset()
+			screen.fill(screen_color)
+			screen.blit(hint_surface, (10, 10))
+
 		pygame.display.update()
 		pygame.time.wait(1)
+
+
+class LinesBuffer(object):
+	def __init__(self, surface, surface_rect, color_string):
+		self._surface = surface
+		self._surface_rect = surface_rect
+		self._color = pygame.Color(color_string)
+		self._points = []
+
+	def append_point(self, x, y):
+		_x = (x + self._surface_rect.left) % self._surface_rect.width
+		_y = y + self._surface_rect.centery
+		self._points.append((_x, _y))
+
+	def reset(self):
+		self._points = []
+
+	def draw(self):
+		if len(self._points) > 1:
+			pygame.draw.lines(self._surface, self._color, False, self._points, 1)
 
 
 if __name__ == "__main__":
