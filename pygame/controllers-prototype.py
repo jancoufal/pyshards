@@ -55,6 +55,11 @@ def main():
 	speed_init = ctrl_mgr.add(ControllerStaticValue, (0, ))
 	speed = ctrl_mgr.add(ControllerAccumulator, (speed_init, speed_delta))
 
+	speed_min = ctrl_mgr.add(ControllerStaticValue, (-0.5, ))
+	speed_max = ctrl_mgr.add(ControllerStaticValue, (4, ))
+
+	speed_limit = ctrl_mgr.add(ControllerFilterBandLimit, (speed, speed_min, speed_max), back_write=(speed, ))
+
 	# print(ctrl_mgr)
 
 	event_type_handlers = {
@@ -110,7 +115,7 @@ def main():
 
 			# print(f"forward: {key_forward_pressed}, backward: {key_backward_pressed}")
 			# print(f"time ticks: {time_ticks}, time delta: {time_delta}")
-			print(f"speed delta: {speed_delta}, speed: {speed}")
+			print(f"speed delta: {speed_delta}, speed: {speed}, speed limit: {speed_limit}")
 
 		speed_x = time_ticks.value * 150
 		speed_y_factor = 10000
