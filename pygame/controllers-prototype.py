@@ -52,6 +52,9 @@ def main():
 
 	speed_delta = ctrl_mgr.add(ControllerSum, (accelerate, decelerate))
 
+	speed_init = ctrl_mgr.add(ControllerStaticValue, (0, ))
+	speed = ctrl_mgr.add(ControllerAccumulator, (speed_init, speed_delta))
+
 	# print(ctrl_mgr)
 
 	event_type_handlers = {
@@ -88,6 +91,7 @@ def main():
 	line_speed_diff = LinesBuffer(screen, screen_rect, "#ffff0000")
 	line_acc = LinesBuffer(screen, screen_rect, "#00ff0000")
 	line_dec = LinesBuffer(screen, screen_rect, "#ff000000")
+	line_speed = LinesBuffer(screen, screen_rect, "#ffffff00")
 
 	game_loop.start()
 	while game_loop.active:
@@ -106,17 +110,19 @@ def main():
 
 			# print(f"forward: {key_forward_pressed}, backward: {key_backward_pressed}")
 			# print(f"time ticks: {time_ticks}, time delta: {time_delta}")
-			print(f"speed delta: {speed_delta}")
+			print(f"speed delta: {speed_delta}, speed: {speed}")
 
 		speed_x = time_ticks.value * 150
 		speed_y_factor = 10000
 		line_speed_diff.append_point(speed_x, - speed_delta.value * speed_y_factor)
 		line_acc.append_point(speed_x, - accelerate.value * speed_y_factor - screen_rect.centery // 2)
 		line_dec.append_point(speed_x, - decelerate.value * speed_y_factor + screen_rect.centery // 2)
+		line_speed.append_point(speed_x, - speed.value * 100 + (0.75 * screen_rect.centery))
 
 		line_speed_diff.draw()
 		line_acc.draw()
 		line_dec.draw()
+		line_speed.draw()
 
 		ctrl_mgr.update()
 		game_loop.update()
@@ -126,6 +132,7 @@ def main():
 			line_speed_diff.reset()
 			line_acc.reset()
 			line_dec.reset()
+			line_speed.reset()
 			screen.fill(screen_color)
 			screen.blit(hint_surface, (10, 10))
 
