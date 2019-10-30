@@ -12,7 +12,7 @@ def main():
 	screen_rect = pygame.Rect(0, 0, 1010, 1010)
 	screen = pygame.display.set_mode(screen_rect.size)
 
-	boundaries = (-500 * 0, -500 * 0, 500, 500)
+	boundaries = (-500, -500, 500, 500)
 	translate_by = MyPoint(screen_rect.width // 2, screen_rect.height // 2)
 
 	done = False
@@ -28,17 +28,14 @@ def main():
 
 			print(f"{r1}, {r2}, {r3}")
 
-			# map to viewport
-			r1 = r1.move(*translate_by.xy)
-			r2 = r2.move(*translate_by.xy)
-			r3 = r3.move(*translate_by.xy)
+			# draw & map to viewport
 
 			screen.fill(ColorEnum.BACKGROUND.color)
 
 			if r3 is not None:
-				draw_rect(screen, r3, width=0)
-			draw_rect(screen, r1)
-			draw_rect(screen, r2)
+				draw_rect(screen, r3.move(*translate_by.xy), width=0)
+			draw_rect(screen, r1.move(*translate_by.xy))
+			draw_rect(screen, r2.move(*translate_by.xy))
 
 			draw_axes(screen, translate_by)
 
@@ -80,13 +77,32 @@ def get_random_rect(x_min, y_min, x_max, y_max, color_enum):
 
 
 def get_overlapped_rect(r1, r2, color_enum):
-	return MyRect(
-		min(r1.p1.x, r2.p1.x),
-		min(r1.p2.y, r2.p1.y),
-		max(r1.p1.x, r2.p1.x),
-		max(r1.p2.y, r2.p1.y),
-		color_enum
-	)
+	x1, y1, x2, y2 = None, None, None, None
+
+	if r2.is_x_within(r1.p1.x):
+		x1 = r1.p1.x
+	elif r1.is_x_within(r2.p1.x):
+		x1 = r2.p1.x
+
+	if r2.is_y_within(r1.p1.y):
+		y1 = r1.p1.y
+	elif r1.is_y_within(r2.p1.y):
+		y1 = r2.p1.y
+
+	if r2.is_x_within(r1.p2.x):
+		x2 = r1.p2.x
+	elif r1.is_x_within(r2.p2.x):
+		x2 = r2.p2.x
+
+	if r2.is_y_within(r1.p2.y):
+		y2 = r1.p2.y
+	elif r1.is_y_within(r2.p2.y):
+		y2 = r2.p2.y
+
+	if x1 is None or y1 is None or x2 is None or y2 is None:
+		return None
+
+	return MyRect(x1, y1, x2, y2, color_enum)
 
 
 class MyPoint(object):
@@ -98,13 +114,16 @@ class MyPoint(object):
 		return f"point({self.x}, {self.y})"
 
 	@property
-	def x(self): return self._x
+	def x(self):
+		return self._x
 
 	@property
-	def y(self): return self._y
+	def y(self):
+		return self._y
 
 	@property
-	def xy(self): return self.x, self.y
+	def xy(self):
+		return self.x, self.y
 
 	def move(self, x, y):
 		return MyPoint(self.x + x, self.y + y)
@@ -137,14 +156,23 @@ class MyRect(object):
 			abs(self.p1.y - self.p2.y)
 		)
 
-	@property
-	def p1(self): return self._p1
+	def is_x_within(self, x):
+		return self.p1.x <= x <= self.p2.x or self.p2.x <= x <= self.p1.x
+
+	def is_y_within(self, y):
+		return self.p1.y <= y <= self.p2.y or self.p2.y <= y <= self.p1.y
 
 	@property
-	def p2(self): return self._p2
+	def p1(self):
+		return self._p1
 
 	@property
-	def color(self): return self._clr
+	def p2(self):
+		return self._p2
+
+	@property
+	def color(self):
+		return self._clr
 
 	def move(self, x, y):
 		return MyRect.from_points(self._p1.move(x, y), self._p2.move(x, y), self.color)
@@ -155,6 +183,7 @@ class ColorEnum(Enum):
 	RECT_ORANGE = pygame.color.Color("#ff8800")
 	RECT_BLUE = pygame.color.Color("#0088ff")
 	RECT_GREEN = pygame.color.Color("#00ff88")
+	RECT_RED = pygame.color.Color("#ff0000")
 	AXIS_X = pygame.color.Color("#cccccc")
 	AXIS_Y = pygame.color.Color("#cccccc")
 
