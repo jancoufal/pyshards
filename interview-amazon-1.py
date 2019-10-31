@@ -17,28 +17,32 @@ def main():
 
 	done = False
 	draw = True
+	clock = pygame.time.Clock()
 	while not done:
+
+		# clock.tick(100)
+		# draw = True
 
 		if draw:
 			draw = False
 
 			r1 = get_random_rect(*boundaries, ColorEnum.RECT_ORANGE)
 			r2 = get_random_rect(*boundaries, ColorEnum.RECT_BLUE)
-			r3 = get_overlapped_rect(r1, r2, ColorEnum.RECT_GREEN)
 
-			print(f"{r1}, {r2}, {r3}")
+			r3 = get_overlapped_rect(r1, r2, ColorEnum.RECT_GREEN)
+			r4 = get_overlapped_rect_2(r1, r2, ColorEnum.RECT_CYAN)
+
+			print(f"{r1!r}, {r2!r}")
 
 			# draw & map to viewport
-
 			screen.fill(ColorEnum.BACKGROUND.color)
-
 			if r3 is not None:
 				draw_rect(screen, r3.move(*translate_by.xy), width=0)
+			if r4 is not None:
+				draw_rect(screen, r4.move(600, 600), width=0)
 			draw_rect(screen, r1.move(*translate_by.xy))
 			draw_rect(screen, r2.move(*translate_by.xy))
-
 			draw_axes(screen, translate_by)
-
 			pygame.display.flip()
 
 		for event in pygame.event.get():
@@ -76,6 +80,7 @@ def get_random_rect(x_min, y_min, x_max, y_max, color_enum):
 	return MyRect(x[0], y[0], x[1], y[1], color_enum)
 
 
+# my impl
 def get_overlapped_rect(r1, r2, color_enum):
 	x1, y1, x2, y2 = None, None, None, None
 
@@ -101,6 +106,25 @@ def get_overlapped_rect(r1, r2, color_enum):
 
 	if x1 is None or y1 is None or x2 is None or y2 is None:
 		return None
+
+	return MyRect(x1, y1, x2, y2, color_enum)
+
+
+# https://www.geeksforgeeks.org/intersecting-rectangle-when-bottom-left-and-top-right-corners-of-two-rectangles-are-given/
+def get_overlapped_rect_2(r1, r2, color_enum):
+
+	# gives bottom-left point
+	x1 = max(r1.p1.x, r2.p1.x)
+	y1 = max(r1.p1.y, r2.p1.y)
+
+	# gives top-right point
+	x2 = min(r1.p2.x, r2.p2.x)
+	y2 = min(r1.p2.y, r2.p2.y)
+
+	# no intersection
+	if x1 > x2 or y1 > y2:
+		return None
+		# return MyRect(x1, y1, x2, y2, ColorEnum.RECT_RED)
 
 	return MyRect(x1, y1, x2, y2, color_enum)
 
@@ -143,6 +167,9 @@ class MyRect(object):
 	def __str__(self):
 		return f"rectangle({self.p1}, {self.p2}, {self.color})"
 
+	def __repr__(self):
+		return f"MyRect({self.p1.x}, {self.p1.y}, {self.p2.x}, {self.p2.y}, {self.color})"
+
 	def _normalize_points(self):
 		p1 = MyPoint(min(self.p1.x, self.p2.x), min(self.p1.y, self.p2.y))
 		p2 = MyPoint(max(self.p1.x, self.p2.x), max(self.p1.y, self.p2.y))
@@ -183,6 +210,7 @@ class ColorEnum(Enum):
 	RECT_ORANGE = pygame.color.Color("#ff8800")
 	RECT_BLUE = pygame.color.Color("#0088ff")
 	RECT_GREEN = pygame.color.Color("#00ff88")
+	RECT_CYAN = pygame.color.Color("#00b7eb")
 	RECT_RED = pygame.color.Color("#ff0000")
 	AXIS_X = pygame.color.Color("#cccccc")
 	AXIS_Y = pygame.color.Color("#cccccc")
