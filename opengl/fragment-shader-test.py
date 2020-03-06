@@ -83,11 +83,8 @@ class ShaderUniformHolder(object):
 		self._descriptor = value_descriptor
 		self.value = self._descriptor.init_value
 
-	def init_update(self):
-		self.update(self.value)
-
-	def update(self, new_value):
-		self._descriptor.gl_func(self._gl_location, *new_value)
+	def update(self, new_value=None):
+		self._descriptor.gl_func(self._gl_location, *(self.value if new_value is None else new_value))
 		self.value = new_value
 
 
@@ -122,7 +119,7 @@ class ShaderHolder(object):
 
 				# init uniforms
 				for h in new_uniform_holders.values():
-					h.init_update()
+					h.update()
 
 				self._file_content = new_source
 				self.shader = new_shader
