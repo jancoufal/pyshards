@@ -5,6 +5,7 @@
 # pip install PyOpenGL_accelerate-3.1.5-cp38-cp38-win32.whl
 
 import logging
+import time
 from OpenGL.GL import *
 from OpenGL.GL import shaders
 from OpenGL.GLUT import *
@@ -17,17 +18,18 @@ settings = {
 	},
 }
 
-time = 0.0
+glut_timer_time = 0.0
 log = None
-shaderHolder = None
+shader_holder = None
+last_shader_refresh_time = None
 
 
 def timer(value):
-	global time
-	if time > 100.0:
-		time = .0
+	global glut_timer_time
+	if glut_timer_time > 100.0:
+		glut_timer_time = .0
 	else:
-		time += 0.1
+		glut_timer_time += 0.1
 
 	glutPostRedisplay()
 	glutTimerFunc(10, timer, 0)
@@ -35,9 +37,20 @@ def timer(value):
 
 def draw():
 	glClear(GL_COLOR_BUFFER_BIT)
-	shaderHolder.update_uniform("time", (time, ))
+	shader_holder.update_uniform("time", (glut_timer_time,))
 	glRecti(-1, -1, 1, 1)
 	glutSwapBuffers()
+
+
+def idle():
+	global last_shader_refresh_time
+
+	do_refresh = last_shader_refresh_time is None or time.time() - last_shader_refresh_time > 3
+
+	if do_refresh:
+		log.debug("shader refresh")
+		shader_holder.refresh_from_file()
+		last_shader_refresh_time = time.time()
 
 
 def main():
@@ -53,11 +66,11 @@ def main():
 	glutInitWindowPosition(w//4, h//4)
 	glutCreateWindow(b"PyOpenGL")
 	glutDisplayFunc(draw)
-	glutIdleFunc(draw)
+	glutIdleFunc(idle)
 	glutTimerFunc(100, timer, 0)
 
-	global shaderHolder
-	shaderHolder = ShaderHolder(
+	global shader_holder
+	shader_holder = ShaderHolder(
 		logger=log,
 		shader_type=GL_FRAGMENT_SHADER,
 		shader_file="fragment-shader-test.shader",
@@ -94,27 +107,42 @@ class ShaderHolder(object):
 		self._type = shader_type
 		self._file = shader_file
 		self._file_content = None
-		self.gl_program = glCreateProgram()
+		self.gl_program = None
 		self.shader = None
 		self._uniform_descriptors = uniform_descriptors
 		self._uniform_holders = dict()
-		self.refresh_file()
+		self.refresh_from_file()
 
-	def refresh_file(self):
+	def refresh_from_file(self):
 		if self._has_file_changed(new_source := self._file_load()):
 			if (new_shader := self._create_shader(new_source)) is not None:
+				try:
+					self._logger.debug("refreshing from file...")
+					new_program = glCreateProgram()
+					glAttachShader(new_program, new_shader)
+					glLinkProgram(new_program)
+					new_uniform_holders = {
+						d.name: ShaderUniformHolder(glGetUniformLocation(new_program, d.name), d)
+						for d in self._uniform_descriptors
+					}
+					glUseProgram(new_program)
+
+				except ... as e:
+					self._logger.error(e)
+					return
+
+				# swap
 				# delete old shader (if present)
 				if self.shader is not None:
 					self._uniform_holders = list()
 					glDeleteShader(self.shader)
 					self.shader = None
 
-				glAttachShader(self.gl_program, new_shader)
-				glLinkProgram(self.gl_program)
-				new_uniform_holders = {
-					d.name: ShaderUniformHolder(glGetUniformLocation(self.gl_program, d.name), d)
-					for d in self._uniform_descriptors
-				}
+				if self.gl_program is not None:
+					glDeleteProgram(self.gl_program)
+					self.gl_program = None
+
+				self.gl_program = new_program
 				glUseProgram(self.gl_program)
 
 				# init uniforms
