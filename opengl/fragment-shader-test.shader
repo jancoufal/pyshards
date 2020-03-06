@@ -9,7 +9,7 @@ vec2 pieuvreEQ(vec3 p,float t)
 {
 	vec2 fx = p.xy;
 	fx.x = fx.y - cos(fx.y);
-//	fx.x = (fx.y+length(p*fx.x)-cos(t+fx.y));
+	fx.x = (fx.y+length(p*fx.x)-cos(t+fx.y));
 //	fx.x = (fx.y+length(p*fx.x)-cos(t+fx.y));
 //	fx.x = (fx.y+length(p*fx.x)-cos(t+fx.y));
 	fx.x*=fx.x * 0.1;
