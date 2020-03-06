@@ -48,7 +48,6 @@ def idle():
 	do_refresh = last_shader_refresh_time is None or time.time() - last_shader_refresh_time > 3
 
 	if do_refresh:
-		log.debug("shader refresh")
 		shader_holder.refresh_from_file()
 		last_shader_refresh_time = time.time()
 
@@ -128,7 +127,8 @@ class ShaderHolder(object):
 					glUseProgram(new_program)
 
 				except ... as e:
-					self._logger.error(e)
+					error_message, shader_source, shader_type = e.args
+					self._logger.error(error_message)
 					return
 
 				# swap
