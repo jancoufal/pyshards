@@ -35,7 +35,7 @@ def timer(value):
 
 def draw():
 	glClear(GL_COLOR_BUFFER_BIT)
-	shaderHolder.update_uniform_time((time, ))
+	shaderHolder.update_uniform("time", (time, ))
 	glRecti(-1, -1, 1, 1)
 	glutSwapBuffers()
 
@@ -61,83 +61,76 @@ def main():
 		logger=log,
 		shader_type=GL_FRAGMENT_SHADER,
 		shader_file="fragment-shader-test.shader",
-		time_value=(0.0, ),
-		resolution=(w/2, h/2)
+		uniform_descriptors=(
+			ShaderUniformValueDescriptor("time", glUniform1f, (0.0, )),
+			ShaderUniformValueDescriptor("resolution", glUniform2f, (w/2, h/2)),
+		)
 	)
 
 	glutMainLoop()
 
 
-class ShaderUniformHolder(object):
-	def __init__(self, gl_program, uniform_name, gl_uniform_function, init_value):
-		self._gl_program = gl_program
+class ShaderUniformValueDescriptor(object):
+	def __init__(self, uniform_name, gl_uniform_function, value):
 		self.name = uniform_name
-		self.gl_location = glGetUniformLocation(self._gl_program, self.name)
 		self.gl_func = gl_uniform_function
-		self.value = init_value
+		self.init_value = value
+
+
+class ShaderUniformHolder(object):
+	def __init__(self, gl_location, value_descriptor):
+		self._gl_location = gl_location
+		self._descriptor = value_descriptor
+		self.value = self._descriptor.init_value
+
+	def init_update(self):
 		self.update(self.value)
 
 	def update(self, new_value):
-		self.gl_func(self.gl_location, *new_value)
+		self._descriptor.gl_func(self._gl_location, *new_value)
 		self.value = new_value
 
 
 class ShaderHolder(object):
-	def __init__(self, logger, shader_type, shader_file, time_value, resolution):
+	def __init__(self, logger, shader_type, shader_file, uniform_descriptors):
 		self._logger = logger
 		self._type = shader_type
 		self._file = shader_file
 		self._file_content = None
 		self.gl_program = glCreateProgram()
 		self.shader = None
-		self.uniform_time = None
-		self.uniform_resolution = None
-		self._loc_time = None
-		self._loc_res = None
-		self.refresh_file(time_value, resolution)
+		self._uniform_descriptors = uniform_descriptors
+		self._uniform_holders = dict()
+		self.refresh_file()
 
-	def refresh_file(self, time_value, resolution):
+	def refresh_file(self):
 		if self._has_file_changed(new_source := self._file_load()):
 			if (new_shader := self._create_shader(new_source)) is not None:
 				# delete old shader (if present)
 				if self.shader is not None:
+					self._uniform_holders = list()
 					glDeleteShader(self.shader)
 					self.shader = None
-					self.uniform_time = None
-					self.uniform_resolution = None
 
 				glAttachShader(self.gl_program, new_shader)
 				glLinkProgram(self.gl_program)
-				# new_uniform_time = ShaderUniformHolder(self.gl_program, "time", glUniform1f, time_value)
-				new_uniform_time = None
-				# new_uniform_resolution = ShaderUniformHolder(self.gl_program, "resolution", glUniform2f, resolution)
-				new_uniform_resolution = None
+				new_uniform_holders = {
+					d.name: ShaderUniformHolder(glGetUniformLocation(self.gl_program, d.name), d)
+					for d in self._uniform_descriptors
+				}
 				glUseProgram(self.gl_program)
+
+				# init uniforms
+				for h in new_uniform_holders.values():
+					h.init_update()
 
 				self._file_content = new_source
 				self.shader = new_shader
-				self.uniform_time = new_uniform_time
-				self.uniform_resolution = new_uniform_resolution
+				self._uniform_holders = new_uniform_holders
 
-				# debug
-				self._loc_time = glGetUniformLocation(self.gl_program, "time")
-				self._loc_res = glGetUniformLocation(self.gl_program, "resolution")
-
-				self.update_uniform_time(time_value)
-				self.update_uniform_resolution(resolution)
-
-	def update_uniform_time(self, new_time):
-		self._logger.debug(f"{new_time=}")
-
-		# if self.uniform_time is not None:
-		# 	self.uniform_time.update(new_time)
-
-		glUniform1f(self._loc_time, *new_time)
-
-	def update_uniform_resolution(self, new_resolution):
-		self._logger.debug(f"{new_resolution=}")
-
-		glUniform2f(self._loc_res, *new_resolution)
+	def update_uniform(self, uniform_name, new_value):
+		if uniform_name in self._uniform_holders.keys():
+			self._uniform_holders[uniform_name].update(new_value)
 
 	def _file_load(self):
 		with open(self._file, "r") as fh:
