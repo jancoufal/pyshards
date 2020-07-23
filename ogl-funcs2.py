@@ -8,7 +8,7 @@ def main():
 
 	# generate functions
 	commands_registry = find_in_childs_single(gl_registry, "commands")
-	command_list = [GlFunction.create_from_entry(_) for _ in find_in_childs_many(commands_registry, "command")]
+	command_list = [GlFunction.create_from_entry(n) for n in find_in_childs_many(commands_registry, "command")]
 	print(f"commands count: {len(command_list)}")
 
 	# just for fun
@@ -45,7 +45,7 @@ def main():
 
 	# gather types
 	types_registry = find_in_childs_single(gl_registry, "types")
-	type_list = [GlType.create_from_entry(_) for _ in find_in_childs_many(types_registry, "type")]
+	type_list = [GlType.create_from_entry(n) for n in find_in_childs_many(types_registry, "type")]
 
 	# translatable types (all predicates must be met)
 	picked_types_predicates = {
@@ -55,8 +55,11 @@ def main():
 	}
 	picked_type_list = list(filter(lambda t: all(map(lambda predicate: predicate(t), picked_types_predicates)), type_list))
 	print(f"{len(picked_type_list)}")
-	for t in picked_type_list:
-		print(t)
+	type_translation_map = {t.gl_type: t.base_type for t in picked_type_list}
+	print(type_translation_map)
+
+	print(picked_command_list[0].get_param_string())
+	print(picked_command_list[0].get_param_string(type_translation_map))
 
 
 @unique
@@ -154,10 +157,16 @@ class GlFunctionParam(object):
 class GlType(object):
 	@classmethod
 	def create_from_entry(cls, entry):
-		is_special = len(entry.attrib) != 0
+		attr = dict(entry.attrib)
+		base_type = entry.value
+		if base_type is not None:
+			base_type = base_type.replace("typedef", "").replace("_t", "")
+			if attr.pop("requires", None) == "khrplatform":
+				base_type = base_type.replace("khronos_", "")
+		is_special = len(attr) > 0
 		return cls(
 			is_special,
-			None if is_special else entry.value.strip("typedef").strip(),
+			None if is_special else base_type.strip(),
 			None if is_special else find_in_childs_single(entry, "name").value.strip()
 		)
 
