@@ -49,17 +49,16 @@ def main():
 
 	# translatable types (all predicates must be met)
 	picked_types_predicates = {
-		lambda t: t.manufacturer is None,
+		# lambda t: t.manufacturer is None,
 		lambda t: not t.is_special,
-		lambda t: t.gl_type not in ("GLDEBUGPROC", "GLsync"),
 	}
 	picked_type_list = list(filter(lambda t: all(map(lambda predicate: predicate(t), picked_types_predicates)), type_list))
 	print(f"{len(picked_type_list)}")
 	type_translation_map = {t.gl_type: t.base_type for t in picked_type_list}
-	print(type_translation_map)
 
-	print(picked_command_list[0].get_param_string())
-	print(picked_command_list[0].get_param_string(type_translation_map))
+	for ttm in type_translation_map:
+		print(ttm, type_translation_map[ttm])
+	# print(type_translation_map)
 
 
 @unique
@@ -157,18 +156,43 @@ class GlFunctionParam(object):
 class GlType(object):
 	@classmethod
 	def create_from_entry(cls, entry):
-		attr = dict(entry.attrib)
-		base_type = entry.value
-		if base_type is not None:
-			base_type = base_type.replace("typedef", "").replace("_t", "")
-			if attr.pop("requires", None) == "khrplatform":
-				base_type = base_type.replace("khronos_", "")
-		is_special = len(attr) > 0
+
+		# if any of the predicate is met, then it is a special (unhandled) case
+		special_type_predicates = {
+			lambda n: "typedef struct" in n.value,
+			lambda n: len({"name", "comment"} & n.attrib.keys()) > 0,
+			lambda n: n.attrib.get("requires", "") == "GLintptr",
+			lambda n: find_in_childs_single_optional(n, "apientry") is not None,
+		}
+
+		is_special = any(map(lambda p: p(entry), special_type_predicates))
 		return cls(
 			is_special,
-			None if is_special else base_type.strip(),
+			None if is_special else GlType._parse_base_type(entry),
 			None if is_special else find_in_childs_single(entry, "name").value.strip()
 		)
+
+	@staticmethod
+	def _parse_base_type(entry):
+		if entry.value is None:
+			return None
+
+		remove_list = ["typedef"]
+		if entry.attrib.get("requires", "") == "khrplatform":
+			remove_list.append("khronos_")
+
+		base_type = entry.value
+		for r in remove_list:
+			if base_type.startswith(r):
+				base_type = base_type[len(r):].strip()
+
+		special_cases_lut = {
+			"float_t": "float",
+			"intptr_t": "int*",
+			"ssize_t": "size_t*",
+		}
+
+		return special_cases_lut.get(base_type, base_type)
 
 	def __init__(self, is_special, base_type, gl_type):
 		self.is_special = is_special
