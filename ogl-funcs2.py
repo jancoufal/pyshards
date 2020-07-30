@@ -3,13 +3,7 @@ from enum import Enum, unique
 
 
 def main():
-	gl_registry = read_xml_to_nodes("gl.xml")
-	# print(gl_registry)
-
-	# generate functions
-	commands_registry = find_in_childs_single(gl_registry, "commands")
-	command_list = [GlFunction.create_from_entry(n) for n in find_in_childs_many(commands_registry, "command")]
-	print(f"commands count: {len(command_list)}")
+	gl_registry = GlRegistry.create_from_file("gl.xml")
 
 	# just for fun
 	if False:
@@ -24,17 +18,11 @@ def main():
 			print(f"{m.value}: {manufacturer_histogram.get(m, 0)}x")
 
 	# picked commands (all predicates must be met)
-	command_predicates = {
-		lambda c: c.manufacturer is None,
-		lambda c: not c.name.startswith("glDebugMessageCallback"),
-		lambda c: not c.name.startswith("glSampleCoveragex"),
-	}
-	picked_command_list = list(filter(lambda c: all(map(lambda pred: pred(c), command_predicates)), command_list))
-	print(f"picked commands count: {len(picked_command_list)}")
+	print(f"picked commands count: {len(gl_registry.commands)}")
 
 	# gather used base types in base command list
 	type_histogram = dict()
-	for c in picked_command_list:
+	for c in gl_registry.commands:
 		for pbt in c.get_params_base_types():
 			if pbt not in type_histogram.keys():
 				type_histogram[pbt] = 0
@@ -43,22 +31,12 @@ def main():
 		for t in type_histogram:
 			print(f"{t} ({type_histogram[t]}x)")
 
-	# gather types
-	types_registry = find_in_childs_single(gl_registry, "types")
-	type_list = [GlType.create_from_entry(n) for n in find_in_childs_many(types_registry, "type")]
+	for c in gl_registry.commands:
+		# format single gl function header & implementation
 
-	# translatable types (all predicates must be met)
-	picked_types_predicates = {
-		# lambda t: t.manufacturer is None,
-		lambda t: not t.is_special,
-	}
-	picked_type_list = list(filter(lambda t: all(map(lambda predicate: predicate(t), picked_types_predicates)), type_list))
-	print(f"{len(picked_type_list)}")
-	type_translation_map = {t.gl_type: t.base_type for t in picked_type_list}
-
-	for ttm in type_translation_map:
-		print(ttm, type_translation_map[ttm])
-	# print(type_translation_map)
+		if c.name.startswith("glSampleCoveragex"):
+			print(c.get_header())
+			print(">", c.get_header(gl_registry.types_lut))
 
 
 @unique
@@ -96,6 +74,46 @@ class Manufacturer(Enum):
 		return None
 
 
+class GlRegistry(object):
+
+	# picked commands (all predicates must be met)
+	PICKED_COMMANDS_PREDICATES = {
+		lambda command: command.manufacturer is None,
+		lambda command: not command.name.startswith("glDebugMessageCallback"),  # too complicated header
+	}
+
+	# picked types (all predicates must be met)
+	PICKED_TYPES_PREDICATES = {
+		# lambda t: t.manufacturer is None,
+		lambda t: not t.is_special,  # too complicated to handle
+	}
+
+	@classmethod
+	def create_from_file(cls, filename):
+		return cls(read_xml_to_nodes(filename))
+
+	def __init__(self, nodes):
+		self._nodes = nodes
+
+		self.all_commands = self._parse_sub_childs("commands", "command", GlFunction)
+		self.commands = GlRegistry._filter_by_predicates(self.all_commands, GlRegistry.PICKED_COMMANDS_PREDICATES)
+
+		self.all_types = self._parse_sub_childs("types", "type", GlType)
+		self.types = GlRegistry._filter_by_predicates(self.all_types, GlRegistry.PICKED_TYPES_PREDICATES)
+		self.types_lut = {t.gl_type: t.base_type for t in self.types}
+
+		self.all_groups = self._parse_sub_childs("groups", "group", GlGroup)
+		self.group_lut = {g.name: g for g in self.all_groups}
+
+	def _parse_sub_childs(self, main_node_name, child_node_name, wrapper_class):
+		main_node = find_in_childs_single(self._nodes, main_node_name)
+		return [wrapper_class.create_from_entry(n) for n in find_in_childs_many(main_node, child_node_name)]
+
+	@staticmethod
+	def _filter_by_predicates(input_iterable, predicates):
+		return list(filter(lambda t: all(map(lambda p: p(t), predicates)), input_iterable))
+
+
 class GlFunction(object):
 	@classmethod
 	def create_from_entry(cls, entry):
@@ -122,13 +140,19 @@ class GlFunction(object):
 	def get_param_string(self, type_translation_table=None):
 		return ", ".join(map(lambda p: p.get_param_str(type_translation_table), self.params))
 
+	def get_header(self, type_translation_table=None):
+		return_type = self.return_type
+		if type_translation_table is not None:
+			return_type = type_translation_table.get(return_type, return_type)
+		return f"{return_type} {self.name}({self.get_param_string(type_translation_table)})".strip()
+
 
 class GlFunctionParam(object):
 	@classmethod
 	def create_from_entry(cls, entry):
 		ptype = find_in_childs_single_optional(entry, "ptype")
 		return cls(
-			entry.value.strip() if entry.value is not None else "",
+			entry.value.strip() if entry.value is not None and ptype is not None else "",
 			(ptype.value if ptype is not None else entry.value).strip(),
 			ptype.tail.strip() if ptype is not None else "",
 			find_in_childs_single(entry, "name").value.strip()
@@ -159,7 +183,7 @@ class GlType(object):
 
 		# if any of the predicate is met, then it is a special (unhandled) case
 		special_type_predicates = {
-			lambda n: "typedef struct" in n.value,
+			lambda n: "typedef struct" in n.value if n.value is not None else False,
 			lambda n: len({"name", "comment"} & n.attrib.keys()) > 0,
 			lambda n: n.attrib.get("requires", "") == "GLintptr",
 			lambda n: find_in_childs_single_optional(n, "apientry") is not None,
@@ -178,7 +202,8 @@ class GlType(object):
 			return None
 
 		remove_list = ["typedef"]
-		if entry.attrib.get("requires", "") == "khrplatform":
+		is_khronos = entry.attrib.get("requires", "") == "khrplatform"
+		if is_khronos:
 			remove_list.append("khronos_")
 
 		base_type = entry.value
@@ -186,11 +211,18 @@ class GlType(object):
 			if base_type.startswith(r):
 				base_type = base_type[len(r):].strip()
 
-		special_cases_lut = {
-			"float_t": "float",
-			"intptr_t": "int*",
-			"ssize_t": "size_t*",
-		}
+		special_cases_lut = dict()
+
+		if is_khronos:
+			special_cases_lut.update({
+				"float_t": "float",
+				"intptr_t": "int32_t",  # "signed long int",
+				"uintptr_t": "uint32_t",  # "unsigned long int",
+				"ssize_t": "int32_t",  # win32 => "signed long int", win64 => "signed long long int"
+				"usize_t": "uint32_t",  # win32 => "signed long int", win64 => "signed long long int"
+				"stime_nanoseconds_t": "int64_t",
+				"utime_nanoseconds_t": "uint64_t",
+			})
 
 		return special_cases_lut.get(base_type, base_type)
 
@@ -202,6 +234,24 @@ class GlType(object):
 
 	def __str__(self):
 		return f"{self.base_type} ~ {self.gl_type}{' *' if self.is_special else ''} {self.manufacturer}"
+
+
+class GlGroup(object):
+	@classmethod
+	def create_from_entry(cls, entry):
+		return cls(
+			entry.attrib.get("name"),
+			entry.attrib.get("comment", ""),
+			[n.attrib.get("name") for n in find_in_childs_many(entry, "enum")]
+		)
+
+	def __init__(self, name, comment, enum_values):
+		self.name = name
+		self.comment = comment
+		self.values = enum_values
+
+	def __str__(self):
+		return f"{self.name}, {self.comment}, {str(self.values)}"
 
 
 def find_in_childs_many(node, tag):
