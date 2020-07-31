@@ -5,10 +5,12 @@ from enum import Enum, unique
 def main():
 	gl_registry = GlRegistry.create_from_file("gl.xml")
 
+	print_histograms = True
+
 	# just for fun
-	if False:
+	if print_histograms:
 		manufacturer_histogram = dict()
-		for c in command_list:
+		for c in gl_registry.all_commands:
 			k = c.manufacturer
 			if k not in manufacturer_histogram.keys():
 				manufacturer_histogram[k] = 0
@@ -17,24 +19,22 @@ def main():
 		for m in Manufacturer:
 			print(f"{m.value}: {manufacturer_histogram.get(m, 0)}x")
 
-	# picked commands (all predicates must be met)
-	print(f"picked commands count: {len(gl_registry.commands)}")
-
 	# gather used base types in base command list
-	type_histogram = dict()
-	for c in gl_registry.commands:
-		for pbt in c.get_params_base_types():
-			if pbt not in type_histogram.keys():
-				type_histogram[pbt] = 0
-			type_histogram[pbt] = type_histogram[pbt] + 1
-	if False:
+	if print_histograms:
+		type_histogram = dict()
+		for c in gl_registry.commands:
+			for pbt in c.get_params_base_types():
+				if pbt not in type_histogram.keys():
+					type_histogram[pbt] = 0
+				type_histogram[pbt] = type_histogram[pbt] + 1
+		print("used types histogram")
 		for t in type_histogram:
 			print(f"{t} ({type_histogram[t]}x)")
 
 	for c in gl_registry.commands:
 		# format single gl function header & implementation
 
-		if c.name.startswith("glSampleCoveragex"):
+		if c.name.startswith("glSecondaryColor3dv"):
 			print(c.get_header())
 			print(">", c.get_header(gl_registry.types_lut))
 
@@ -90,7 +90,7 @@ class GlRegistry(object):
 
 	@classmethod
 	def create_from_file(cls, filename):
-		return cls(read_xml_to_nodes(filename))
+		return cls(Node.load_xml(filename))
 
 	def __init__(self, nodes):
 		self._nodes = nodes
@@ -103,11 +103,11 @@ class GlRegistry(object):
 		self.types_lut = {t.gl_type: t.base_type for t in self.types}
 
 		self.all_groups = self._parse_sub_childs("groups", "group", GlGroup)
-		self.group_lut = {g.name: g for g in self.all_groups}
+		self.groups_lut = {g.name: g for g in self.all_groups}
 
 	def _parse_sub_childs(self, main_node_name, child_node_name, wrapper_class):
-		main_node = find_in_childs_single(self._nodes, main_node_name)
-		return [wrapper_class.create_from_entry(n) for n in find_in_childs_many(main_node, child_node_name)]
+		main_node = self._nodes.find_in_childs_single(main_node_name)
+		return [wrapper_class.create_from_entry(n) for n in main_node.find_in_childs_many(child_node_name)]
 
 	@staticmethod
 	def _filter_by_predicates(input_iterable, predicates):
@@ -117,19 +117,21 @@ class GlRegistry(object):
 class GlFunction(object):
 	@classmethod
 	def create_from_entry(cls, entry):
-		proto = find_in_childs_single(entry, "proto")
+		proto = entry.find_in_childs_single("proto")
 		return cls(
-			(proto if proto.value is not None else find_in_childs_single(proto, "ptype")).value.strip(),
-			find_in_childs_single(proto, "name").value.strip(),
-			[GlFunctionParam.create_from_entry(_) for _ in find_in_childs_many(entry, "param")]
+			(proto if proto.value is not None else proto.find_in_childs_single("ptype")).value.strip(),
+			proto.find_in_childs_single("name").value.strip(),
+			[GlFunctionParam.create_from_entry(_) for _ in entry.find_in_childs_many("param")],
+			dict(entry.attrib) if entry.attrib is not None else {}
 		)
 
-	def __init__(self, return_type, name, param_list):
+	def __init__(self, return_type, name, param_list, attributes):
 		self.return_type = return_type
 		self.name = name
 		self.params = param_list
 		self.param_str = self.get_param_string()
 		self.manufacturer = Manufacturer.find_manufacturer(name)
+		self.attributes = attributes
 
 	def __str__(self):
 		return f"{self.return_type} {self.name}({self.param_str})".strip()
@@ -150,21 +152,23 @@ class GlFunction(object):
 class GlFunctionParam(object):
 	@classmethod
 	def create_from_entry(cls, entry):
-		ptype = find_in_childs_single_optional(entry, "ptype")
+		ptype = entry.find_in_childs_single_optional("ptype")
 		return cls(
 			entry.value.strip() if entry.value is not None and ptype is not None else "",
 			(ptype.value if ptype is not None else entry.value).strip(),
 			ptype.tail.strip() if ptype is not None else "",
-			find_in_childs_single(entry, "name").value.strip()
+			entry.find_in_childs_single("name").value.strip(),
+			dict(entry.attrib) if entry.attrib is not None else {}
 		)
 
-	def __init__(self, modif_bef, param_type, modif_aft, name):
+	def __init__(self, modif_bef, param_type, modif_aft, name, attributes):
 		self._type_modif_bef = modif_bef
 		self._type_modif_aft = modif_aft
 		self.base_type = param_type
 		self.name = name
 		self.type = self._get_param_type()
 		self.param_str = self.get_param_str()
+		self.attributes = attributes
 
 	def _get_param_type(self, base_type_translation_map=None):
 		tran_table = {} if base_type_translation_map is None else base_type_translation_map
@@ -186,14 +190,14 @@ class GlType(object):
 			lambda n: "typedef struct" in n.value if n.value is not None else False,
 			lambda n: len({"name", "comment"} & n.attrib.keys()) > 0,
 			lambda n: n.attrib.get("requires", "") == "GLintptr",
-			lambda n: find_in_childs_single_optional(n, "apientry") is not None,
+			lambda n: n.find_in_childs_single_optional("apientry") is not None,
 		}
 
 		is_special = any(map(lambda p: p(entry), special_type_predicates))
 		return cls(
 			is_special,
 			None if is_special else GlType._parse_base_type(entry),
-			None if is_special else find_in_childs_single(entry, "name").value.strip()
+			None if is_special else entry.find_in_childs_single("name").value.strip()
 		)
 
 	@staticmethod
@@ -242,7 +246,7 @@ class GlGroup(object):
 		return cls(
 			entry.attrib.get("name"),
 			entry.attrib.get("comment", ""),
-			[n.attrib.get("name") for n in find_in_childs_many(entry, "enum")]
+			[n.attrib.get("name") for n in entry.find_in_childs_many("enum")]
 		)
 
 	def __init__(self, name, comment, enum_values):
@@ -254,54 +258,23 @@ class GlGroup(object):
 		return f"{self.name}, {self.comment}, {str(self.values)}"
 
 
-def find_in_childs_many(node, tag):
-	return [ch for ch in node.childs if ch.tag == tag]
-
-
-def find_in_childs_single(node, tag):
-	childs = find_in_childs_many(node, tag)
-	if len(childs) == 1:
-		return childs.pop()
-	error_message = f"Wanted to find single item '{tag}' in {node}, but found {len(childs)}."
-	raise AssertionError(error_message)
-
-
-def find_in_childs_single_optional(node, tag):
-	childs = find_in_childs_many(node, tag)
-	child_count = len(childs)
-	if child_count == 0:
-		return None
-	if child_count == 1:
-		return childs.pop()
-
-	error_message = f"Wanted to find optionally single item '{tag}' in {node}, but found {len(childs)}."
-	raise AssertionError(error_message)
-
-
-def has_child(node, tag):
-	for ch in node.childs:
-		if ch.tag == tag:
-			return True
-	return False
-
-
-def read_xml_to_nodes(xml_file):
-	import xml.etree.ElementTree as et
-
-	xml_root = et.parse(xml_file).getroot()
-	root_node = Node.from_xml_element(None, xml_root)
-	q = queue.Queue()
-	q.put((xml_root, root_node))
-	while not q.empty():
-		xml_node, node_holder = q.get()
-		for child_node in xml_node:
-			node_holder.childs.append(child_holder := Node.from_xml_element(node_holder, child_node))
-			q.put((child_node, child_holder))
-
-	return root_node
-
-
 class Node(object):
+	@classmethod
+	def load_xml(cls, filename):
+		import xml.etree.ElementTree as et
+
+		xml_root = et.parse(filename).getroot()
+		root_node = Node.from_xml_element(None, xml_root)
+		q = queue.Queue()
+		q.put((xml_root, root_node))
+		while not q.empty():
+			xml_node, node_holder = q.get()
+			for child_node in xml_node:
+				node_holder.childs.append(child_holder := Node.from_xml_element(node_holder, child_node))
+				q.put((child_node, child_holder))
+
+		return root_node
+
 	@classmethod
 	def from_xml_element(cls, parent_node, tree_element_node):
 		return cls(
@@ -322,6 +295,27 @@ class Node(object):
 
 	def __str__(self):
 		return f"{self.tag}, '{self.value.strip() if self.value is not None else ''}', child count: {len(self.childs)}"
+
+	def find_in_childs_many(self, tag):
+		return [ch for ch in self.childs if ch.tag == tag]
+
+	def find_in_childs_single(self, tag):
+		childs = self.find_in_childs_many(tag)
+		if len(childs) == 1:
+			return childs.pop()
+		error_message = f"Wanted to find single item '{tag}' in {self}, but found {len(childs)}."
+		raise AssertionError(error_message)
+
+	def find_in_childs_single_optional(self, tag):
+		childs = self.find_in_childs_many(tag)
+		child_count = len(childs)
+		if child_count == 0:
+			return None
+		if child_count == 1:
+			return childs.pop()
+
+		error_message = f"Wanted to find optionally single item '{tag}' in {self}, but found {len(childs)}."
+		raise AssertionError(error_message)
 
 
 if __name__ == "__main__":
