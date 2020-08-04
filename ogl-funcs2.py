@@ -1,11 +1,12 @@
 import queue
 from enum import Enum, unique
+from typing import Dict, Iterable, Callable
 
 
 def main():
 	gl_registry = GlRegistry.create_from_file("gl.xml")
 
-	print_histograms = True
+	print_histograms = False
 
 	# just for fun
 	if print_histograms:
@@ -31,12 +32,15 @@ def main():
 		for t in type_histogram:
 			print(f"{t} ({type_histogram[t]}x)")
 
-	for c in gl_registry.commands:
-		# format single gl function header & implementation
+	# output
+	output = {"h": list(), "cpp": list()}
 
-		if c.name.startswith("glSecondaryColor3dv"):
-			print(c.get_header())
-			print(">", c.get_header(gl_registry.types_lut))
+	glog = GlOutputGenerator(gl_registry, "GlRInternal")
+	glog.write_header_file(lambda l: output["h"].append(l))
+	glog.write_implementation_file(lambda l: output["cpp"].append(l))
+
+	for l in output["cpp"]:
+		print(l)
 
 
 @unique
@@ -100,7 +104,7 @@ class GlRegistry(object):
 
 		self.all_types = self._parse_sub_childs("types", "type", GlType)
 		self.types = GlRegistry._filter_by_predicates(self.all_types, GlRegistry.PICKED_TYPES_PREDICATES)
-		self.types_lut = {t.gl_type: t.base_type for t in self.types}
+		self.types_lut = {t.gl_type: t for t in self.types}
 
 		self.all_groups = self._parse_sub_childs("groups", "group", GlGroup)
 		self.groups_lut = {g.name: g for g in self.all_groups}
@@ -142,11 +146,14 @@ class GlFunction(object):
 	def get_param_string(self, type_translation_table=None):
 		return ", ".join(map(lambda p: p.get_param_str(type_translation_table), self.params))
 
-	def get_header(self, type_translation_table=None):
+	def get_header(self, type_translation_table=None, name_modifier=None):
 		return_type = self.return_type
 		if type_translation_table is not None:
 			return_type = type_translation_table.get(return_type, return_type)
-		return f"{return_type} {self.name}({self.get_param_string(type_translation_table)})".strip()
+		funtion_name = self.name
+		if name_modifier is not None:
+			funtion_name = name_modifier(funtion_name)
+		return f"{return_type} {funtion_name}({self.get_param_string(type_translation_table)})".strip()
 
 
 class GlFunctionParam(object):
@@ -256,6 +263,99 @@ class GlGroup(object):
 
 	def __str__(self):
 		return f"{self.name}, {self.comment}, {str(self.values)}"
+
+
+class GlOutputGenerator(object):
+	def __init__(self, gl_registry: GlRegistry, wrapper_class):
+		self._gl = gl_registry
+		self._cpp_class = wrapper_class
+
+	def write_header_file(self, writer_functor):
+		GlWriterHeader(self._gl, self._cpp_class).write(writer_functor)
+
+	def write_implementation_file(self, writer_functor):
+		GlWriterImplementation(self._gl, self._cpp_class).write(writer_functor)
+
+	@staticmethod
+	def gl_prefix_remover():
+		def _impl(fn_name: str):
+			if fn_name.startswith("gl"):
+				return fn_name[2].lower() + fn_name[3:]
+			else:
+				raise ValueError("function '" + fn_name + "' is not a 'gl' function.")
+		return _impl
+
+	@staticmethod
+	def writer_title(writer_functor, title):
+		writer_functor("")
+		writer_functor("")
+		writer_functor("\t//")
+		writer_functor("\t// " + title)
+		writer_functor("\t//")
+		writer_functor("")
+
+
+class GlWriterHeader(object):
+	def __init__(self, gl_registry: GlRegistry, wrapper_class):
+		self._gl = gl_registry
+		self._cpp_class = wrapper_class
+		self._w = None
+
+	def write(self, writer_functor):
+		self._w = writer_functor
+		self._groups(self._gl.groups_lut)
+		self._type_map(self._gl.types_lut)
+		self._command_headers(self._gl.commands)
+
+	def _groups(self, groups: Dict[str, GlGroup]):
+		GlOutputGenerator.writer_title(self._w, "Groups")
+		for k in sorted(groups.keys()):
+			g = groups[k]
+			g_desc = g.name
+			if g.comment is not None:
+				g_desc += " (" + g.comment + ")"
+			self._w(f"\t// Group: {g_desc}")
+			self._w(f"\t// Values (x{len(g.values)}):")
+			for v in g.values:
+				self._w(f"\t//\t{v}")
+
+	def _type_map(self, types:Dict[str, GlType]):
+		GlOutputGenerator.writer_title(self._w, "OpenGL type translations")
+		for k in sorted(types.keys()):
+			t = types[k]
+			if t.manufacturer is None:
+				self._w(f"\t// {t.gl_type} => {t.base_type}")
+
+	def _command_headers(self,  commands:Iterable[GlFunction]):
+		GlOutputGenerator.writer_title(self._w, "OpenGL commands")
+		for command in commands:
+			self._command_head(command)
+
+	def _command_head(self, gl_func:GlFunction):
+		self._w("")
+		self._w("\t//")
+		self._w("\t// " + gl_func.name)
+		self._w("\t//")
+		self._w("\t// params:")
+		if len(gl_func.params) == 0:
+			self._w("\t//   no params")
+		for gl_param in gl_func.params:
+			gl_param_str = gl_param.get_param_str()
+			if len(gl_param.attributes) > 0:
+				gl_param_str += f", attributes: {str(gl_param.attributes)}"
+			self._w(f"\t//   {gl_param_str}")
+		self._w("\t//")
+		self._w(f"\t{gl_func.get_header(self._gl.types_lut, GlOutputGenerator.gl_prefix_remover())} override;")
+
+
+class GlWriterImplementation(object):
+	def __init__(self, gl_registry: GlRegistry, wrapper_class):
+		self._gl = gl_registry
+		self._cpp_class = wrapper_class
+		self._w = None
+
+	def write(self, writer_functor):
+		self._w = writer_functor
 
 
 class Node(object):
