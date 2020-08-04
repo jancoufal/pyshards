@@ -33,9 +33,10 @@ def main():
 			print(f"{t} ({type_histogram[t]}x)")
 
 	# output
-	output = {"h": list(), "cpp": list()}
+	output = {"i": list(), "h": list(), "cpp": list()}
 
 	glog = GlOutputGenerator(gl_registry, "GlRInternal")
+	# glog.write_interface_file(lambda l: output["i"].append(l))
 	glog.write_header_file(lambda l: output["h"].append(l))
 	glog.write_implementation_file(lambda l: output["cpp"].append(l))
 
@@ -148,8 +149,8 @@ class GlFunction(object):
 
 	def get_header(self, type_translation_table=None, name_modifier=None):
 		return_type = self.return_type
-		if type_translation_table is not None:
-			return_type = type_translation_table.get(return_type, return_type)
+		if type_translation_table is not None and return_type in type_translation_table:
+			return_type = type_translation_table[return_type].base_type
 		funtion_name = self.name
 		if name_modifier is not None:
 			funtion_name = name_modifier(funtion_name)
@@ -178,8 +179,10 @@ class GlFunctionParam(object):
 		self.attributes = attributes
 
 	def _get_param_type(self, base_type_translation_map=None):
-		tran_table = {} if base_type_translation_map is None else base_type_translation_map
-		return f"{self._type_modif_bef} {tran_table.get(self.base_type, self.base_type)}{self._type_modif_aft}".strip()
+		base_type = self.base_type
+		if base_type_translation_map is not None and base_type in base_type_translation_map:
+			base_type = base_type_translation_map[self.base_type].base_type
+		return f"{self._type_modif_bef} {base_type}{self._type_modif_aft}".strip()
 
 	def get_param_str(self, base_type_translation_map=None):
 		return f"{self._get_param_type(base_type_translation_map)} {self.name}"
@@ -356,6 +359,18 @@ class GlWriterImplementation(object):
 
 	def write(self, writer_functor):
 		self._w = writer_functor
+		self._commands(self._gl.commands)
+
+	def _commands(self, commands: Iterable[GlFunction]):
+		for gl_command in commands:
+			self._command(gl_command)
+
+	def _command(self, command: GlFunction):
+		self._w(f"")
+		self._w(f"\t{command.get_header(self._gl.types_lut, GlOutputGenerator.gl_prefix_remover())}")
+		self._w("\t{")
+		self._w(f"\t\t{command.get_header()};")
+		self._w("\t}")
 
 
 class Node(object):
