@@ -1,6 +1,6 @@
 import queue
 from enum import Enum, unique
-from typing import Dict, Iterable, Callable
+from typing import Dict, Iterable
 
 
 def main():
@@ -34,14 +34,15 @@ def main():
 
 	# output
 	output = {"i": list(), "h": list(), "cpp": list()}
+	writer = {k: lambda l: output[k].append(l) for k in output.keys()}
 
-	glog = GlOutputGenerator(gl_registry, "GlRInternal")
-	# glog.write_interface_file(lambda l: output["i"].append(l))
-	glog.write_header_file(lambda l: output["h"].append(l))
-	glog.write_implementation_file(lambda l: output["cpp"].append(l))
+	GlOutputGenerator(gl_registry, "GlRInternal")\
+		.write_header(writer["h"]) \
+		.write_interface(writer["i"]) \
+		.write_implementation(writer["cpp"])
 
-	for l in output["cpp"]:
-		print(l)
+	for line in output["cpp"]:
+		print(line)
 
 
 @unique
@@ -100,19 +101,20 @@ class GlRegistry(object):
 	def __init__(self, nodes):
 		self._nodes = nodes
 
-		self.all_commands = self._parse_sub_childs("commands", "command", GlFunction)
+		self.all_commands = self._parse_sub_children("commands", "command", GlFunction)
 		self.commands = GlRegistry._filter_by_predicates(self.all_commands, GlRegistry.PICKED_COMMANDS_PREDICATES)
 
-		self.all_types = self._parse_sub_childs("types", "type", GlType)
+		self.all_types = self._parse_sub_children("types", "type", GlType)
 		self.types = GlRegistry._filter_by_predicates(self.all_types, GlRegistry.PICKED_TYPES_PREDICATES)
-		self.types_lut = {t.gl_type: t for t in self.types}
+		self.types_type_lut = {t.gl_type: t for t in self.types}
+		self.types_lut = {t.gl_type: t.base_type for t in self.types}
 
-		self.all_groups = self._parse_sub_childs("groups", "group", GlGroup)
+		self.all_groups = self._parse_sub_children("groups", "group", GlGroup)
 		self.groups_lut = {g.name: g for g in self.all_groups}
 
-	def _parse_sub_childs(self, main_node_name, child_node_name, wrapper_class):
-		main_node = self._nodes.find_in_childs_single(main_node_name)
-		return [wrapper_class.create_from_entry(n) for n in main_node.find_in_childs_many(child_node_name)]
+	def _parse_sub_children(self, main_node_name, child_node_name, wrapper_class):
+		main_node = self._nodes.find_in_children_single(main_node_name)
+		return [wrapper_class.create_from_entry(n) for n in main_node.find_in_children_many(child_node_name)]
 
 	@staticmethod
 	def _filter_by_predicates(input_iterable, predicates):
@@ -122,11 +124,11 @@ class GlRegistry(object):
 class GlFunction(object):
 	@classmethod
 	def create_from_entry(cls, entry):
-		proto = entry.find_in_childs_single("proto")
+		proto = entry.find_in_children_single("proto")
 		return cls(
-			(proto if proto.value is not None else proto.find_in_childs_single("ptype")).value.strip(),
-			proto.find_in_childs_single("name").value.strip(),
-			[GlFunctionParam.create_from_entry(_) for _ in entry.find_in_childs_many("param")],
+			(proto if proto.value is not None else proto.find_in_children_single("ptype")).value.strip(),
+			proto.find_in_children_single("name").value.strip(),
+			[GlFunctionParam.create_from_entry(_) for _ in entry.find_in_children_many("param")],
 			dict(entry.attrib) if entry.attrib is not None else {}
 		)
 
@@ -134,61 +136,31 @@ class GlFunction(object):
 		self.return_type = return_type
 		self.name = name
 		self.params = param_list
-		self.param_str = self.get_param_string()
 		self.manufacturer = Manufacturer.find_manufacturer(name)
 		self.attributes = attributes
 
-	def __str__(self):
-		return f"{self.return_type} {self.name}({self.param_str})".strip()
-
 	def get_params_base_types(self):
 		return [p.base_type for p in self.params]
-
-	def get_param_string(self, type_translation_table=None):
-		return ", ".join(map(lambda p: p.get_param_str(type_translation_table), self.params))
-
-	def get_header(self, type_translation_table=None, name_modifier=None):
-		return_type = self.return_type
-		if type_translation_table is not None and return_type in type_translation_table:
-			return_type = type_translation_table[return_type].base_type
-		funtion_name = self.name
-		if name_modifier is not None:
-			funtion_name = name_modifier(funtion_name)
-		return f"{return_type} {funtion_name}({self.get_param_string(type_translation_table)})".strip()
 
 
 class GlFunctionParam(object):
 	@classmethod
 	def create_from_entry(cls, entry):
-		ptype = entry.find_in_childs_single_optional("ptype")
+		ptype = entry.find_in_children_single_optional("ptype")
 		return cls(
 			entry.value.strip() if entry.value is not None and ptype is not None else "",
 			(ptype.value if ptype is not None else entry.value).strip(),
 			ptype.tail.strip() if ptype is not None else "",
-			entry.find_in_childs_single("name").value.strip(),
+			entry.find_in_children_single("name").value.strip(),
 			dict(entry.attrib) if entry.attrib is not None else {}
 		)
 
-	def __init__(self, modif_bef, param_type, modif_aft, name, attributes):
-		self._type_modif_bef = modif_bef
-		self._type_modif_aft = modif_aft
+	def __init__(self, modifier_bef, param_type, modifier_aft, name, attributes):
+		self.type_modifier_bef = modifier_bef
+		self.type_modifier_aft = modifier_aft
 		self.base_type = param_type
 		self.name = name
-		self.type = self._get_param_type()
-		self.param_str = self.get_param_str()
 		self.attributes = attributes
-
-	def _get_param_type(self, base_type_translation_map=None):
-		base_type = self.base_type
-		if base_type_translation_map is not None and base_type in base_type_translation_map:
-			base_type = base_type_translation_map[self.base_type].base_type
-		return f"{self._type_modif_bef} {base_type}{self._type_modif_aft}".strip()
-
-	def get_param_str(self, base_type_translation_map=None):
-		return f"{self._get_param_type(base_type_translation_map)} {self.name}"
-
-	def __str__(self):
-		return self.param_str
 
 
 class GlType(object):
@@ -200,14 +172,14 @@ class GlType(object):
 			lambda n: "typedef struct" in n.value if n.value is not None else False,
 			lambda n: len({"name", "comment"} & n.attrib.keys()) > 0,
 			lambda n: n.attrib.get("requires", "") == "GLintptr",
-			lambda n: n.find_in_childs_single_optional("apientry") is not None,
+			lambda n: n.find_in_children_single_optional("apientry") is not None,
 		}
 
 		is_special = any(map(lambda p: p(entry), special_type_predicates))
 		return cls(
 			is_special,
 			None if is_special else GlType._parse_base_type(entry),
-			None if is_special else entry.find_in_childs_single("name").value.strip()
+			None if is_special else entry.find_in_children_single("name").value.strip()
 		)
 
 	@staticmethod
@@ -220,7 +192,7 @@ class GlType(object):
 		if is_khronos:
 			remove_list.append("khronos_")
 
-		base_type = entry.value
+		base_type = entry.value.strip()
 		for r in remove_list:
 			if base_type.startswith(r):
 				base_type = base_type[len(r):].strip()
@@ -256,7 +228,7 @@ class GlGroup(object):
 		return cls(
 			entry.attrib.get("name"),
 			entry.attrib.get("comment", ""),
-			[n.attrib.get("name") for n in entry.find_in_childs_many("enum")]
+			[n.attrib.get("name") for n in entry.find_in_children_many("enum")]
 		)
 
 	def __init__(self, name, comment, enum_values):
@@ -268,16 +240,83 @@ class GlGroup(object):
 		return f"{self.name}, {self.comment}, {str(self.values)}"
 
 
+class GlFunctionParamFormatter(object):
+	@classmethod
+	def create(cls, gl_param: GlFunctionParam, gl_registry: GlRegistry):
+		native_base_type = gl_registry.types_lut.get(gl_param.base_type, gl_param.base_type)
+		full_native_type = GlFunctionParamFormatter._get_param_type_str(gl_param, native_base_type)
+		full_gl_type = GlFunctionParamFormatter._get_param_type_str(gl_param, gl_param.base_type)
+		attribute_str = "" if len(gl_param.attributes) == 0 else f", attributes: {str(gl_param.attributes)}"
+		return cls(
+			gl_param.name,
+			f"{full_gl_type} {gl_param.name}",
+			f"{full_native_type} {gl_param.name}",
+			f"{full_native_type} {gl_param.name}{attribute_str}",
+			f"static_cast<{full_gl_type}>({gl_param.name})"
+		)
+
+	@staticmethod
+	def _get_param_str(gl_param: GlFunctionParam, param_type):
+		return f"{GlFunctionParamFormatter._get_param_type_str(gl_param, param_type)} {gl_param.name}".strip()
+
+	@staticmethod
+	def _get_param_type_str(gl_param: GlFunctionParam, param_type):
+		return f"{gl_param.type_modifier_bef} {param_type}{gl_param.type_modifier_aft}".strip()
+
+	def __init__(self, param_name, gl_param_str, native_param_str, param_description, static_cast_str):
+		self.name = param_name
+		self.gl_param_str = gl_param_str
+		self.native_param_str = native_param_str
+		self.description = param_description
+		self.static_cast_str = static_cast_str
+
+
+class GlFunctionFormatter(object):
+	@classmethod
+	def create(cls, gl_function: GlFunction, gl_registry: GlRegistry):
+		param_formatters = [GlFunctionParamFormatter.create(p, gl_registry) for p in gl_function.params]
+		non_gl_name = GlFunctionFormatter.remove_gl_prefix(gl_function.name)
+		return cls(
+			gl_function.name,
+			non_gl_name,
+			param_formatters,
+			f"{gl_function.return_type} {gl_function.name}({', '.join(map(lambda p: p.gl_param_str, param_formatters))})",
+			f"{gl_function.return_type} {non_gl_name}({', '.join(map(lambda p: p.native_param_str, param_formatters))})",
+			f"{gl_function.name}({', '.join(map(lambda p: p.static_cast_str, param_formatters))})"
+		)
+
+	@staticmethod
+	def remove_gl_prefix(function_name):
+		if function_name.startswith("gl"):
+			return function_name[2].lower() + function_name[3:]
+		else:
+			raise ValueError("function '" + function_name + "' is not a 'gl' function.")
+
+	def __init__(self, gl_name, non_gl_name, param_formatters, gl_header, native_header, call_str):
+		self.gl_name = gl_name
+		self.non_gl_name = non_gl_name
+		self.param_fmts = param_formatters
+		self.gl_header = gl_header
+		self.native_header = native_header
+		self.call_str = call_str
+
+
 class GlOutputGenerator(object):
-	def __init__(self, gl_registry: GlRegistry, wrapper_class):
+	def __init__(self, gl_registry: GlRegistry, wrapper_class: str):
 		self._gl = gl_registry
 		self._cpp_class = wrapper_class
 
-	def write_header_file(self, writer_functor):
+	def write_header(self, writer_functor):
 		GlWriterHeader(self._gl, self._cpp_class).write(writer_functor)
+		return self
 
-	def write_implementation_file(self, writer_functor):
+	def write_implementation(self, writer_functor):
 		GlWriterImplementation(self._gl, self._cpp_class).write(writer_functor)
+		return self
+
+	def write_interface(self, writer_functor):
+		writer_functor("write_interface not implemented")
+		return self
 
 	@staticmethod
 	def gl_prefix_remover():
@@ -299,16 +338,16 @@ class GlOutputGenerator(object):
 
 
 class GlWriterHeader(object):
-	def __init__(self, gl_registry: GlRegistry, wrapper_class):
-		self._gl = gl_registry
+	def __init__(self, gl_registry: GlRegistry, wrapper_class: str):
+		self._gl_registry = gl_registry
 		self._cpp_class = wrapper_class
 		self._w = None
 
 	def write(self, writer_functor):
 		self._w = writer_functor
-		self._groups(self._gl.groups_lut)
-		self._type_map(self._gl.types_lut)
-		self._command_headers(self._gl.commands)
+		self._groups(self._gl_registry.groups_lut)
+		self._type_map(self._gl_registry.types_type_lut)
+		self._command_headers(self._gl_registry.commands)
 
 	def _groups(self, groups: Dict[str, GlGroup]):
 		GlOutputGenerator.writer_title(self._w, "Groups")
@@ -322,70 +361,70 @@ class GlWriterHeader(object):
 			for v in g.values:
 				self._w(f"\t//\t{v}")
 
-	def _type_map(self, types:Dict[str, GlType]):
+	def _type_map(self, types: Dict[str, GlType]):
 		GlOutputGenerator.writer_title(self._w, "OpenGL type translations")
 		for k in sorted(types.keys()):
 			t = types[k]
 			if t.manufacturer is None:
 				self._w(f"\t// {t.gl_type} => {t.base_type}")
 
-	def _command_headers(self,  commands:Iterable[GlFunction]):
+	def _command_headers(self,  commands: Iterable[GlFunction]):
 		GlOutputGenerator.writer_title(self._w, "OpenGL commands")
 		for command in commands:
 			self._command_head(command)
 
-	def _command_head(self, gl_func:GlFunction):
+	def _command_head(self, gl_func: GlFunction):
+		fmt = GlFunctionFormatter.create(gl_func, self._gl_registry)
 		self._w("")
 		self._w("\t//")
-		self._w("\t// " + gl_func.name)
+		self._w("\t// " + fmt.gl_name)
 		self._w("\t//")
 		self._w("\t// params:")
-		if len(gl_func.params) == 0:
+		if len(fmt.param_fmts) == 0:
 			self._w("\t//   no params")
-		for gl_param in gl_func.params:
-			gl_param_str = gl_param.get_param_str()
-			if len(gl_param.attributes) > 0:
-				gl_param_str += f", attributes: {str(gl_param.attributes)}"
-			self._w(f"\t//   {gl_param_str}")
+		else:
+			for param_fmt in fmt.param_fmts:
+				self._w(f"\t//   {param_fmt.description}")
 		self._w("\t//")
-		self._w(f"\t{gl_func.get_header(self._gl.types_lut, GlOutputGenerator.gl_prefix_remover())} override;")
+		self._w(f"\t{fmt.native_header} override;")
 
 
 class GlWriterImplementation(object):
 	def __init__(self, gl_registry: GlRegistry, wrapper_class):
-		self._gl = gl_registry
+		self._gl_registry = gl_registry
 		self._cpp_class = wrapper_class
 		self._w = None
 
 	def write(self, writer_functor):
 		self._w = writer_functor
-		self._commands(self._gl.commands)
+		self._commands(self._gl_registry.commands)
 
 	def _commands(self, commands: Iterable[GlFunction]):
 		for gl_command in commands:
 			self._command(gl_command)
 
 	def _command(self, command: GlFunction):
+		fmt = GlFunctionFormatter.create(command, self._gl_registry)
 		self._w(f"")
-		self._w(f"\t{command.get_header(self._gl.types_lut, GlOutputGenerator.gl_prefix_remover())}")
+		self._w(f"\t{fmt.native_header}")
 		self._w("\t{")
-		self._w(f"\t\t{command.get_header()};")
+		self._w(f"\t\t{fmt.call_str};")
 		self._w("\t}")
 
 
 class Node(object):
 	@classmethod
 	def load_xml(cls, filename):
-		import xml.etree.ElementTree as et
+		import xml.etree.ElementTree
 
-		xml_root = et.parse(filename).getroot()
+		xml_root = xml.etree.ElementTree.parse(filename).getroot()
 		root_node = Node.from_xml_element(None, xml_root)
 		q = queue.Queue()
 		q.put((xml_root, root_node))
 		while not q.empty():
 			xml_node, node_holder = q.get()
 			for child_node in xml_node:
-				node_holder.childs.append(child_holder := Node.from_xml_element(node_holder, child_node))
+				node_holder.children.append(child_holder := Node.from_xml_element(node_holder, child_node))
 				q.put((child_node, child_holder))
 
 		return root_node
@@ -406,30 +445,30 @@ class Node(object):
 		self.attrib = attrib
 		self.value = value
 		self.tail = tail
-		self.childs = list()
+		self.children = list()
 
 	def __str__(self):
-		return f"{self.tag}, '{self.value.strip() if self.value is not None else ''}', child count: {len(self.childs)}"
+		return f"{self.tag}, '{self.value.strip() if self.value is not None else ''}', child count: {len(self.children)}"
 
-	def find_in_childs_many(self, tag):
-		return [ch for ch in self.childs if ch.tag == tag]
+	def find_in_children_many(self, tag):
+		return [ch for ch in self.children if ch.tag == tag]
 
-	def find_in_childs_single(self, tag):
-		childs = self.find_in_childs_many(tag)
-		if len(childs) == 1:
-			return childs.pop()
-		error_message = f"Wanted to find single item '{tag}' in {self}, but found {len(childs)}."
+	def find_in_children_single(self, tag):
+		children = self.find_in_children_many(tag)
+		if len(children) == 1:
+			return children.pop()
+		error_message = f"Wanted to find single item '{tag}' in {self}, but found {len(children)}."
 		raise AssertionError(error_message)
 
-	def find_in_childs_single_optional(self, tag):
-		childs = self.find_in_childs_many(tag)
-		child_count = len(childs)
-		if child_count == 0:
+	def find_in_children_single_optional(self, tag):
+		children = self.find_in_children_many(tag)
+		children_count = len(children)
+		if children_count == 0:
 			return None
-		if child_count == 1:
-			return childs.pop()
+		if children_count == 1:
+			return children.pop()
 
-		error_message = f"Wanted to find optionally single item '{tag}' in {self}, but found {len(childs)}."
+		error_message = f"Wanted to find optionally single item '{tag}' in {self}, but found {len(children)}."
 		raise AssertionError(error_message)
 
 
