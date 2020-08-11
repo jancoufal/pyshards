@@ -448,10 +448,6 @@ class GlWriterImplementation(object):
 	def _command(self, command: GlFunction):
 		fmt = GlFunctionFormatter.create(command, self._gl_registry)
 		has_return = fmt.return_formatter.non_gl_return_type != "void"
-
-		if not has_return:
-			return
-
 		return_var_name = "res"
 		return_var = f"{fmt.return_formatter.gl_return_str} {return_var_name} = " if has_return else ""
 
