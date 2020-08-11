@@ -86,6 +86,7 @@ class GlRegistry(object):
 	PICKED_COMMANDS_PREDICATES = {
 		lambda command: command.manufacturer is None,
 		lambda command: not command.name.startswith("glDebugMessageCallback"),  # too complicated header
+		lambda command: not command.name.startswith("fenceSync"),  # complicated return type
 	}
 
 	# picked types (all predicates must be met)
@@ -121,26 +122,20 @@ class GlRegistry(object):
 		return list(filter(lambda t: all(map(lambda p: p(t), predicates)), input_iterable))
 
 
-class GlFunction(object):
+class GlReturnType(object):
 	@classmethod
-	def create_from_entry(cls, entry):
-		proto = entry.find_in_children_single("proto")
+	def create_from_entry(cls, proto_entry):
+		ptype = proto_entry.find_in_children_single_optional("ptype")
 		return cls(
-			(proto if proto.value is not None else proto.find_in_children_single("ptype")).value.strip(),
-			proto.find_in_children_single("name").value.strip(),
-			[GlFunctionParam.create_from_entry(_) for _ in entry.find_in_children_many("param")],
-			dict(entry.attrib) if entry.attrib is not None else {}
+			(proto_entry.value if ptype is not None and proto_entry.value is not None else "").strip(),
+			(proto_entry if ptype is None else ptype).value.strip(),
+			ptype.tail.strip() if ptype is not None else ""
 		)
 
-	def __init__(self, return_type, name, param_list, attributes):
+	def __init__(self, modifier_bef, return_type, modifier_aft):
+		self.type_modifier_bef = modifier_bef
 		self.return_type = return_type
-		self.name = name
-		self.params = param_list
-		self.manufacturer = Manufacturer.find_manufacturer(name)
-		self.attributes = attributes
-
-	def get_params_base_types(self):
-		return [p.base_type for p in self.params]
+		self.type_modifier_aft = modifier_aft
 
 
 class GlFunctionParam(object):
@@ -161,6 +156,28 @@ class GlFunctionParam(object):
 		self.base_type = param_type
 		self.name = name
 		self.attributes = attributes
+
+
+class GlFunction(object):
+	@classmethod
+	def create_from_entry(cls, entry):
+		proto = entry.find_in_children_single("proto")
+		return cls(
+			GlReturnType.create_from_entry(proto),
+			proto.find_in_children_single("name").value.strip(),
+			[GlFunctionParam.create_from_entry(_) for _ in entry.find_in_children_many("param")],
+			dict(entry.attrib) if entry.attrib is not None else {}
+		)
+
+	def __init__(self, return_type: GlReturnType, name, param_list: Iterable[GlFunctionParam], attributes: Dict[str, str]):
+		self.return_type = return_type
+		self.name = name
+		self.params = param_list
+		self.manufacturer = Manufacturer.find_manufacturer(name)
+		self.attributes = attributes
+
+	def get_params_base_types(self):
+		return [p.base_type for p in self.params]
 
 
 class GlType(object):
@@ -271,18 +288,43 @@ class GlFunctionParamFormatter(object):
 		self.static_cast_str = static_cast_str
 
 
+class GlReturnTypeFormatter(object):
+	@classmethod
+	def create(cls, gl_return_type: GlReturnType, gl_registry: GlRegistry):
+		native_return_type = gl_registry.types_lut.get(gl_return_type.return_type, gl_return_type.return_type)
+		return cls(
+			gl_return_type.return_type,
+			native_return_type,
+			GlReturnTypeFormatter._get_return_type_str(gl_return_type, gl_return_type.return_type),
+			GlReturnTypeFormatter._get_return_type_str(gl_return_type, native_return_type)
+		)
+
+	@staticmethod
+	def _get_return_type_str(gl_return_type: GlReturnType, return_type):
+		return f"{gl_return_type.type_modifier_bef} {return_type}{gl_return_type.type_modifier_aft}".strip()
+
+	def __init__(self, gl_return_type, non_gl_return_type, gl_return_str, non_gl_return_str):
+		self.gl_return_type = gl_return_type
+		self.non_gl_return_type = non_gl_return_type
+		self.gl_return_str = gl_return_str
+		self.non_gl_return_str = non_gl_return_str
+
+
 class GlFunctionFormatter(object):
 	@classmethod
 	def create(cls, gl_function: GlFunction, gl_registry: GlRegistry):
-		param_formatters = [GlFunctionParamFormatter.create(p, gl_registry) for p in gl_function.params]
 		non_gl_name = GlFunctionFormatter.remove_gl_prefix(gl_function.name)
+		return_value_formatter = GlReturnTypeFormatter.create(gl_function.return_type, gl_registry)
+		param_formatters = [GlFunctionParamFormatter.create(p, gl_registry) for p in gl_function.params]
+		params_list_str = ', '.join(map(lambda p: p.gl_param_str, param_formatters))
+		params_native_list_str = ', '.join(map(lambda p: p.native_param_str, param_formatters))
 		return cls(
 			gl_function.name,
 			non_gl_name,
+			return_value_formatter,
 			param_formatters,
-			f"{gl_function.return_type} {gl_function.name}({', '.join(map(lambda p: p.gl_param_str, param_formatters))})",
-			f"{gl_function.return_type} {non_gl_name}({', '.join(map(lambda p: p.native_param_str, param_formatters))})",
-			f"{gl_function.name}({', '.join(map(lambda p: p.static_cast_str, param_formatters))})"
+			f"{return_value_formatter.gl_return_str} {gl_function.name}({params_list_str})",
+			f"{return_value_formatter.non_gl_return_str} {non_gl_name}({params_native_list_str})",
 		)
 
 	@staticmethod
@@ -292,13 +334,13 @@ class GlFunctionFormatter(object):
 		else:
 			raise ValueError("function '" + function_name + "' is not a 'gl' function.")
 
-	def __init__(self, gl_name, non_gl_name, param_formatters, gl_header, native_header, call_str):
+	def __init__(self, gl_name, non_gl_name, return_formatter, param_formatters, gl_header, native_header):
 		self.gl_name = gl_name
 		self.non_gl_name = non_gl_name
+		self.return_formatter = return_formatter
 		self.param_fmts = param_formatters
 		self.gl_header = gl_header
 		self.native_header = native_header
-		self.call_str = call_str
 
 
 class GlOutputGenerator(object):
@@ -405,10 +447,29 @@ class GlWriterImplementation(object):
 
 	def _command(self, command: GlFunction):
 		fmt = GlFunctionFormatter.create(command, self._gl_registry)
+		has_return = fmt.return_formatter.non_gl_return_type != "void"
+
+		if not has_return:
+			return
+
+		return_var_name = "res"
+		return_var = f"{fmt.return_formatter.gl_return_str} {return_var_name} = " if has_return else ""
+
 		self._w(f"")
 		self._w(f"\t{fmt.native_header}")
 		self._w("\t{")
-		self._w(f"\t\t{fmt.call_str};")
+		param_count = len(fmt.param_fmts)
+		if param_count == 0:
+			self._w(f"\t\t{return_var}{fmt.gl_name}();")
+		else:
+			self._w(f"\t\t{return_var}{fmt.gl_name}(")
+			for i, p in enumerate(fmt.param_fmts):
+				self._w(f"\t\t\t{p.static_cast_str}{',' if i < param_count - 1 else ''}")
+			self._w(f"\t\t);")
+
+		if has_return:
+			self._w(f"")
+			self._w(f"\t\treturn static_cast<{fmt.return_formatter.non_gl_return_str}>({return_var_name});")
 		self._w("\t}")
 
 
