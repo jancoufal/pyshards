@@ -86,7 +86,7 @@ class GlRegistry(object):
 	PICKED_COMMANDS_PREDICATES = {
 		lambda command: command.manufacturer is None,
 		lambda command: not command.name.startswith("glDebugMessageCallback"),  # too complicated header
-		lambda command: not command.name.startswith("fenceSync"),  # complicated return type
+		lambda command: not command.name.startswith("glFenceSync"),  # complicated return type
 	}
 
 	# picked types (all predicates must be met)
