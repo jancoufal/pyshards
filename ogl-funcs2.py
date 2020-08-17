@@ -34,12 +34,12 @@ def main():
 
 	# output
 	output = {"i": list(), "h": list(), "cpp": list()}
-	writer = {k: lambda l: output[k].append(l) for k in output.keys()}
+	writer = {k: lambda l, _k=k: output[_k].append(l) for k in output.keys()}
 
-	GlOutputGenerator(gl_registry, "GlRInternal")\
-		.write_header(writer["h"]) \
-		.write_interface(writer["i"]) \
-		.write_implementation(writer["cpp"])
+	g = GlOutputGenerator(gl_registry, "RInternalApi")
+	g.write_header(writer["h"])
+	g.write_interface(writer["i"])
+	g.write_implementation(writer["cpp"])
 
 	for line in output["cpp"]:
 		print(line)
@@ -87,6 +87,35 @@ class GlRegistry(object):
 		lambda command: command.manufacturer is None,
 		lambda command: not command.name.startswith("glDebugMessageCallback"),  # too complicated header
 		lambda command: not command.name.startswith("glFenceSync"),  # complicated return type
+		# functions that are using GLsync
+		lambda command: not command.name.startswith("glClientWaitSync"),
+		lambda command: not command.name.startswith("glDeleteSync"),
+		lambda command: not command.name.startswith("glGetSynciv"),
+		lambda command: not command.name.startswith("glIsSync"),
+		lambda command: not command.name.startswith("glWaitSync"),
+		# not in glfw/glew
+		lambda command: not command.name.startswith("glBlendBarrier"),
+		lambda command: not command.name.startswith("glGetPixelMapxv"),
+		lambda command: not command.name.startswith("glGetnColorTable"),
+		lambda command: not command.name.startswith("glGetnConvolutionFilter"),
+		lambda command: not command.name.startswith("glGetnHistogram"),
+		lambda command: not command.name.startswith("glGetnMapdv"),
+		lambda command: not command.name.startswith("glGetnMapfv"),
+		lambda command: not command.name.startswith("glGetnMapiv"),
+		lambda command: not command.name.startswith("glGetnMinmax"),
+		lambda command: not command.name.startswith("glGetnPixelMapfv"),
+		lambda command: not command.name.startswith("glGetnPixelMapuiv"),
+		lambda command: not command.name.startswith("glGetnPixelMapusv"),
+		lambda command: not command.name.startswith("glGetnPolygonStipple"),
+		lambda command: not command.name.startswith("glGetnSeparableFilter"),
+		lambda command: not command.name.startswith("glHintPGI"),
+		lambda command: not command.name.startswith("glMultiDrawArraysIndirectCount"),
+		lambda command: not command.name.startswith("glMultiDrawElementsIndirectCount"),
+		lambda command: not command.name.startswith("glPixelMapx"),
+		lambda command: not command.name.startswith("glPixelStorex"),
+		lambda command: not command.name.startswith("glPolygonOffsetClamp"),
+		lambda command: not command.name.startswith("glPrimitiveBoundingBox"),
+		lambda command: not command.name.startswith("glSpecializeShader"),
 	}
 
 	# picked types (all predicates must be met)
@@ -316,15 +345,11 @@ class GlFunctionFormatter(object):
 		non_gl_name = GlFunctionFormatter.remove_gl_prefix(gl_function.name)
 		return_value_formatter = GlReturnTypeFormatter.create(gl_function.return_type, gl_registry)
 		param_formatters = [GlFunctionParamFormatter.create(p, gl_registry) for p in gl_function.params]
-		params_list_str = ', '.join(map(lambda p: p.gl_param_str, param_formatters))
-		params_native_list_str = ', '.join(map(lambda p: p.native_param_str, param_formatters))
 		return cls(
 			gl_function.name,
 			non_gl_name,
 			return_value_formatter,
-			param_formatters,
-			f"{return_value_formatter.gl_return_str} {gl_function.name}({params_list_str})",
-			f"{return_value_formatter.non_gl_return_str} {non_gl_name}({params_native_list_str})",
+			param_formatters
 		)
 
 	@staticmethod
@@ -334,13 +359,13 @@ class GlFunctionFormatter(object):
 		else:
 			raise ValueError("function '" + function_name + "' is not a 'gl' function.")
 
-	def __init__(self, gl_name, non_gl_name, return_formatter, param_formatters, gl_header, native_header):
+	def __init__(self, gl_name, non_gl_name, return_formatter, param_formatters):
 		self.gl_name = gl_name
 		self.non_gl_name = non_gl_name
 		self.return_formatter = return_formatter
 		self.param_fmts = param_formatters
-		self.gl_header = gl_header
-		self.native_header = native_header
+		self.params_gl_str = ", ".join(map(lambda p: p.gl_param_str, param_formatters))
+		self.params_non_gl_str = ", ".join(map(lambda p: p.native_param_str, param_formatters))
 
 
 class GlOutputGenerator(object):
@@ -350,24 +375,12 @@ class GlOutputGenerator(object):
 
 	def write_header(self, writer_functor):
 		GlWriterHeader(self._gl, self._cpp_class).write(writer_functor)
-		return self
 
 	def write_implementation(self, writer_functor):
 		GlWriterImplementation(self._gl, self._cpp_class).write(writer_functor)
-		return self
 
 	def write_interface(self, writer_functor):
-		writer_functor("write_interface not implemented")
-		return self
-
-	@staticmethod
-	def gl_prefix_remover():
-		def _impl(fn_name: str):
-			if fn_name.startswith("gl"):
-				return fn_name[2].lower() + fn_name[3:]
-			else:
-				raise ValueError("function '" + fn_name + "' is not a 'gl' function.")
-		return _impl
+		GlWriterInterface(self._gl).write(writer_functor)
 
 	@staticmethod
 	def writer_title(writer_functor, title):
@@ -383,6 +396,72 @@ class GlWriterHeader(object):
 	def __init__(self, gl_registry: GlRegistry, wrapper_class: str):
 		self._gl_registry = gl_registry
 		self._cpp_class = wrapper_class
+		self._w = None
+
+	def write(self, writer_functor):
+		self._w = writer_functor
+		self._command_headers(self._gl_registry.commands)
+
+	def _command_headers(self,  commands: Iterable[GlFunction]):
+		GlOutputGenerator.writer_title(self._w, "OpenGL commands")
+		for command in commands:
+			self._command_head(command)
+
+	def _command_head(self, gl_func: GlFunction):
+		fmt = GlFunctionFormatter.create(gl_func, self._gl_registry)
+		self._w(f"\t{fmt.return_formatter.non_gl_return_str} {fmt.non_gl_name}({fmt.params_non_gl_str}) const noexcept override;")
+
+
+class GlWriterImplementation(object):
+	def __init__(self, gl_registry: GlRegistry, wrapper_class):
+		self._gl_registry = gl_registry
+		self._cpp_class = wrapper_class
+		self._w = None
+
+	def write(self, writer_functor):
+		self._w = writer_functor
+		self._type_map_asserts(self._gl_registry.types_type_lut)
+		self._w("")
+		self._w("")
+		self._commands(self._gl_registry.commands)
+
+	def _type_map_asserts(self, types: Dict[str, GlType]):
+		for k in sorted(types.keys()):
+			t = types[k]
+			if t.manufacturer is None:
+				self._w(f"\tstatic_assert(std::is_same<{t.gl_type}, {t.base_type}>::value, \"{t.gl_type} and {t.base_type} are not same!\");")
+
+	def _commands(self, commands: Iterable[GlFunction]):
+		for gl_command in commands:
+			self._command(gl_command)
+
+	def _command(self, command: GlFunction):
+		fmt = GlFunctionFormatter.create(command, self._gl_registry)
+		has_return = fmt.return_formatter.non_gl_return_type != "void"
+		return_var_name = "res"
+		return_var = f"{fmt.return_formatter.gl_return_str} {return_var_name} = " if has_return else ""
+
+		self._w(f"")
+		self._w(f"\t{fmt.return_formatter.non_gl_return_str} {self._cpp_class}::{fmt.non_gl_name}({fmt.params_non_gl_str}) const noexcept")
+		self._w("\t{")
+		param_count = len(fmt.param_fmts)
+		if param_count == 0:
+			self._w(f"\t\t{return_var}{fmt.gl_name}();")
+		else:
+			self._w(f"\t\t{return_var}{fmt.gl_name}(")
+			for i, p in enumerate(fmt.param_fmts):
+				self._w(f"\t\t\t{p.static_cast_str}{',' if i < param_count - 1 else ''}")
+			self._w(f"\t\t);")
+
+		if has_return:
+			self._w(f"")
+			self._w(f"\t\treturn static_cast<{fmt.return_formatter.non_gl_return_str}>({return_var_name});")
+		self._w("\t}")
+
+
+class GlWriterInterface(object):
+	def __init__(self, gl_registry: GlRegistry):
+		self._gl_registry = gl_registry
 		self._w = None
 
 	def write(self, writer_functor):
@@ -428,45 +507,7 @@ class GlWriterHeader(object):
 			for param_fmt in fmt.param_fmts:
 				self._w(f"\t//   {param_fmt.description}")
 		self._w("\t//")
-		self._w(f"\t{fmt.native_header} override;")
-
-
-class GlWriterImplementation(object):
-	def __init__(self, gl_registry: GlRegistry, wrapper_class):
-		self._gl_registry = gl_registry
-		self._cpp_class = wrapper_class
-		self._w = None
-
-	def write(self, writer_functor):
-		self._w = writer_functor
-		self._commands(self._gl_registry.commands)
-
-	def _commands(self, commands: Iterable[GlFunction]):
-		for gl_command in commands:
-			self._command(gl_command)
-
-	def _command(self, command: GlFunction):
-		fmt = GlFunctionFormatter.create(command, self._gl_registry)
-		has_return = fmt.return_formatter.non_gl_return_type != "void"
-		return_var_name = "res"
-		return_var = f"{fmt.return_formatter.gl_return_str} {return_var_name} = " if has_return else ""
-
-		self._w(f"")
-		self._w(f"\t{fmt.native_header}")
-		self._w("\t{")
-		param_count = len(fmt.param_fmts)
-		if param_count == 0:
-			self._w(f"\t\t{return_var}{fmt.gl_name}();")
-		else:
-			self._w(f"\t\t{return_var}{fmt.gl_name}(")
-			for i, p in enumerate(fmt.param_fmts):
-				self._w(f"\t\t\t{p.static_cast_str}{',' if i < param_count - 1 else ''}")
-			self._w(f"\t\t);")
-
-		if has_return:
-			self._w(f"")
-			self._w(f"\t\treturn static_cast<{fmt.return_formatter.non_gl_return_str}>({return_var_name});")
-		self._w("\t}")
+		self._w(f"\tvirtual {fmt.return_formatter.non_gl_return_str} {fmt.non_gl_name}({fmt.params_non_gl_str}) const noexcept = 0;")
 
 
 class Node(object):
