@@ -59,7 +59,8 @@ class Roumen(_Scrapper):
 
 		try:
 			for image_to_download in self._get_images_to_download():
-				destination_path = self._settings.base_path / f"{ts:%Y}" / f"{ts:%m}"
+				ts_path = pathlib.Path(f"{ts:%Y}").joinpath(f"{ts:%m}")
+				destination_path = self._settings.scrap_path / ts_path
 
 				try:
 					destination_path.mkdir(parents=True, exist_ok=True)
@@ -70,9 +71,9 @@ class Roumen(_Scrapper):
 					urllib.request.urlretrieve(remote_file_url, filename=str(destination_file))
 
 					# write to DB
-					self.write_image_info(destination_file, image_to_download)
+					self.write_image_info(ts_path / image_to_download, image_to_download)
 
-					result.on_item_success(destination_file, remote_file_url)
+					result.on_item_success(ts_path / image_to_download, remote_file_url)
 
 				except:
 					result.on_item_failure(image_to_download, "\n".join(traceback.format_exception(*sys.exc_info())))

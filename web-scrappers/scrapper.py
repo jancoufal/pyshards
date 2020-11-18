@@ -13,6 +13,7 @@ from scrapper_holders import ScrapperSettings
 
 def main():
 	scrapper_settings = ScrapperSettings(
+		Path.cwd(),
 		Path("static/images"),
 		sqlite3.Connection("image_box.sqlite3")
 	)
