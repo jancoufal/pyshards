@@ -1,23 +1,17 @@
-import datetime
-import os
 import typing
-import requests
-import urllib
-import bs4
 import sqlite3
 from pathlib import Path
-from scrapper_enum import ScrapSource
-from scrapper_factory import create_scrapper
-from scrapper_holders import ScrapperSettings
+import scrappers
 
 
 def main():
-	scrapper_settings = ScrapperSettings(
+
+	scrapper_settings = scrappers.Settings(
 		Path.cwd(),
 		Path("static/images"),
 		sqlite3.Connection("image_box.sqlite3")
 	)
-	scrapper = create_scrapper(ScrapSource.ROUMEN, scrapper_settings)
+	scrapper = scrappers.create(scrappers.Source.ROUMEN, scrapper_settings)
 	scrap_result = scrapper.scrap()
 	print(scrap_result)
 

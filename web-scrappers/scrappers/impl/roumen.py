@@ -2,60 +2,27 @@ import sys, typing, traceback
 import datetime, os, pathlib
 import requests, urllib, bs4
 import sqlite3
-from scrapper_enum import ScrapSource
-from scrapper_holders import ScrapperSettings, ScrapResult
+from ._base import Base
+from ..sources import Source
+from ..settings import Settings
+from ..result import Result
 
 
-class Null(object):
-	def __init__(self, settings: ScrapperSettings):
-		pass
-
-	def scrap(self):
-		return None
-
-
-class _Scrapper(object):
-	def __init__(self, source: str, settings: ScrapperSettings):
-		self._settings = settings
-		self._source = source
-
-	def write_image_info(self, local_path: pathlib.Path, image_name: str):
-		ts_now = datetime.datetime.now()
-		mapping = {
-			"source": self._source,
-			"ts_date": f"{ts_now:%Y-%m-%d}",
-			"ts_time": f"{ts_now:%H:%M.%S,%f}",
-			"local_path": str(local_path),
-			"name": image_name,
-			"impressions": 0,
-		}
-
-		with self._settings.sql_connection as conn:
-			cols = list(mapping.keys())
-			sql_stmt = f"insert into image_box({', '.join(cols)}) values (:{', :'.join(cols)})"
-			conn.execute(sql_stmt, mapping)
-
-	def read_last_images_from_db(self):
-		cur = self._settings.sql_connection.cursor()
-		cur.execute("select distinct name from image_box where source=? and ts_date > date('now', '-5 days')", (self._source, ))
-		return set(row[0] for row in cur.fetchall())
-
-
-class Roumen(_Scrapper):
+class Roumen(Base):
 
 	REQUEST_HEADERS = {
 			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0",
 	}
 
-	def __init__(self, settings: ScrapperSettings):
-		super().__init__(ScrapSource.ROUMEN.value, settings)
+	def __init__(self, settings: Settings):
+		super().__init__(Source.ROUMEN.value, settings)
 		self._base_url = "https://www.rouming.cz"
 		self._base_par = {}
 		self._img_base = "https://www.rouming.cz/upload"
 
 	def scrap(self):
 		ts = datetime.datetime.now()
-		result = ScrapResult(ts)
+		result = Result(ts)
 
 		try:
 			for image_to_download in self._get_images_to_download():
@@ -108,11 +75,3 @@ class Roumen(_Scrapper):
 		all_imgs = [qs.get("file").pop() for qs in all_qstr if "file" in qs]
 
 		return all_imgs
-
-
-class RoumenMaso(_Scrapper):
-	def __init__(self, settings: ScrapperSettings):
-		super().__init__(ScrapSource.ROUMEN_MASO.value, settings)
-
-	def scrap(self):
-		pass
