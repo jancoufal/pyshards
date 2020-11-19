@@ -29,21 +29,5 @@ def main():
 	print(scrap_result)
 
 
-def sqlite_install(conn: sqlite3.Connection):
-	c = conn.cursor()
-	# c.execute("drop table image_box")
-	c.execute("""create table if not exists
-	image_box(
-		source text,
-		ts_date text,
-		ts_week text,
-		ts_time text,
-		local_path text,
-		name text,
-		impressions integer
-	);""")
-	c.close()
-
-
 if __name__ == "__main__":
 	main()
