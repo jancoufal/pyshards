@@ -95,7 +95,7 @@ class Roumen(BaseRoumen):
 
 class RoumenMaso(BaseRoumen):
 	def __init__(self, settings: Settings):
-		super().__init__(Source.ROUMEN, settings, _RoumenSettings(
+		super().__init__(Source.ROUMEN_MASO, settings, _RoumenSettings(
 			base_url="https://www.roumenovomaso.cz",
 			base_url_params={"agree":"on"},
 			img_base="https://www.roumenovomaso.cz/upload",

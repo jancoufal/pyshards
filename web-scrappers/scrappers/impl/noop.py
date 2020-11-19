@@ -8,6 +8,5 @@ class Noop(object):
 
 	def scrap(self):
 		result = Result(Source.NOOP)
-		result.on_item_failure("[noop]", "Noop scapper used.")
 		result.on_scrapping_finished()
 		return result

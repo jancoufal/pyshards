@@ -7,6 +7,7 @@ import scrappers
 def main():
 
 	sql_conn = sqlite3.Connection("image_box.sqlite3")
+
 	# sqlite_install(sql_conn)
 
 	# TODO: invoke all scrappers (except NOOP)...

@@ -1,7 +1,6 @@
 import sqlite3
 
 def install(sql_connection: sqlite3.Connection):
-
 	c = sql_connection.cursor()
 	# c.execute("drop table image_box")
 	c.execute("""create table if not exists
