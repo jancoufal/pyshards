@@ -5,7 +5,6 @@ import scrappers
 
 
 def main():
-
 	scrapper_settings = scrappers.Settings(
 		Path.cwd(),
 		Path("static/images"),

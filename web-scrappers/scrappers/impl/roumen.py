@@ -22,7 +22,7 @@ class Roumen(Base):
 
 	def scrap(self):
 		ts = datetime.datetime.now()
-		result = Result(ts)
+		result = Result(self._source, ts)
 
 		try:
 			for image_to_download in self._get_images_to_download():
