@@ -17,7 +17,7 @@ class Base(object):
 			"ts_date": f"{ts_now:%Y-%m-%d}",
 			"ts_week": f"{ts_now:%Y-%V}",
 			"ts_time": f"{ts_now:%H:%M.%S,%f}",
-			"local_path": str(local_path),
+			"local_path": str(local_path).replace("\\", "/"),
 			"name": image_name,
 			"impressions": 0,
 		}
@@ -29,5 +29,5 @@ class Base(object):
 
 	def read_last_images_from_db(self):
 		cur = self._settings.sql_connection.cursor()
-		cur.execute("select distinct name from image_box where source=? and ts_date > date('now', '-5 days')", (self._source.value, ))
+		cur.execute("select distinct name from image_box where source=? and ts_date > date('now', '-1 month')", (self._source.value, ))
 		return set(row[0] for row in cur.fetchall())

@@ -5,7 +5,7 @@ import sqlite3
 from ._base import Base
 from ..sources import Source
 from ..settings import Settings
-from ..result import Result, ExceptionResultItem
+from ..result import Result, ResultItem, ExceptionInfo
 
 
 class _RoumenSettings(object):
@@ -47,15 +47,16 @@ class BaseRoumen(Base):
 					# write to DB
 					self.write_image_info(relative_file_path, image_to_download)
 
-					result.on_item_success(relative_file_path, remote_file_url)
+					result.on_item(ResultItem.createSucceeded(relative_file_path, remote_file_url))
 
 				except:
-					result.on_item_failure(image_to_download, ExceptionResultItem.createFromLastException())
-
-			result.on_scrapping_finished()
+					result.on_item(ResultItem.createFailedWithLastException(image_to_download))
 
 		except:
-			result.on_scrapping_exception(ExceptionResultItem.createFromLastException())
+			result.on_scrapping_exception(ExceptionInfo.createFromLastException())
+
+		finally:
+			result.on_scrapping_finished()
 
 		return result
 
@@ -64,7 +65,7 @@ class BaseRoumen(Base):
 		stored_image_names = self.read_last_images_from_db()
 		images_to_download = [name for name in remote_image_names if name not in stored_image_names]
 
-		# remove possible duplicates (and preserve order)
+		# remove possible duplicates with preserved order and then reverse, because the "top" image should be scrapped last
 		seen = set()
 		seen_add = seen.add
 		return reversed([_ for _ in images_to_download if not (_ in seen or seen_add(_))])

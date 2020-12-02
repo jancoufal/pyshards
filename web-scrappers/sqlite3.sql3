@@ -1,0 +1,33 @@
+-- insert into image_box
+-- select
+-- 	source,
+-- 	ts_date,
+-- 	replace(ts_time, '8', '9'),
+-- 	replace(local_path, 'bobrik_zahradniceni.jpg', 'stunning-pekac.jpg'),
+-- 	'stunning-pekac.jpg',
+-- 	impressions
+-- from image_box
+-- where name = 'bobrik_zahradniceni.jpg'
+-- ;
+
+-- select * from image_box order by ts_date desc, ts_time desc
+-- ;
+
+select source, count(*)
+from image_box
+group by source
+;
+select * from image_box
+;
+
+select local_path
+	,replace(local_path, '\', '/')
+from image_box
+;
+--update image_box set local_path = replace(local_path, '\', '/');
+
+-- delete from image_box;
+
+
+
+

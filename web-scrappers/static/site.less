@@ -1,0 +1,209 @@
+@text-color: peru;
+@bg-color: lighten(black, 5%);
+@table-border-color: darken(chocolate, 20%);
+@link-color: deeppink;
+@link-color-active: gold;
+@link-color-selected: lawngreen;
+@line-color: blueviolet;
+@error-box-border-color: darken(red, 20%);
+@error-box-bg-color: darken(red, 45%);
+
+body {
+	--font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	--font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	font-size: 110%;
+	font-family: 'Courier New', Courier, monospace;
+	margin: 0;
+	padding: 0.2em 1em;
+	color: @text-color;
+	background-color: @bg-color;
+
+	.srapper-result {
+		width: 100%;
+	}
+
+	pre.dev-output {
+		font-size: 110%;
+		border: 2px dotted @line-color;
+		&:hover {
+			color: lime;
+			transition: all 100ms ease;	
+		}
+	}
+
+	a {
+		color: @link-color;
+		text-decoration-line: none;
+		&:visited { color: @link-color; }
+		&.selected { color: @link-color-selected; }
+		&:hover { color: @link-color-active; }
+		&:active { color: @link-color-active; }
+	}
+
+	ul#navigation {
+		display: block;
+		font-size: 120%;
+		font-weight: bold;
+		margin: 0 0 1em 0;
+		padding: 0.2em 0.8em;
+		border-bottom: 1px solid @line-color;
+
+		li {
+			display: inline;
+		}
+	}
+
+	div.form-container {
+
+		fieldset {
+			font-size: 1em;
+			padding: 0.5em;
+			border: 1px solid red;
+			border-width: 0;
+			line-height: 1.4em;
+		}
+
+		.input-base {
+			font: inherit;
+			padding: 0.2em 0.5em;
+			margin: 0.1em 0.1em;
+			float: left;
+
+			/* the following ensures they're all using the same box-model for rendering */
+			-moz-box-sizing: content-box; /* or `border-box` */
+			-webkit-box-sizing: content-box;
+			box-sizing: content-box;
+		}
+
+		label {
+			.input-base();
+			color: darken(@text-color, 5%);
+		}
+
+		input {
+			.input-base();
+			width: 16em;
+			color: @link-color;
+			border: none;
+			border-bottom: 1px dotted @line-color;
+			background-color: @bg-color;
+
+			&:hover, &:focus {
+				background-color: lighten(@bg-color, 10%);
+				transition: all 100ms ease;	
+			}
+		}
+
+		button {
+			.input-base();
+			color: @link-color;
+			background-color: transparent;
+			border: 1px dotted @line-color;
+
+			&:hover, &:focus {
+				color: @link-color-active;
+				transition: all 100ms ease;	
+			}
+		}
+	}
+
+	dl.error-box {
+		border: 3px solid @error-box-border-color;
+		border-radius: 0.2em;
+		background-color: @error-box-bg-color;
+		padding: 0.5em;
+
+		dt {
+			color: red;
+			font-weight: bold;
+		}
+
+		dd {
+			margin: 0.5em 1em;
+			color: darken(yellow, 15%);
+		}
+	}
+
+	div#footer {
+		text-align: right;
+		color: darkslateblue;
+		margin: 1em 0 0 0;
+		padding: 0.2em 0.8em;
+		border-top: 1px solid @line-color;
+
+		.copyleft-sign {
+			display: inline-block;
+			-webkit-transform: rotateY(180deg);
+			-moz-transform: rotateY(180deg);
+			-o-transform: rotateY(180deg);
+			-ms-transform: rotateY(180deg);
+		}
+	}
+
+	div#image-list {
+		width: 100%;
+		text-align: center;
+
+		div.image-view {
+			width: min-content;
+			margin: 1em auto 0 auto;
+
+			&-header {
+				font-size: 50%;
+			}
+
+			.image-scrap {
+				&-detail {
+					display: block;
+					float: left;
+				}
+				&-date {
+					--background-color: yellow;
+				}
+				&-time {
+					--background-color: indigo;
+				}
+				&-name {
+					display: block;
+					float: right;
+					--background-color: dodgerblue;
+
+					&-value {
+						--background-color: indianred;
+					}
+				}
+				&-cleaner {
+					clear: both;
+				}
+			}
+
+			img {
+				max-width: max-content;
+				height: auto;
+			}
+		}
+	}
+
+	table {
+		font-size: 0.7em;
+		border-collapse: collapse;
+
+		* {
+			margin: 0;
+			padding: 0.1em 1em;
+		}
+
+		tr {
+			th {
+				font-weight: bold;
+				background-color: darkgreen;
+				border: 1px solid @table-border-color;
+			}
+
+			td {
+				border: 1px solid @table-border-color;
+			}
+		}
+	}
+}
+
