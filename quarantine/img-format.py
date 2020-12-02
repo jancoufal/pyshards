@@ -1,10 +1,10 @@
 # python3
 
 import glob
-from pathlib import Path
 import struct
+from pathlib import Path
+
 import pygame
-import time
 
 
 def main():
@@ -13,11 +13,12 @@ def main():
 	# preload images
 	imgs = [ImageX(f) for f in img_files]
 
-	mode_13h_zoom = 4
+	mode_13h_zoom = 5
+	image_rect = Mode13h.as_rect(mode_13h_zoom)
 
 	pygame.init()
 	pygame.display.set_caption("quarantine pix format reconstruction")
-	screen = pygame.display.set_mode(Mode13h.as_rect(mode_13h_zoom).size)
+	screen = pygame.display.set_mode(image_rect.size)
 
 	img_idx = 0
 
@@ -38,10 +39,10 @@ def main():
 
 				pygame.display.set_caption(str(imgx))
 
-				scaled_surface = pygame.transform.scale(imgx.surface, Mode13h.as_rect(mode_13h_zoom).size)
+				scaled_surface = pygame.transform.scale(imgx.surface, image_rect.size)
 
 				screen.fill(pygame.color.Color("#00000000"))
-				screen.blit(scaled_surface, Mode13h.as_rect(mode_13h_zoom))
+				screen.blit(scaled_surface, image_rect)
 				pygame.display.flip()
 
 
