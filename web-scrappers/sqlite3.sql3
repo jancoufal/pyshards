@@ -17,13 +17,59 @@ select source, count(*)
 from image_box
 group by source
 ;
-select * from image_box
+select * from image_box_temp
+;
+commit
+;
+drop table image_box
+;
+create table image_box_temp as select * from image_box
 ;
 
 select local_path
 	,replace(local_path, '\', '/')
 from image_box
 ;
+
+create table if not exists scrap_stat (
+	scrap_stat_id integer primary key,
+	source text,
+	ts_start_date text,
+	ts_start_time text,
+	ts_end_date text,
+	ts_end_time text,
+	status text,	-- in_progress, finished
+	succ_count integer,
+	fail_count integer
+);
+
+create table if not exists scrap_fails (
+	scrap_fail_id integer primary key,
+	scrap_stat_id integer,
+	failed_item text,
+	description text,
+	exc_type text,
+	exc_value text,
+	exc_traceback text,
+	foreign key(scrap_stat_id)
+		references scrap_stat(scrap_stat_id)
+);
+
+create table if not exists
+	image_box_2(
+		record_id integer primary key,
+		scrap_stat_id integer,
+		source text,
+		ts_date text,
+		ts_week text,
+		ts_time text,
+		local_path text,
+		name text,
+		impressions integer,
+		foreign key(scrap_stat_id)
+			references scrap_stat(scrap_stat_id)
+);
+
 --update image_box set local_path = replace(local_path, '\', '/');
 
 -- delete from image_box;

@@ -51,9 +51,11 @@
 		copyleft (<span class="copyleft-sign">L</span>) 2020 by <a href="{{ page_data.links.griffin }}">griffin</a>
 	</div>
 
+{% if page_data.current.debug and page_data.current.debug == true %}
 	<pre class="dev-output">
 		{{ page_data|pprint|e }}
 	</pre>
-		
+{% endif %}
+
 </body>
 </html>

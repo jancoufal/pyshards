@@ -42,13 +42,14 @@ def get_page_data(page_values: dict=None):
 	HTML_ENTITY_SYMBOL_RELOAD = "&#x21bb;"
 
 	page_data = {
-		"title": "go away",
+		"title": "compressor",
 		"head": {
 			"less": url_for("static", filename="site.less"),
 		},
 		"current": {
-			"endpoint": url_for(request.endpoint, **page_values if page_values is not None else {}),
+			"endpoint": None if request.endpoint is None else url_for(request.endpoint, **page_values if page_values is not None else {}),
 			"image_dir": url_for("static", filename="images") + "/",
+			"debug": SETTINGS["flask"]["debug"],
 		},
 		"links": {
 			"griffin": url_for("page_griffin"),
@@ -91,7 +92,7 @@ def page_scrap():
 		else:
 			page_data["auth_error"] = {
 				"title": "Authentication error",
-				"message": random.choice(SETTINGS["scrap"]["auth-error-messages"])
+				"message": random.choice(SETTINGS["scrap"]["auth-error-messages"]),
 			}
 
 	return render_template("scrap.html", page_data=page_data)
@@ -102,16 +103,29 @@ def page_view(source):
 	page_data = get_page_data({"source": source})
 	try:
 		page_data["images"] = load_images_data(source, {}, 100)
+		return render_template("view.html", page_data=page_data)
 	except:
 		# TODO: redirect to error page
 		e = sys.exc_info()
-		page_data["error"] = {
+		page_data["exception"] = {
+			"endpoint": page_data["current"]["endpoint"],
 			"type": e[0],
 			"value": e[1],
 			"traceback": traceback.format_tb(e[2]),
 		}
+		return render_template("exception.html", page_data=page_data)
 
-	return render_template("view.html", page_data=page_data)
+
+@app.errorhandler(404)
+def page_not_found(e):
+	page_data = get_page_data()
+	page_data["error"] = {
+		"code": e.code,
+		"name": e.name,
+		"description": e.description,
+	}
+	# note that we set the 404 status explicitly
+	return render_template('error.html', page_data=page_data), 404
 
 
 def load_images_data(source: str, sql_filter_map: dict=None, sql_limit: int=None):

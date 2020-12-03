@@ -184,25 +184,68 @@ body {
 		}
 	}
 
-	table {
-		font-size: 0.7em;
+	dl.scrap-results {
+		dt {
+			font-weight: bold;
+			margin: 1.5em 0 1em 0;
+		}
+
+		dd {
+			.counter {
+				margin-top: 1em;
+				font-weight: bold;
+			}
+			table {
+				font-size: 0.7em;
+				border-collapse: collapse;
+
+				* {
+					margin: 0;
+					padding: 0.1em 1em;
+				}
+
+				&.success tr th { background-color: darkgreen; }
+				&.failed tr th { background-color: darkred; }
+
+				tr {
+					th {
+						font-weight: bold;
+						border: 1px solid @table-border-color;
+					}
+
+					td {
+						border: 1px solid @table-border-color;
+					}
+				}
+			}
+		}
+	}
+
+	table.error-table {
 		border-collapse: collapse;
 
 		* {
 			margin: 0;
-			padding: 0.1em 1em;
+			padding: 0.2em 1em;
+			text-align: left;
 		}
 
-		tr {
-			th {
-				font-weight: bold;
-				background-color: darkgreen;
-				border: 1px solid @table-border-color;
-			}
+		tr:hover {
+			background-color: darken(@link-color-active, 40%);
+		}
 
-			td {
-				border: 1px solid @table-border-color;
-			}
+		td {
+			vertical-align: top;
+			text-align: left;
+			border: 1px solid @text-color;
+		}
+
+		.key {
+			font-weight: bold;
+		}
+
+		.value {
+			text-align: left;
 		}
 	}
 }
