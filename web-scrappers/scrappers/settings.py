@@ -1,13 +1,12 @@
 import typing
 import pathlib
-import sqlite3
 
 
 class Settings(object):
-	def __init__(self, local_base_path: pathlib.Path, local_relative_path: pathlib.Path, sql_connection: sqlite3.Connection):
+	def __init__(self, local_base_path: pathlib.Path, local_relative_path: pathlib.Path, sqlite_datafile: pathlib.Path):
 		self._base_path = local_base_path
 		self._relative_path = local_relative_path
-		self._sql_connection = sql_connection
+		self._sqlite_datafile = sqlite_datafile
 
 	@property
 	def base_path(self):
@@ -22,5 +21,5 @@ class Settings(object):
 		return self._base_path / self._relative_path
 
 	@property
-	def sql_connection(self):
-		return self._sql_connection
+	def sqlite_datafile(self):
+		return self._sqlite_datafile

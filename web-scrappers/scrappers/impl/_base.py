@@ -1,33 +1,27 @@
 import typing
 import datetime
 import pathlib
+import sqlite3
 from ..settings import Settings
 from ..sources import Source
+from ..database import SqlitePersistence, ScrapPersistence
 
 
 class Base(object):
 	def __init__(self, source: Source, settings: Settings):
 		self._settings = settings
 		self._source = source
-
-	def write_image_info(self, local_path: pathlib.Path, image_name: str):
-		ts_now = datetime.datetime.now()
-		mapping = {
-			"source": self._source.value,
-			"ts_date": f"{ts_now:%Y-%m-%d}",
-			"ts_week": f"{ts_now:%Y-%V}",
-			"ts_time": f"{ts_now:%H:%M.%S,%f}",
-			"local_path": str(local_path).replace("\\", "/"),
-			"name": image_name,
-			"impressions": 0,
-		}
-
-		with self._settings.sql_connection as conn:
-			cols = list(mapping.keys())
-			sql_stmt = f"insert into image_box({', '.join(cols)}) values (:{', :'.join(cols)})"
-			conn.execute(sql_stmt, mapping)
+		self._db = SqlitePersistence(settings.sqlite_datafile)
 
 	def read_last_images_from_db(self):
-		cur = self._settings.sql_connection.cursor()
-		cur.execute("select distinct name from image_box where source=? and ts_date > date('now', '-1 month')", (self._source.value, ))
-		return set(row[0] for row in cur.fetchall())
+		with sqlite3.Connection(self._settings.sqlite_datafile) as conn:
+			try:
+				cur = conn.cursor()
+				stmt = "select distinct name"
+				stmt += " from scrap_items"
+				stmt += " inner join scrap_stat on scrap_stat.scrap_stat_id = scrap_items.scrap_stat_id"
+				stmt += " where scrap_stat.source=? and scrap_items.ts_date > date('now', '-1 month')"
+				cur.execute(stmt, (self._source.value, ))
+				return set(row[0] for row in cur.fetchall())
+			finally:
+				cur.close()

@@ -4,41 +4,12 @@ import typing
 import pathlib
 import datetime
 from .sources import Source
+from .util.exception_info import ExceptionInfo
 
 
 class ResultItemStatus(Enum):
 	SUCCEEDED = auto()
 	FAILED = auto()
-
-
-class ExceptionInfo(object):
-	@classmethod
-	def createFromLastException(cls):
-		return cls(*sys.exc_info())
-
-	def __init__(self, exception_type, value, traceback):
-		self._exception_type = exception_type
-		self._value = value
-		self._traceback = traceback
-
-	def __str__(self):
-		return f"{self.exception_type=!s}, {self.value=!s}"
-
-	@property
-	def exception_type(self):
-		return self._exception_type
-
-	@property
-	def value(self):
-		return self._value
-
-	@property
-	def traceback(self):
-		return self._traceback
-
-	@property
-	def formatted_exception(self):
-		return traceback.format_exception(etype=self.exception_type, value=self.value, tb=self.traceback)
 
 
 class ResultItemSuccessInfo(object):
@@ -82,8 +53,8 @@ class ResultItem(object):
 		return cls(ResultItemStatus.SUCCEEDED, item_info, None)
 
 	@classmethod
-	def createFailedWithLastException(cls, item_to_download: str):
-		item_info = ResultItemFailedInfo(item_to_download, ExceptionInfo.createFromLastException())
+	def createFailed(cls, item_to_download: str, exception_info:ExceptionInfo):
+		item_info = ResultItemFailedInfo(item_to_download, exception_info)
 		return cls(ResultItemStatus.FAILED, None, item_info)
 
 	def __init__(self, status: ResultItemStatus, item_info_success: ResultItemSuccessInfo, item_info_error: ResultItemFailedInfo):

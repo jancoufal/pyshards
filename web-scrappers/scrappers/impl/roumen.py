@@ -29,6 +29,7 @@ class BaseRoumen(Base):
 	def scrap(self):
 		ts = datetime.datetime.now()
 		result = Result(self._source, ts)
+		scrap_db = self._db.scrap_start(self._source)
 
 		try:
 			for image_to_download in self._get_images_to_download():
@@ -44,16 +45,20 @@ class BaseRoumen(Base):
 					# r = requests.get(remote_file_url, headers=Roumen.REQUEST_HEADERS)
 					urllib.request.urlretrieve(remote_file_url, filename=str(destination_path / image_to_download))
 
-					# write to DB
-					self.write_image_info(relative_file_path, image_to_download)
-
 					result.on_item(ResultItem.createSucceeded(relative_file_path, remote_file_url))
+					scrap_db.on_scrap_item_success(relative_file_path, image_to_download)
 
 				except:
-					result.on_item(ResultItem.createFailedWithLastException(image_to_download))
+					e_info = ExceptionInfo.createFromLastException()
+					result.on_item(ResultItem.createFailed(image_to_download, e_info))
+					scrap_db.on_scrap_item_failure(item_name=image_to_download, description="scrap failure", exception_info=e_info)
+
+			scrap_db.finish()
 
 		except:
-			result.on_scrapping_exception(ExceptionInfo.createFromLastException())
+			e_info = ExceptionInfo.createFromLastException()
+			result.on_scrapping_exception(e_info)
+			scrap_db.finish_exceptionaly(e_info)
 
 		finally:
 			result.on_scrapping_finished()

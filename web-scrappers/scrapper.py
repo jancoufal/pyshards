@@ -80,21 +80,24 @@ def page_griffin():
 @app.route("/scrap/", methods=["GET"])
 def page_scrap():
 	page_data = get_page_data()
-	page_data["request"] = {
-		"method": request.method,
-		"args": request.args,
-		"form": request.form,
-	}
+	try:
+		page_data["request"] = {
+			"method": request.method,
+			"args": request.args,
+			"form": request.form,
+		}
 
-	if request.method == "GET" and "auth-key" in request.args.keys():
-		if SETTINGS["scrap"]["auth-key"] == request.args.get("auth-key"):
-			page_data["scrapper_results"] = {s: scrap(s) for s in scrappers.Source if s is not scrappers.Source.NOOP}
-		else:
-			page_data["auth_error"] = {
-				"title": "Authentication error",
-				"message": random.choice(SETTINGS["scrap"]["auth-error-messages"]),
-			}
-
+		if request.method == "GET" and "auth-key" in request.args.keys():
+			if SETTINGS["scrap"]["auth-key"] == request.args.get("auth-key"):
+				page_data["scrapper_results"] = {s: scrap(s) for s in scrappers.Source if s is not scrappers.Source.NOOP}
+			else:
+				page_data["auth_error"] = {
+					"title": "Authentication error",
+					"message": random.choice(SETTINGS["scrap"]["auth-error-messages"]),
+				}
+	except:
+		return render_exception_page(page_data=page_data)
+		
 	return render_template("scrap.html", page_data=page_data)
 
 
@@ -105,15 +108,7 @@ def page_view(source):
 		page_data["images"] = load_images_data(source, {}, 100)
 		return render_template("view.html", page_data=page_data)
 	except:
-		# TODO: redirect to error page
-		e = sys.exc_info()
-		page_data["exception"] = {
-			"endpoint": page_data["current"]["endpoint"],
-			"type": e[0],
-			"value": e[1],
-			"traceback": traceback.format_tb(e[2]),
-		}
-		return render_template("exception.html", page_data=page_data)
+		return render_exception_page(page_data=page_data)
 
 
 @app.errorhandler(404)
@@ -126,6 +121,19 @@ def page_not_found(e):
 	}
 	# note that we set the 404 status explicitly
 	return render_template('error.html', page_data=page_data), 404
+
+
+def render_exception_page(page_data:dict, exc_info=None):
+	e = exc_info if exc_info is not None else sys.exc_info()
+	exception_info = {
+		"exception": {
+			"endpoint": page_data["current"]["endpoint"],
+			"type": e[0],
+			"value": e[1],
+			"traceback": traceback.format_tb(e[2]),
+		}
+	}
+	return render_template("exception.html", page_data={**page_data, **exception_info})
 
 
 def load_images_data(source: str, sql_filter_map: dict=None, sql_limit: int=None):
@@ -197,12 +205,10 @@ def fake_scrap(scrapper_source: scrappers.Source):
 
 
 def scrap(scrapper_source: scrappers.Source):
-	sql_conn = sqlite3.Connection(SETTINGS["sqlite3"]["datafile"])
-
 	scrapper_settings = scrappers.Settings(
 		local_base_path=Path.cwd(),
 		local_relative_path=Path("static").joinpath("images"),
-		sql_connection=sql_conn
+		sqlite_datafile=Path(SETTINGS["sqlite3"]["datafile"]),
 		)
 
 	scrapper = scrappers.create(
@@ -211,7 +217,6 @@ def scrap(scrapper_source: scrappers.Source):
 		)
 
 	scrap_result = scrapper.scrap()
-	sql_conn.close()
 	return scrap_result
 
 
