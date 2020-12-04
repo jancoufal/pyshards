@@ -13,6 +13,13 @@
 -- select * from image_box order by ts_date desc, ts_time desc
 -- ;
 
+select * from sqlite_sequence
+;
+insert into scrap_stat(source) values ("test")
+;
+select * from scrap_stat
+;
+
 select source, count(*)
 from image_box
 group by source
@@ -31,8 +38,12 @@ select local_path
 from image_box
 ;
 
+drop table scrap_stat;
+drop table scrap_fails;
+drop table image_box_2;
+
 create table if not exists scrap_stat (
-	scrap_stat_id integer primary key,
+	scrap_stat_id integer primary key autoincrement,
 	source text,
 	ts_start_date text,
 	ts_start_time text,
@@ -44,9 +55,11 @@ create table if not exists scrap_stat (
 );
 
 create table if not exists scrap_fails (
-	scrap_fail_id integer primary key,
+	scrap_fail_id integer primary key autoincrement,
 	scrap_stat_id integer,
-	failed_item text,
+	ts_date text,
+	ts_time text,
+	item_name text,
 	description text,
 	exc_type text,
 	exc_value text,
@@ -56,8 +69,8 @@ create table if not exists scrap_fails (
 );
 
 create table if not exists
-	image_box_2(
-		record_id integer primary key,
+	image_box(
+		record_id integer primary key autoincrement,
 		scrap_stat_id integer,
 		source text,
 		ts_date text,
