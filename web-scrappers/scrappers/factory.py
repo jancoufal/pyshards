@@ -3,7 +3,7 @@ from .settings import Settings
 from .impl import Noop, Roumen, RoumenMaso
 
 
-def create(source: Source, settings: Settings):
+def create(source:Source, settings:Settings):
 	scrapper_classes = {
 		Source.NOOP: Noop,
 		Source.ROUMEN: Roumen,

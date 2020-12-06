@@ -20,27 +20,27 @@
 	<link rel="stylesheet/less" type="text/css" href="{{ page_data.head.less }}" />
 	<script>
 		less = {
-		  env: "development",
-		  async: false,
-		  fileAsync: false,
-		  poll: 1000,
-		  functions: {},
-		  dumpLineNumbers: "comments"
+			env: "development",
+			async: false,
+			fileAsync: false,
+			poll: 1000,
+			functions: {},
+			dumpLineNumbers: "comments"
 		};
-	</script>	
+	</script>
 	<script src="/static/js/less-min.js" data-env="development" ></script>
 	
 </head>
 <body>
 
 	<ul id="navigation">
-		{% for nav_item in page_data.navigation %}
-			{% if nav_item.href == page_data.current.endpoint -%}
+		{%- for nav_item in page_data.navigation -%}
+			{%- if nav_item.href == page_data.current.endpoint -%}
 		<li><a class="selected" href="{{ nav_item.href }}">{{ nav_item.name|safe }}</a></li>
 			{%- else -%}
 		<li><a href="{{ nav_item.href }}">{{ nav_item.name|safe }}</a></li>
-			{%- endif %}
-		{% endfor %}
+			{%- endif -%}
+		{%- endfor -%}
 	</ul>
 
 	<div id="content">

@@ -53,8 +53,9 @@ class ResultItem(object):
 		return cls(ResultItemStatus.SUCCEEDED, item_info, None)
 
 	@classmethod
-	def createFailed(cls, item_to_download: str, exception_info:ExceptionInfo):
-		item_info = ResultItemFailedInfo(item_to_download, exception_info)
+	def createFailed(cls, item_to_download: str, exception_info:ExceptionInfo=None):
+		e_info = exception_info if exception_info is not None else ExceptionInfo.createFromLastException()
+		item_info = ResultItemFailedInfo(item_to_download, e_info)
 		return cls(ResultItemStatus.FAILED, None, item_info)
 
 	def __init__(self, status: ResultItemStatus, item_info_success: ResultItemSuccessInfo, item_info_error: ResultItemFailedInfo):

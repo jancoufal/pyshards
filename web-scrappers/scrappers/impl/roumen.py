@@ -6,6 +6,7 @@ from ._base import Base
 from ..sources import Source
 from ..settings import Settings
 from ..result import Result, ResultItem, ExceptionInfo
+from ..database import DbScrapWriter, DbScrapReader
 
 
 class _RoumenSettings(object):
@@ -29,7 +30,7 @@ class BaseRoumen(Base):
 	def scrap(self):
 		ts = datetime.datetime.now()
 		result = Result(self._source, ts)
-		scrap_db = self._db.scrap_start(self._source)
+		scrap_writer = DbScrapWriter.create(self._settings.sqlite_datafile, self._source)
 
 		try:
 			for image_to_download in self._get_images_to_download():
@@ -46,19 +47,19 @@ class BaseRoumen(Base):
 					urllib.request.urlretrieve(remote_file_url, filename=str(destination_path / image_to_download))
 
 					result.on_item(ResultItem.createSucceeded(relative_file_path, remote_file_url))
-					scrap_db.on_scrap_item_success(relative_file_path, image_to_download)
+					scrap_writer.on_scrap_item_success(relative_file_path, image_to_download)
 
 				except:
 					e_info = ExceptionInfo.createFromLastException()
 					result.on_item(ResultItem.createFailed(image_to_download, e_info))
-					scrap_db.on_scrap_item_failure(item_name=image_to_download, description="scrap failure", exception_info=e_info)
+					scrap_writer.on_scrap_item_failure(item_name=image_to_download, description="scrap failure", exception_info=e_info)
 
-			scrap_db.finish()
+			scrap_writer.finish()
 
 		except:
 			e_info = ExceptionInfo.createFromLastException()
 			result.on_scrapping_exception(e_info)
-			scrap_db.finish_exceptionaly(e_info)
+			scrap_writer.finish_exceptionaly(e_info)
 
 		finally:
 			result.on_scrapping_finished()
@@ -67,7 +68,7 @@ class BaseRoumen(Base):
 
 	def _get_images_to_download(self):
 		remote_image_names = self._scrap_image_names()
-		stored_image_names = self.read_last_images_from_db()
+		stored_image_names = DbScrapReader.create(self._settings.sqlite_datafile, self._source).read_recent_item_names()
 		images_to_download = [name for name in remote_image_names if name not in stored_image_names]
 
 		# remove possible duplicates with preserved order and then reverse, because the "top" image should be scrapped last

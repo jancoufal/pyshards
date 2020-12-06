@@ -6,5 +6,5 @@ from .sources import Source
 from .settings import Settings
 from .result import Result
 from .factory import create
-from .database import SqlitePersistence, ScrapPersistence
+from .database import DbScrapWriter, DbScrapReader, DbStatReader
 from .install import install

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ page_data.title }}{% endblock %}
+
+{% block content %}
+<h2>Stats</h2>
+<dl class="scrap-results">
+	<dt>Last scraps</dt>
+	<dd>
+		<table>
+			<tr>
+				<th>source</th>
+				<th>status</th>
+				<th>started</th>
+				<th>time taken</th>
+				<th>items succ/fail</th>
+				<th>app error</th>
+			</tr>
+		{% if page_data.stats.last_scraps %}
+			{% for scrap_record in page_data.stats.last_scraps %}
+				<tr>
+					<td>{{ scrap_record[0] }}</td>
+					<td>{{ scrap_record[1] }}</td>
+					<td>{{ scrap_record[2] }}</td>
+					<td>{{ scrap_record[3] }}</td>
+					<td>{{ scrap_record[4] }} / {{ scrap_record[5] }}</td>
+					<td>{{ scrap_record[6] }}</td>
+				</tr>
+		{% endfor %}
+	{% else %}
+			<tr><td colspan="6">no data</td></tr>
+	{% endif %}
+		</table>
+	</dd>
+</dl>
+{% endblock %}

@@ -30,7 +30,6 @@ SETTINGS = {
 			"I feel sorry for you. You've tried some auth key and it does nothing.",
 		],
 	},
-
 }
 
 app = Flask(__name__)
@@ -39,6 +38,7 @@ app.debug = SETTINGS["flask"]["debug"]
 
 def get_page_data(page_values: dict=None):
 	HTML_ENTITY_SYMBOL_HOME = "&#x2302;"
+	HTML_ENTITY_SYMBOL_STATS = "&#x03a3;" # "&Signma;"
 	HTML_ENTITY_SYMBOL_RELOAD = "&#x21bb;"
 
 	page_data = {
@@ -56,6 +56,7 @@ def get_page_data(page_values: dict=None):
 		},
 		"navigation": [
 			{ "name": HTML_ENTITY_SYMBOL_HOME, "href": url_for("page_index"), },
+			{ "name": HTML_ENTITY_SYMBOL_STATS, "href": url_for("page_stats"), },
 			{ "name": HTML_ENTITY_SYMBOL_RELOAD, "href": url_for("page_scrap"), },
 		]
 	}
@@ -75,6 +76,17 @@ def page_index():
 @app.route("/griffin/")
 def page_griffin():
 	return render_template("griffin.html", page_data=get_page_data())
+
+
+@app.route("/stats/")
+def page_stats():
+	page_data = get_page_data()
+	reader = scrappers.DbStatReader.create(SETTINGS["sqlite3"]["datafile"])
+	page_data["stats"] = {
+		"last_scraps": reader.read_last_scraps(20),
+	}
+
+	return render_template("stats.html", page_data=page_data)
 
 
 @app.route("/scrap/", methods=["GET"])
@@ -97,7 +109,7 @@ def page_scrap():
 				}
 	except:
 		return render_exception_page(page_data=page_data)
-		
+
 	return render_template("scrap.html", page_data=page_data)
 
 
@@ -105,7 +117,8 @@ def page_scrap():
 def page_view(source):
 	page_data = get_page_data({"source": source})
 	try:
-		page_data["images"] = load_images_data(source, {}, 100)
+		reader = scrappers.DbScrapReader.create(SETTINGS["sqlite3"]["datafile"], scrappers.Source.of(source))
+		page_data["images"] = reader.read_recent_items(50)
 		return render_template("view.html", page_data=page_data)
 	except:
 		return render_exception_page(page_data=page_data)
@@ -191,7 +204,7 @@ def fake_scrap(scrapper_source: scrappers.Source):
 		try:
 			raise KeyError("test item exception")
 		except:
-			r.on_item(scrappers.result.ResultItem.createFailedWithLastException(f"image_name_{i}"))
+			r.on_item(scrappers.result.ResultItem.createFailed(f"image_name_{i}"))
 
 	if scrapper_source == scrappers.Source.ROUMEN_MASO:
 		try:
