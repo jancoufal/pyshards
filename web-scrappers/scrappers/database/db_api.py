@@ -41,18 +41,35 @@ class _SqliteApi(object):
 
 		return limit_value
 
-	def read(self, sql_stmt:str, binds, row_mapper:callable=None):
-		r_mapper = row_mapper if row_mapper is not None else lambda row: row
+	def do_with_connection(self, connection_cb:callable):
+		db_conn = sqlite3.Connection(self.sqlite_datafile)
 		try:
+			with db_conn:
+				return connection_cb(db_conn)
+		finally:
+			db_conn.close()
+
+	def do_with_cursor(self, cursor_cb:callable):
+		def _cursor_call(connection):
+			db_cursor = connection.cursor()
+			try:
+				cb_result = cursor_cb(db_cursor)
+				connection.commit()
+				return cb_result
+			finally:
+				db_cursor.close()
+
+		return self.do_with_connection(_cursor_call)
+
+	def read(self, sql_stmt:str, binds, row_mapper:callable=None):
+		def _reader(cursor):
+			r_mapper = row_mapper if row_mapper is not None else lambda row: row
 			result = list()
-			sql_conn = sqlite3.Connection(self.sqlite_datafile)
-			c = sql_conn.cursor()
-			for r in c.execute(sql_stmt, binds):
+			for r in cursor.execute(sql_stmt, binds):
 				result.append(r_mapper(r))
 			return result
-		finally:
-			c.close()
 
+		return self.do_with_cursor(_reader)
 
 	def compose_and_read(self, source_table:str, joins: str, column_list:list, filter_map:dict, order_tuple_list:tuple, limit:int, row_mapper:callable=None):
 		stmt = f"select {', '.join(column_list)} from {source_table}"
@@ -71,32 +88,34 @@ class _SqliteApi(object):
 		return self.read(stmt, filter_map)
 
 	def write(self, table_name, value_mapping:dict):
-		with sqlite3.Connection(self.sqlite_datafile) as conn:
+		def _writer(connection):
 			cols = list(value_mapping.keys())
 			sql_stmt = f"insert into {table_name}({', '.join(cols)}) values (:{', :'.join(cols)})"
-			conn.execute(sql_stmt, value_mapping)
+			connection.execute(sql_stmt, value_mapping)
+
+		return self.do_with_connection(_writer)
 
 	def update(self, table_name, value_mapping:dict, where_condition_mapping:dict):
-		# rename all value_mapping keys to "new_{key}" and where_condition_mapping keys to "where_{key}"
-		with sqlite3.Connection(self.sqlite_datafile) as conn:
+		def _writer(connection):
+			# rename all value_mapping keys to "new_{key}" and where_condition_mapping keys to "where_{key}"
 			# statement pattern:
 			# update table_name set col_a=:new_col_a, col_b=:new_col_b where col_c=:where_col_c and col_d=:where_col_d
 			stmt_set = ", ".join(map(lambda k: f"{k}=:new_{k}", value_mapping.keys()))
 			stmt_whr = " and ".join(map(lambda k: f"{k}=:where_{k}", where_condition_mapping.keys()))
 			sql_stmt = f"update {table_name} set {stmt_set} where {stmt_whr}"
-			conn.execute(sql_stmt, {
+			connection.execute(sql_stmt, {
 				**{ f"new_{k}": v for (k, v) in value_mapping.items() },
 				**{ f"where_{k}": v for (k, v) in where_condition_mapping.items() }
 			})
 
+		return self.do_with_connection(_writer)
+
 	def read_last_seq(self, table_name):
-		with sqlite3.Connection(self.sqlite_datafile) as conn:
-			try:
-				c = conn.cursor()
-				c.execute("select seq from sqlite_sequence where name=?", (table_name, ))
-				return c.fetchone()[0]
-			finally:
-				c.close()
+		def _reader(cursor):
+			cursor.execute("select seq from sqlite_sequence where name=?", (table_name, ))
+			return cursor.fetchone()[0]
+
+		return self.do_with_cursor(_reader)
 
 
 class DbScrapWriter(object):

@@ -2,7 +2,6 @@ import sys, typing, traceback
 import datetime, os, pathlib
 import requests, urllib, bs4
 import sqlite3
-from ._base import Base
 from ..sources import Source
 from ..settings import Settings
 from ..result import Result, ResultItem, ExceptionInfo
@@ -17,14 +16,15 @@ class _RoumenSettings(object):
 		self.href_needle = href_needle
 
 
-class BaseRoumen(Base):
+class BaseRoumen(object):
 
 	REQUEST_HEADERS = {
 			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0",
 	}
 
 	def __init__(self, source: Source, settings: Settings, roumen_settings: _RoumenSettings):
-		super().__init__(source, settings)
+		self._settings = settings
+		self._source = source
 		self._roumen_settings = roumen_settings
 
 	def scrap(self):

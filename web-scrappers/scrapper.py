@@ -93,6 +93,7 @@ def page_stats():
 def page_scrap():
 	page_data = get_page_data()
 	try:
+		# debug
 		page_data["request"] = {
 			"method": request.method,
 			"args": request.args,
@@ -147,48 +148,6 @@ def render_exception_page(page_data:dict, exc_info=None):
 		}
 	}
 	return render_template("exception.html", page_data={**page_data, **exception_info})
-
-
-def load_images_data(source: str, sql_filter_map: dict=None, sql_limit: int=None):
-	cols = [ "source", "ts_date", "ts_time", "name", "local_path", "impressions" ]
-
-	filter_map = { "source": source }
-	if sql_filter_map is not None:
-		filter_map.update(sql_filter_map)
-
-	return load_records_from_db_simple(
-		"image_box",
-		cols,
-		filter_map,
-		[("ts_date", "desc"), ("ts_time", "desc")],
-		sql_limit,
-		lambda row: { c:row[i] for i, c in enumerate(cols) }
-	)
-
-
-def load_records_from_db_simple(source_table:str, column_list:list, filter_map:dict, order_tuple_list:tuple, limit:int, row_mapper:callable=None):
-	stmt = f"select {', '.join(column_list)} from {source_table}"
-
-	if filter_map is not None and len(filter_map) > 0:
-		stmt += " where " + " and ".join(f"{k}=:{k}" for k in filter_map.keys())
-
-	if order_tuple_list is not None and len(order_tuple_list) > 0:
-		stmt += " order by " + ", ".join(f"{_1} {_2}" for (_1, _2) in order_tuple_list)
-
-	# clamp to 1..100 range or default 10
-	stmt += " limit " + str(max(1, min(100, limit)) if isinstance(limit, int) else 10)
-
-	r_mapper = row_mapper if row_mapper is not None else lambda row: row
-
-	try:
-		result = list()
-		sql_conn = sqlite3.Connection(SETTINGS["sqlite3"]["datafile"])
-		c = sql_conn.cursor()
-		for r in c.execute(stmt, filter_map):
-			result.append(r_mapper(r))
-		return result
-	finally:
-		c.close()
 
 
 def fake_scrap(scrapper_source: scrappers.Source):
