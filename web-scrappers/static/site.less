@@ -215,13 +215,24 @@ body {
 				&.failed tr th { background-color: darkred; }
 
 				tr {
+					&:hover {
+						background-color: darken(@link-color-active, 40%);
+					}
 					th {
 						font-weight: bold;
 						border: 1px solid @table-border-color;
+						background-color: darken(@link-color-active, 35%);
 					}
 
 					td {
 						border: 1px solid @table-border-color;
+
+						span {
+							padding: 0;
+							margin: 0;
+						}
+						.success_count { color: limegreen; }
+						.fail_count { color: red; }
 					}
 				}
 			}

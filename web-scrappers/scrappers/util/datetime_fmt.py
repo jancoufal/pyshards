@@ -1,18 +1,29 @@
 import datetime
 
 
-def get_formatted_date_time_tuple(datetime_value=None):
+def get_formatted_date_time(datetime_value=None):
+	return " ".join(get_formatted_date_time_tuple(datetime_value))
+
+
+def get_formatted_date_time_tuple(datetime_value=None, include_ms=True):
 	ts = datetime_value if datetime_value is not None else datetime.datetime.now()
-	return f"{ts:%Y-%m-%d}", f"{ts:%H:%M.%S,%f}"
+	return (f"{ts:%Y-%m-%d}", f"{ts:%H:%M.%S,%f}") if include_ms else (f"{ts:%Y-%m-%d}", f"{ts:%H:%M.%S}")
 
 
-def get_formatted_date_time_week_tuple(datetime_value=None):
+def get_formatted_date_time_week_tuple(datetime_value=None, include_ms=True):
 	ts = datetime_value if datetime_value is not None else datetime.datetime.now()
-	return *get_formatted_date_time_tuple(), f"{ts:%Y-%V}"
+	return *get_formatted_date_time_tuple(ts, include_ms), f"{ts:%Y-%V}"
 
 
-def get_datetime_from_date_time(date_yyyy_mm_dd:str, time_hh_mm_ss_fff:str):
-	return datetime.datetime.strptime(f"{date_yyyy_mm_dd} {time_hh_mm_ss_fff}", "%Y-%m-%d %H:%M.%S,%f")
+def get_datetime_from_date_time(date_yyyy_mm_dd:str, time_hh_mm_ss_fff:str, include_ms=True):
+	fmt = "%Y-%m-%d %H:%M.%S"
+	if include_ms:
+		fmt += ",%f"
+	return datetime.datetime.strptime(f"{date_yyyy_mm_dd} {time_hh_mm_ss_fff}", fmt)
+
+
+def get_datetime_for_print_from_date_time(dt:datetime.datetime):
+	return f"{dt:%Y-%m-%d %H:%M.%S}"
 
 
 def ts_diff(ts_start:datetime.datetime, ts_end:datetime.datetime):

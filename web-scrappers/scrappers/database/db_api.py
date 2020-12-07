@@ -255,14 +255,42 @@ class DbStatReader(object):
 		self._db = db_api
 
 	def read_last_scraps(self, record_limit:int):
+		def _to_datetime_safe(date_string, time_string):
+			if date_string is not None and time_string is not None:
+				return datetime_fmt.get_datetime_from_date_time(date_string, time_string)
+			else:
+				return None
+
+		def _mapper(row):
+			NOT_AVAILABLE = "n/a"
+			scrap_s = _to_datetime_safe(*row[3:5])
+			scrap_e = _to_datetime_safe(*row[5:7])
+			success_percentage_str = "percent_string"
+			return (
+				row[0], row[1], row[2], # scrap id, source, status
+				NOT_AVAILABLE if scrap_s is None else datetime_fmt.get_datetime_for_print_from_date_time(scrap_s),
+				NOT_AVAILABLE if scrap_e is None else datetime_fmt.get_datetime_for_print_from_date_time(scrap_e),
+				NOT_AVAILABLE if None in (scrap_s, scrap_e) else datetime_fmt.ts_diff(scrap_s, scrap_e),
+				row[7],	row[8], success_percentage_str, # succ count, fail count, % string
+				row[9], row[10], row[11], # exception: type, value, traceback
+			)
+
 		stmt = f"""
-			select source, status,
-				ts_start_date || ' ' || ts_start_time as ts_start,
-				ts_end_date || ' ' || ts_end_time as ts_end,
-				succ_count, fail_count,
-				exc_type, exc_value, exc_traceback
-			from scrap_stat
-			order by ts_start_date desc, ts_start_time desc, source desc
+			select
+				{_Tables.SCRAP_STAT.value}_id,
+				source,
+				status,
+				ts_start_date,
+				ts_start_time,
+				ts_end_date,
+				ts_end_time,
+				succ_count,
+				fail_count,
+				exc_type,
+				exc_value,
+				exc_traceback
+			from {_Tables.SCRAP_STAT.value}
+			order by {_Tables.SCRAP_STAT.value}_id desc
 			limit :limit
 			"""
 
@@ -270,5 +298,5 @@ class DbStatReader(object):
 			"limit": _SqliteApi.clamp_limit(record_limit),
 		}
 
-		return self._db.read(stmt, binds)
+		return self._db.read(stmt, binds, _mapper)
 		
