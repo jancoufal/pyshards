@@ -3,7 +3,7 @@ import sqlite3
 import datetime
 import enum
 import pathlib
-from ..util import exception_info, datetime_fmt
+from ..util import exception_info, formatters
 from ..sources import Source
 
 
@@ -131,23 +131,23 @@ class DbScrapWriter(object):
 		self._item_fail_count = 0
 
 	def _initialize_record(self):
-		now_date, now_time = datetime_fmt.get_formatted_date_time_tuple()
+		ts_now = datetime.datetime.now()
 		self._db.write(_Tables.SCRAP_STAT.value, {
 			"source": self._source,
-			"ts_start_date": now_date,
-			"ts_start_time": now_time,
+			"ts_start_date": formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.DATE, ts_now),
+			"ts_start_time": formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.TIME_MS, ts_now),
 			"status": _ScrapState.IN_PROGRESS.value,
 		})
 		return self._db.read_last_seq(_Tables.SCRAP_STAT.value)
 
 	def on_scrap_item_success(self, local_path:pathlib.Path, item_name:str):
 		self._item_succ_count += 1
-		now_date, now_time, now_week = datetime_fmt.get_formatted_date_time_week_tuple()
+		ts_now = datetime.datetime.now()
 		self._db.write(_Tables.SCRAP_ITEMS.value, {
 			"scrap_stat_id": self._scrap_stat_id,
-			"ts_date": now_date,
-			"ts_week": now_week,
-			"ts_time": now_time,
+			"ts_date": formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.DATE, ts_now),
+			"ts_week": formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.WEEK, ts_now),
+			"ts_time": formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.TIME_MS, ts_now),
 			"local_path": str(local_path).replace("\\", "/"),
 			"name": item_name,
 			"impressions": 0,
@@ -155,11 +155,11 @@ class DbScrapWriter(object):
 
 	def on_scrap_item_failure(self, item_name:str, description:str, exception_info:exception_info.ExceptionInfo):
 		self._item_fail_count += 1
-		now_date, now_time = datetime_fmt.get_formatted_date_time_tuple()
+		ts_now = datetime.datetime.now()
 		self._db.write(_Tables.SCRAP_FAILS.value, {
 			"scrap_stat_id": self._scrap_stat_id,
-			"ts_date": now_date,
-			"ts_time": now_time,
+			"ts_date": formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.DATE, ts_now),
+			"ts_time": formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.TIME_MS, ts_now),
 			"item_name": item_name,
 			"description": description,
 			"exc_type": str(exception_info.exception_type),
@@ -168,10 +168,10 @@ class DbScrapWriter(object):
 		})
 
 	def finish(self):
-		now_date, now_time = datetime_fmt.get_formatted_date_time_tuple()
+		ts_now = datetime.datetime.now()
 		self._db.update(_Tables.SCRAP_STAT.value, {
-			"ts_end_date": now_date,
-			"ts_end_time": now_time,
+			"ts_end_date": formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.DATE, ts_now),
+			"ts_end_time": formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.TIME_MS, ts_now),
 			"status": _ScrapState.COMPLETE.value,
 			"succ_count": self._item_succ_count,
 			"fail_count": self._item_fail_count,
@@ -180,10 +180,10 @@ class DbScrapWriter(object):
 		})
 
 	def finish_exceptionaly(self, exception_info:exception_info.ExceptionInfo):
-		now_date, now_time = datetime_fmt.get_formatted_date_time_tuple()
+		ts_now = datetime.datetime.now()
 		self._db.update(_Tables.SCRAP_STAT.value, {
-			"ts_end_date": now_date,
-			"ts_end_time": now_time,
+			"ts_end_date": formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.DATE, ts_now),
+			"ts_end_time": formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.TIME_MS, ts_now),
 			"status": _ScrapState.FAILED.value,
 			"succ_count": self._item_succ_count,
 			"fail_count": self._item_fail_count,
@@ -206,9 +206,10 @@ class DbScrapReader(object):
 
 	def read_recent_items(self, item_limit:int):
 		def _row_mapper(r):
+			scrap_ts = formatters.str_to_ts(formatters.TIMESTAMP_FORMAT.DATETIME_MS, f"{r[0]} {r[1]}")
 			return {
-				"datetime": f"{r[0]} {r[1][:8]}",
-				"age": datetime_fmt.ts_diff(datetime_fmt.get_datetime_from_date_time(r[0], r[1]), datetime.datetime.now()),
+				"datetime": formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.DATETIME, scrap_ts),
+				"age": formatters.ts_diff_to_str(scrap_ts, datetime.datetime.now(), False),
 				"name": r[2],
 				"local_path": r[3],
 				"impressions": r[4],
@@ -255,23 +256,27 @@ class DbStatReader(object):
 		self._db = db_api
 
 	def read_last_scraps(self, record_limit:int):
-		def _to_datetime_safe(date_string, time_string):
-			if date_string is not None and time_string is not None:
-				return datetime_fmt.get_datetime_from_date_time(date_string, time_string)
-			else:
+		def _to_ts_safe(date_string, time_string):
+			try:
+				return formatters.str_to_ts(formatters.TIMESTAMP_FORMAT.DATETIME_MS, f"{date_string} {time_string}")
+			except:
 				return None
 
+		def _percent_str_safe(succ_count, fail_count):
+			try:
+				return formatters.percentage_str(succ_count, succ_count + fail_count)
+			except:
+				return formatters.NOT_AVAILABLE_STR
+
 		def _mapper(row):
-			NOT_AVAILABLE = "n/a"
-			scrap_s = _to_datetime_safe(*row[3:5])
-			scrap_e = _to_datetime_safe(*row[5:7])
-			success_percentage_str = "percent_string"
+			scrap_s = _to_ts_safe(*row[3:5])
+			scrap_e = _to_ts_safe(*row[5:7])
 			return (
 				row[0], row[1], row[2], # scrap id, source, status
-				NOT_AVAILABLE if scrap_s is None else datetime_fmt.get_datetime_for_print_from_date_time(scrap_s),
-				NOT_AVAILABLE if scrap_e is None else datetime_fmt.get_datetime_for_print_from_date_time(scrap_e),
-				NOT_AVAILABLE if None in (scrap_s, scrap_e) else datetime_fmt.ts_diff(scrap_s, scrap_e),
-				row[7],	row[8], success_percentage_str, # succ count, fail count, % string
+				formatters.NOT_AVAILABLE_STR if scrap_s is None else formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.DATETIME, scrap_s),
+				formatters.NOT_AVAILABLE_STR if scrap_e is None else formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.DATETIME, scrap_e),
+				formatters.NOT_AVAILABLE_STR if None in (scrap_s, scrap_e) else formatters.ts_diff_to_str(scrap_s, scrap_e, False),
+				row[7],	row[8], _percent_str_safe(row[7], row[8]), # succ count, fail count, % string
 				row[9], row[10], row[11], # exception: type, value, traceback
 			)
 

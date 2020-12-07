@@ -5,6 +5,7 @@ import pathlib
 import datetime
 from .sources import Source
 from .util.exception_info import ExceptionInfo
+from .util.formatters import percentage_str
 
 
 class ResultItemStatus(Enum):
@@ -132,7 +133,7 @@ class Result(object):
 
 	@property
 	def success_percentage_str(self):
-		return "n/a" if self.items_count == 0 else f"{(100.0 * self.items_succeeded_count) / self.items_count:3.2f}%"
+		return percentage_str(self.items_succeeded_count, self.items_count)
 
 	@property
 	def general_error_list(self):
