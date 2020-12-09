@@ -271,14 +271,21 @@ class DbStatReader(object):
 		def _mapper(row):
 			scrap_s = _to_ts_safe(*row[3:5])
 			scrap_e = _to_ts_safe(*row[5:7])
-			return (
-				row[0], row[1], row[2], # scrap id, source, status
-				formatters.NOT_AVAILABLE_STR if scrap_s is None else formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.DATETIME, scrap_s),
-				formatters.NOT_AVAILABLE_STR if scrap_e is None else formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.DATETIME, scrap_e),
-				formatters.NOT_AVAILABLE_STR if None in (scrap_s, scrap_e) else formatters.ts_diff_to_str(scrap_s, scrap_e, False),
-				row[7],	row[8], _percent_str_safe(row[7], row[8]), # succ count, fail count, % string
-				row[9], row[10], row[11], # exception: type, value, traceback
-			)
+			return {
+				"scrap_id": row[0],
+				"source": row[1],
+				"status": row[2],
+				"ts_start": formatters.NOT_AVAILABLE_STR if scrap_s is None else formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.DATETIME, scrap_s),
+				"ts_end": formatters.NOT_AVAILABLE_STR if scrap_e is None else formatters.ts_to_str(formatters.TIMESTAMP_FORMAT.DATETIME, scrap_e),
+				"age": formatters.NOT_AVAILABLE_STR if scrap_s is None else formatters.ts_diff_to_str(scrap_s, datetime.datetime.now(), False),
+				"time_taken": formatters.NOT_AVAILABLE_STR if None in (scrap_s, scrap_e) else formatters.ts_diff_to_str(scrap_s, scrap_e, False),
+				"count_succ": row[7],
+				"count_fail": row[8],
+				"succ_percentage": _percent_str_safe(row[7], row[8]),
+				"exc_type": row[9],
+				"exc_value": row[10],
+				"exc_traceback": row[11],
+			}
 
 		stmt = f"""
 			select

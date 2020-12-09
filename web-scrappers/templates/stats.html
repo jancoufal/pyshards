@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ page_data.title }}{% endblock %}
+{% block title %}{% endblock %}
 
 {% block content %}
 <h2>Stats</h2>
@@ -12,6 +12,7 @@
 				<th>source</th>
 				<th>status</th>
 				<th>started</th>
+				<th>age</th>
 				<th>time taken</th>
 				<th>items succ/fail</th>
 				<th>app error</th>
@@ -19,17 +20,18 @@
 		{% if page_data.stats.last_scraps %}
 			{% for scrap_record in page_data.stats.last_scraps %}
 				<tr>
-					<td>{{ scrap_record[0] }}</td>
-					<td>{{ scrap_record[1] }}</td>
-					<td>{{ scrap_record[2] }}</td>
-					<td>{{ scrap_record[3] }}</td>
-					<td>{{ scrap_record[5] }}</td>
+					<td>{{ scrap_record.scrap_id }}</td>
+					<td>{{ scrap_record.source }}</td>
+					<td>{{ scrap_record.status }}</td>
+					<td>{{ scrap_record.ts_start }}</td>
+					<td>{{ scrap_record.age }}</td>
+					<td>{{ scrap_record.time_taken }}</td>
 					<td>
-						<span class="success_count">{{ scrap_record[6] }}</span>
-						/ <span class="fail_count">{{ scrap_record[7] }}</span>
-						~ <span class="succcess_percent">{{ scrap_record[8]}}</span>
+						<span class="success_count">{{ scrap_record.count_succ }}</span>
+						/ <span class="fail_count">{{ scrap_record.count_fail }}</span>
+						~ <span class="succcess_percent">{{ scrap_record.succ_percentage }}</span>
 					</td>
-					<td>{{ scrap_record[9] }}</td>
+					<td>{{ scrap_record.exc_value }}</td>
 				</tr>
 		{% endfor %}
 	{% else %}

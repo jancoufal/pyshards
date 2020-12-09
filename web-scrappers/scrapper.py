@@ -7,6 +7,9 @@ import scrappers
 
 
 SETTINGS = {
+	"site": {
+		"title": "deflator",
+	},
 	"flask": {
 		"host": "localhost",
 		"port": 5000,
@@ -42,7 +45,7 @@ def get_page_data(page_values: dict=None):
 	HTML_ENTITY_SYMBOL_RELOAD = "&#x21bb;"
 
 	page_data = {
-		"title": "compressor",
+		"site": SETTINGS["site"],
 		"head": {
 			"less": url_for("static", filename="site.less"),
 		},
