@@ -18,6 +18,10 @@ SETTINGS = {
 	"sqlite3": {
 		"datafile": "image_box.sqlite3",
 	},
+	"limits": {
+		"images_shown": 100,
+		"scraps_shown": 100,
+	},
 	"scrap": {
 		"auth-key": "wewewe",
 		"auth-error-messages": [
@@ -25,7 +29,7 @@ SETTINGS = {
 			"Stop it! That's not the valid auth key.",
 			"You are wrong. I'm going to tell my dad, sucker.",
 			"Auth key valid... meh, just kiddin'. You don't know it, do you?",
-			"Why are you even trying, when you know that you don't konw the auth key?",
+			"Why are you even trying, when you know that you don't know the auth key?",
 			"Oh gosh, you failed so bad. I won't do anything for you.",
 			"Murder, death, kill. Murder, death, kill! Attention, attention. Calling 911.",
 			"I know what are you trying to do and it doesn't work. You screw it.",
@@ -41,7 +45,7 @@ app.debug = SETTINGS["flask"]["debug"]
 
 def get_page_data(page_values: dict=None):
 	HTML_ENTITY_SYMBOL_HOME = "&#x2302;"
-	HTML_ENTITY_SYMBOL_STATS = "&#x03a3;" # "&Signma;"
+	HTML_ENTITY_SYMBOL_STATS = "&#x03a3;" # "&Sigma;"
 	HTML_ENTITY_SYMBOL_RELOAD = "&#x21bb;"
 
 	page_data = {
@@ -86,7 +90,7 @@ def page_stats():
 	page_data = get_page_data()
 	reader = scrappers.DbStatReader.create(SETTINGS["sqlite3"]["datafile"])
 	page_data["stats"] = {
-		"last_scraps": reader.read_last_scraps(20),
+		"last_scraps": reader.read_last_scraps(SETTINGS["limits"]["scraps_shown"]),
 	}
 
 	return render_template("stats.html", page_data=page_data)
@@ -122,7 +126,7 @@ def page_view(source):
 	page_data = get_page_data({"source": source})
 	try:
 		reader = scrappers.DbScrapReader.create(SETTINGS["sqlite3"]["datafile"], scrappers.Source.of(source))
-		page_data["images"] = reader.read_recent_items(50)
+		page_data["images"] = reader.read_recent_items(SETTINGS["limits"]["images_shown"])
 		return render_template("view.html", page_data=page_data)
 	except:
 		return render_exception_page(page_data=page_data)

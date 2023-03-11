@@ -237,7 +237,7 @@ class DbScrapReader(object):
 			from {_Tables.SCRAP_ITEMS.value}
 			inner join {_Tables.SCRAP_STAT.value}
 				on {_Tables.SCRAP_STAT.value}.scrap_stat_id={_Tables.SCRAP_ITEMS.value}.scrap_stat_id
-			where source=:source and scrap_items.ts_date > date('now', '-1 month')
+			where source=:source and scrap_items.ts_date > date('now', '-6 month')
 			"""
 
 		binds = {

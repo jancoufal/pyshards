@@ -82,7 +82,7 @@ class BaseRoumen(object):
 
 		# extract all "a" tags having "roumingShow.php" present in the "href"
 		all_urls = map(lambda a: urllib.parse.urlparse(a.get("href")), soup.find_all("a"))
-		all_show = [url for url in all_urls if self._roumen_settings.href_needle in url.path]
+		all_show = [url for url in all_urls if isinstance(url.path,str) and self._roumen_settings.href_needle in url.path]
 
 		# extract all "file" values from the query string
 		all_qstr = [urllib.parse.parse_qs(url.query) for url in all_show]

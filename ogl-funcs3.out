@@ -1,0 +1,339 @@
+	enum class AttribMask : unsigned int
+	{
+		None_Bit,
+		Current_Bit,
+		Point_Bit,
+		Line_Bit,
+		Polygon_Bit,
+		Polygon_Stipple_Bit,
+		Pixel_Mode_Bit,
+		Lighting_Bit,
+		Fog_Bit,
+		Depth_Buffer_Bit,
+		Accum_Buffer_Bit,
+		Stencil_Buffer_Bit,
+		Viewport_Bit,
+		Transform_Bit,
+		Enable_Bit,
+		Color_Buffer_Bit,
+		Hint_Bit,
+		Eval_Bit,
+		List_Bit,
+		Texture_Bit,
+		Scissor_Bit,
+		Multisample_Bit,
+		// Multisample_Bit_3Dfx,
+		// Multisample_Bit_Arb,
+		// Multisample_Bit_Ext,
+		All_Attrib_Bits,
+	};
+
+	enum class BufferAccessMask : unsigned int
+	{
+		None_Bit,
+		Map_Read_Bit,
+		Map_Write_Bit,
+		Map_Invalidate_Range_Bit,
+		Map_Invalidate_Buffer_Bit,
+		Map_Flush_Explicit_Bit,
+		Map_Unsynchronized_Bit,
+		Map_Persistent_Bit,
+		Map_Coherent_Bit,
+	};
+
+	enum class BufferStorageMask : unsigned int
+	{
+		None_Bit,
+		Map_Read_Bit,
+		// Map_Read_Bit_Ext,
+		Map_Write_Bit,
+		// Map_Write_Bit_Ext,
+		Map_Persistent_Bit,
+		// Map_Persistent_Bit_Ext,
+		Map_Coherent_Bit,
+		// Map_Coherent_Bit_Ext,
+		Dynamic_Storage_Bit,
+		// Dynamic_Storage_Bit_Ext,
+		Client_Storage_Bit,
+		// Client_Storage_Bit_Ext,
+		Sparse_Storage_Bit_Arb,
+		Lgpu_Separate_Storage_Bit_Nvx,
+		// Per_Gpu_Storage_Bit_Nv,
+		External_Storage_Bit_Nvx,
+	};
+
+	enum class ClearBufferMask : unsigned int
+	{
+		None_Bit,
+		Depth_Buffer_Bit,
+		Accum_Buffer_Bit,
+		Stencil_Buffer_Bit,
+		Color_Buffer_Bit,
+		Coverage_Buffer_Bit_Nv,
+	};
+
+	enum class ClientAttribMask : unsigned int
+	{
+		None_Bit,
+		Client_Pixel_Store_Bit,
+		Client_Vertex_Array_Bit,
+		Client_All_Attrib_Bits,
+	};
+
+	enum class ContextFlagMask : unsigned int
+	{
+		None_Bit,
+		Context_Flag_Forward_Compatible_Bit,
+		Context_Flag_Debug_Bit,
+		Context_Flag_Robust_Access_Bit,
+		// Context_Flag_Robust_Access_Bit_Arb,
+		Context_Flag_No_Error_Bit,
+		// Context_Flag_No_Error_Bit_Khr,
+	};
+
+	enum class ContextProfileMask : unsigned int
+	{
+		None_Bit,
+		Context_Core_Profile_Bit,
+		Context_Compatibility_Profile_Bit,
+	};
+
+	enum class FfdMaskSGIX : unsigned int
+	{
+		None_Bit,
+		Texture_Deformation_Bit_Sgix,
+		Geometry_Deformation_Bit_Sgix,
+	};
+
+	enum class FragmentShaderColorModMaskATI : unsigned int
+	{
+		None_Bit,
+		Comp_Bit_Ati,
+		Negate_Bit_Ati,
+		Bias_Bit_Ati,
+	};
+
+	enum class FragmentShaderDestMaskATI : unsigned int
+	{
+		None_Bit,
+		Red_Bit_Ati,
+		Green_Bit_Ati,
+		Blue_Bit_Ati,
+	};
+
+	enum class FragmentShaderDestModMaskATI : unsigned int
+	{
+		None_Bit,
+		_2X_Bit_Ati,
+		_4X_Bit_Ati,
+		_8X_Bit_Ati,
+		Half_Bit_Ati,
+		Quarter_Bit_Ati,
+		Eighth_Bit_Ati,
+		Saturate_Bit_Ati,
+	};
+
+	enum class MapBufferAccessMask : unsigned int
+	{
+		None_Bit,
+		Map_Read_Bit,
+		// Map_Read_Bit_Ext,
+		Map_Write_Bit,
+		// Map_Write_Bit_Ext,
+		Map_Invalidate_Range_Bit,
+		// Map_Invalidate_Range_Bit_Ext,
+		Map_Invalidate_Buffer_Bit,
+		// Map_Invalidate_Buffer_Bit_Ext,
+		Map_Flush_Explicit_Bit,
+		// Map_Flush_Explicit_Bit_Ext,
+		Map_Unsynchronized_Bit,
+		// Map_Unsynchronized_Bit_Ext,
+		Map_Persistent_Bit,
+		// Map_Persistent_Bit_Ext,
+		Map_Coherent_Bit,
+		// Map_Coherent_Bit_Ext,
+	};
+
+	enum class MemoryBarrierMask : unsigned int
+	{
+		None_Bit,
+		Vertex_Attrib_Array_Barrier_Bit,
+		// Vertex_Attrib_Array_Barrier_Bit_Ext,
+		Element_Array_Barrier_Bit,
+		// Element_Array_Barrier_Bit_Ext,
+		Uniform_Barrier_Bit,
+		// Uniform_Barrier_Bit_Ext,
+		Texture_Fetch_Barrier_Bit,
+		// Texture_Fetch_Barrier_Bit_Ext,
+		Shader_Global_Access_Barrier_Bit_Nv,
+		Shader_Image_Access_Barrier_Bit,
+		// Shader_Image_Access_Barrier_Bit_Ext,
+		Command_Barrier_Bit,
+		// Command_Barrier_Bit_Ext,
+		Pixel_Buffer_Barrier_Bit,
+		// Pixel_Buffer_Barrier_Bit_Ext,
+		Texture_Update_Barrier_Bit,
+		// Texture_Update_Barrier_Bit_Ext,
+		Buffer_Update_Barrier_Bit,
+		// Buffer_Update_Barrier_Bit_Ext,
+		Framebuffer_Barrier_Bit,
+		// Framebuffer_Barrier_Bit_Ext,
+		Transform_Feedback_Barrier_Bit,
+		// Transform_Feedback_Barrier_Bit_Ext,
+		Atomic_Counter_Barrier_Bit,
+		// Atomic_Counter_Barrier_Bit_Ext,
+		Shader_Storage_Barrier_Bit,
+		Client_Mapped_Buffer_Barrier_Bit,
+		// Client_Mapped_Buffer_Barrier_Bit_Ext,
+		Query_Buffer_Barrier_Bit,
+		All_Barrier_Bits,
+		// All_Barrier_Bits_Ext,
+	};
+
+	enum class OcclusionQueryEventMaskAMD : unsigned int
+	{
+		None_Bit,
+		Query_Depth_Pass_Event_Bit_Amd,
+		Query_Depth_Fail_Event_Bit_Amd,
+		Query_Stencil_Fail_Event_Bit_Amd,
+		Query_Depth_Bounds_Fail_Event_Bit_Amd,
+		Query_All_Event_Bits_Amd,
+	};
+
+	enum class PathFontStyle : unsigned int
+	{
+		None_Bit,
+		Bold_Bit_Nv,
+		Italic_Bit_Nv,
+	};
+
+	enum class PathMetricMask : unsigned int
+	{
+		None_Bit,
+		Font_X_Min_Bounds_Bit_Nv,
+		Font_Y_Min_Bounds_Bit_Nv,
+		Font_X_Max_Bounds_Bit_Nv,
+		Font_Y_Max_Bounds_Bit_Nv,
+		Font_Units_Per_Em_Bit_Nv,
+		Font_Ascender_Bit_Nv,
+		Font_Descender_Bit_Nv,
+		Font_Height_Bit_Nv,
+		Glyph_Width_Bit_Nv,
+		Font_Max_Advance_Width_Bit_Nv,
+		Glyph_Height_Bit_Nv,
+		Font_Max_Advance_Height_Bit_Nv,
+		Glyph_Horizontal_Bearing_X_Bit_Nv,
+		Font_Underline_Position_Bit_Nv,
+		Glyph_Horizontal_Bearing_Y_Bit_Nv,
+		Font_Underline_Thickness_Bit_Nv,
+		Glyph_Horizontal_Bearing_Advance_Bit_Nv,
+		Glyph_Has_Kerning_Bit_Nv,
+		Font_Has_Kerning_Bit_Nv,
+		Glyph_Vertical_Bearing_X_Bit_Nv,
+		Font_Num_Glyph_Indices_Bit_Nv,
+		Glyph_Vertical_Bearing_Y_Bit_Nv,
+		Glyph_Vertical_Bearing_Advance_Bit_Nv,
+	};
+
+	enum class PathRenderingMaskNV : unsigned int
+	{
+		None_Bit,
+		Font_X_Min_Bounds_Bit_Nv,
+		Font_Y_Min_Bounds_Bit_Nv,
+		Font_X_Max_Bounds_Bit_Nv,
+		Font_Y_Max_Bounds_Bit_Nv,
+		Font_Units_Per_Em_Bit_Nv,
+		Font_Ascender_Bit_Nv,
+		Font_Descender_Bit_Nv,
+		Font_Height_Bit_Nv,
+		Bold_Bit_Nv,
+		// Glyph_Width_Bit_Nv,
+		Font_Max_Advance_Width_Bit_Nv,
+		Glyph_Height_Bit_Nv,
+		// Italic_Bit_Nv,
+		Font_Max_Advance_Height_Bit_Nv,
+		Glyph_Horizontal_Bearing_X_Bit_Nv,
+		Font_Underline_Position_Bit_Nv,
+		Glyph_Horizontal_Bearing_Y_Bit_Nv,
+		Font_Underline_Thickness_Bit_Nv,
+		Glyph_Horizontal_Bearing_Advance_Bit_Nv,
+		Glyph_Has_Kerning_Bit_Nv,
+		Font_Has_Kerning_Bit_Nv,
+		Glyph_Vertical_Bearing_X_Bit_Nv,
+		Font_Num_Glyph_Indices_Bit_Nv,
+		Glyph_Vertical_Bearing_Y_Bit_Nv,
+		Glyph_Vertical_Bearing_Advance_Bit_Nv,
+	};
+
+	enum class PerformanceQueryCapsMaskINTEL : unsigned int
+	{
+		None_Bit,
+		Perfquery_Single_Context_Intel,
+		Perfquery_Global_Context_Intel,
+	};
+
+	enum class SyncObjectMask : unsigned int
+	{
+		None_Bit,
+		Sync_Flush_Commands_Bit,
+		// Sync_Flush_Commands_Bit_Apple,
+	};
+
+	enum class TextureStorageMaskAMD : unsigned int
+	{
+		None_Bit,
+		Texture_Storage_Sparse_Bit_Amd,
+	};
+
+	enum class UnusedMask : unsigned int
+	{
+		None_Bit,
+		Unused_Bit,
+	};
+
+	enum class UseProgramStageMask : unsigned int
+	{
+		None_Bit,
+		Vertex_Shader_Bit,
+		// Vertex_Shader_Bit_Ext,
+		Fragment_Shader_Bit,
+		// Fragment_Shader_Bit_Ext,
+		Geometry_Shader_Bit,
+		// Geometry_Shader_Bit_Ext,
+		// Geometry_Shader_Bit_Oes,
+		Tess_Control_Shader_Bit,
+		// Tess_Control_Shader_Bit_Ext,
+		// Tess_Control_Shader_Bit_Oes,
+		Tess_Evaluation_Shader_Bit,
+		// Tess_Evaluation_Shader_Bit_Ext,
+		// Tess_Evaluation_Shader_Bit_Oes,
+		Compute_Shader_Bit,
+		Mesh_Shader_Bit_Nv,
+		Task_Shader_Bit_Nv,
+		All_Shader_Bits,
+		// All_Shader_Bits_Ext,
+	};
+
+	enum class VertexHintsMaskPGI : unsigned int
+	{
+		None_Bit,
+		Vertex23_Bit_Pgi,
+		Vertex4_Bit_Pgi,
+		Color3_Bit_Pgi,
+		Color4_Bit_Pgi,
+		Edgeflag_Bit_Pgi,
+		Index_Bit_Pgi,
+		Mat_Ambient_Bit_Pgi,
+		Mat_Ambient_And_Diffuse_Bit_Pgi,
+		Mat_Diffuse_Bit_Pgi,
+		Mat_Emission_Bit_Pgi,
+		Mat_Color_Indexes_Bit_Pgi,
+		Mat_Shininess_Bit_Pgi,
+		Mat_Specular_Bit_Pgi,
+		Normal_Bit_Pgi,
+		Texcoord1_Bit_Pgi,
+		Texcoord2_Bit_Pgi,
+		Texcoord3_Bit_Pgi,
+		Texcoord4_Bit_Pgi,
+	};
+

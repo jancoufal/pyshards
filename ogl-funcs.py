@@ -15,17 +15,28 @@ def main():
 
 
 class SaxXmlHandler(sax.ContentHandler):
-	def __init__(self, handler):
-		self._handler = handler
-		# self._handler = StructScanner(None)
+	def __init__(self, handler_clazz_dict):
+		self._handler_clazz_dict = handler_clazz_dict
+		self._handler_stack = list()
+		self._tag_stack = list()
 		self._data = ""
 
 	def startElement(self, tag, attributes):
+		self._tag_stack.append(tag)
+		handler_clazz = self._handler_clazz_dict.get(self._tag_stack, HandlerNoOp)
+		self._handler_stack.append(handler_clazz(tag, attributes))
 		self._data = ""
-		self._handler = self._handler.get_handler(tag, attributes)
 
 	def endElement(self, tag):
-		self._handler = self._handler.finish(tag, self._data)
+		last_tag = self._tag_stack.pop()
+		if tag != last_tag:
+			raise AssertionError(f"Tags does not match ({last_tag}, {tag}")
+
+		finishing_handler = self._handler_stack.pop()
+		finishing_handler.finish(self._data)
+
+		if len(self._handler_stack) > 0:
+			self._handler_stack[-1].on_child_finish(finishing_handler)
 
 	def characters(self, content):
 		self._data += content.strip()
@@ -81,35 +92,37 @@ class HandlerStructScanner(HandlerBase):
 
 
 class HandlerNoOp(HandlerBase):
-	def _accept(self, tag, content):
+	def get_handler(self, tag, attributes):
+		return HandlerNoOp(self, tag, attributes)
+
+	def on_child_finish(self, child):
 		pass
 
 
-"""
 class HandlerGlXml(HandlerBase):
 	@classmethod
 	def create(cls, handler_definitions):
-		return cls(None, None, None)
+		return cls(handler_definitions, "", None, None, None)
 
-	def _get_handler_factory(self):
-		return {
-			"registry": HandlerRegistry,
-		}
+	def __init__(self, handler_definitions, tag_path, parent_handler, tag, attributes):
+		super(HandlerBase, self).__init__(parent_handler, tag, attributes)
+		self._tag_path = tag_path
+		self._handler_definitions = handler_definitions
 
-	def _accept(self, tag, content):
-		print(f"HandlerGlXml > {tag=}, {content=}")
+	def get_handler(self, tag, attributes):
+		p = self._tag_path + ">" + tag
+		return self._handler_definitions.get(p, HandlerNoOp(self, tag, attributes))
+
+	def on_child_finish(self, child):
+		print(f"HandlerGlXml > {child=}")
 
 
 class HandlerRegistry(HandlerBase):
-	def _get_handler_factory(self):
-		return {
-			"types": HandlerTypes,
-		}
-
-	def _accept(self, tag, content):
-		print(f"HandlerRegistry > {tag=}, {content=}")
+	def on_child_finish(self, child):
+		print(f"HandlerRegistry > {child=}")
 
 
+"""
 class HandlerTypes(HandlerBase):
 	def _get_handler_factory(self):
 		return {

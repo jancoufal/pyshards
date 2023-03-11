@@ -1,0 +1,2490 @@
+	enum class AccumOp : unsigned int
+	{
+		Accum,
+		Load,
+		Return,
+		Mult,
+		Add,
+	};
+
+	enum class AlphaFunction : unsigned int
+	{
+		Never,
+		Less,
+		Equal,
+		Lequal,
+		Greater,
+		Notequal,
+		Gequal,
+		Always,
+	};
+
+	enum class AtomicCounterBufferPName : unsigned int
+	{
+		Atomic_Counter_Buffer_Referenced_By_Compute_Shader,
+		Atomic_Counter_Buffer_Binding,
+		Atomic_Counter_Buffer_Data_Size,
+		Atomic_Counter_Buffer_Active_Atomic_Counters,
+		Atomic_Counter_Buffer_Active_Atomic_Counter_Indices,
+		Atomic_Counter_Buffer_Referenced_By_Vertex_Shader,
+		Atomic_Counter_Buffer_Referenced_By_Tess_Control_Shader,
+		Atomic_Counter_Buffer_Referenced_By_Tess_Evaluation_Shader,
+		Atomic_Counter_Buffer_Referenced_By_Geometry_Shader,
+		Atomic_Counter_Buffer_Referenced_By_Fragment_Shader,
+	};
+
+	enum class AttributeType : unsigned int
+	{
+		Float_Vec2,
+		Float_Vec2_Arb,
+		Float_Vec3,
+		Float_Vec3_Arb,
+		Float_Vec4,
+		Float_Vec4_Arb,
+		Int_Vec2,
+		Int_Vec2_Arb,
+		Int_Vec3,
+		Int_Vec3_Arb,
+		Int_Vec4,
+		Int_Vec4_Arb,
+		Bool,
+		Bool_Arb,
+		Bool_Vec2,
+		Bool_Vec2_Arb,
+		Bool_Vec3,
+		Bool_Vec3_Arb,
+		Bool_Vec4,
+		Bool_Vec4_Arb,
+		Float_Mat2,
+		Float_Mat2_Arb,
+		Float_Mat3,
+		Float_Mat3_Arb,
+		Float_Mat4,
+		Float_Mat4_Arb,
+		Sampler_1D,
+		Sampler_1D_Arb,
+		Sampler_2D,
+		Sampler_2D_Arb,
+		Sampler_3D,
+		Sampler_3D_Arb,
+		Sampler_3D_Oes,
+		Sampler_Cube,
+		Sampler_Cube_Arb,
+		Sampler_1D_Shadow,
+		Sampler_1D_Shadow_Arb,
+		Sampler_2D_Shadow,
+		Sampler_2D_Shadow_Arb,
+		Sampler_2D_Shadow_Ext,
+		Sampler_2D_Rect,
+		Sampler_2D_Rect_Arb,
+		Sampler_2D_Rect_Shadow,
+		Sampler_2D_Rect_Shadow_Arb,
+		Float_Mat2X3,
+		Float_Mat2X3_Nv,
+		Float_Mat2X4,
+		Float_Mat2X4_Nv,
+		Float_Mat3X2,
+		Float_Mat3X2_Nv,
+		Float_Mat3X4,
+		Float_Mat3X4_Nv,
+		Float_Mat4X2,
+		Float_Mat4X2_Nv,
+		Float_Mat4X3,
+		Float_Mat4X3_Nv,
+	};
+
+	enum class BindTransformFeedbackTarget : unsigned int
+	{
+		Transform_Feedback,
+	};
+
+	enum class BlendEquationModeEXT : unsigned int
+	{
+		Func_Add,
+		Func_Add_Ext,
+		Min,
+		Min_Ext,
+		Max,
+		Max_Ext,
+		Func_Subtract,
+		Func_Subtract_Ext,
+		Func_Reverse_Subtract,
+		Func_Reverse_Subtract_Ext,
+		Alpha_Min_Sgix,
+		Alpha_Max_Sgix,
+	};
+
+	enum class BlendingFactor : unsigned int
+	{
+		Zero,
+		Src_Color,
+		One_Minus_Src_Color,
+		Src_Alpha,
+		One_Minus_Src_Alpha,
+		Dst_Alpha,
+		One_Minus_Dst_Alpha,
+		Dst_Color,
+		One_Minus_Dst_Color,
+		Src_Alpha_Saturate,
+		Constant_Color,
+		One_Minus_Constant_Color,
+		Constant_Alpha,
+		One_Minus_Constant_Alpha,
+		Src1_Alpha,
+		Src1_Color,
+		One_Minus_Src1_Color,
+		One_Minus_Src1_Alpha,
+		One,
+	};
+
+	enum class BlitFramebufferFilter : unsigned int
+	{
+		Nearest,
+		Linear,
+	};
+
+	enum class Buffer : unsigned int
+	{
+		Color,
+		Depth,
+		Stencil,
+	};
+
+	enum class BufferAccessARB : unsigned int
+	{
+		Read_Only,
+		Write_Only,
+		Read_Write,
+	};
+
+	enum class BufferStorageTarget : unsigned int
+	{
+		Array_Buffer,
+		Element_Array_Buffer,
+		Pixel_Pack_Buffer,
+		Pixel_Unpack_Buffer,
+		Uniform_Buffer,
+		Texture_Buffer,
+		Transform_Feedback_Buffer,
+		Copy_Read_Buffer,
+		Copy_Write_Buffer,
+		Draw_Indirect_Buffer,
+		Shader_Storage_Buffer,
+		Dispatch_Indirect_Buffer,
+		Query_Buffer,
+		Atomic_Counter_Buffer,
+	};
+
+	enum class BufferTargetARB : unsigned int
+	{
+		Parameter_Buffer,
+	};
+
+	enum class BufferUsageARB : unsigned int
+	{
+		Stream_Draw,
+		Stream_Read,
+		Stream_Copy,
+		Static_Draw,
+		Static_Read,
+		Static_Copy,
+		Dynamic_Draw,
+		Dynamic_Read,
+		Dynamic_Copy,
+	};
+
+	enum class CheckFramebufferStatusTarget : unsigned int
+	{
+		Read_Framebuffer,
+		Draw_Framebuffer,
+		Framebuffer,
+	};
+
+	enum class ClipControlDepth : unsigned int
+	{
+		Negative_One_To_One,
+		Zero_To_One,
+	};
+
+	enum class ClipControlOrigin : unsigned int
+	{
+		Lower_Left,
+		Upper_Left,
+	};
+
+	enum class ClipPlaneName : unsigned int
+	{
+		Clip_Distance0,
+		Clip_Plane0,
+		Clip_Distance1,
+		Clip_Plane1,
+		Clip_Distance2,
+		Clip_Plane2,
+		Clip_Distance3,
+		Clip_Plane3,
+		Clip_Distance4,
+		Clip_Plane4,
+		Clip_Distance5,
+		Clip_Plane5,
+		Clip_Distance6,
+		Clip_Distance7,
+	};
+
+	enum class ColorBuffer : unsigned int
+	{
+		None,
+		Front_Left,
+		Front_Right,
+		Back_Left,
+		Back_Right,
+		Front,
+		Back,
+		Left,
+		Right,
+		Front_And_Back,
+		Color_Attachment0,
+		Color_Attachment1,
+		Color_Attachment2,
+		Color_Attachment3,
+		Color_Attachment4,
+		Color_Attachment5,
+		Color_Attachment6,
+		Color_Attachment7,
+		Color_Attachment8,
+		Color_Attachment9,
+		Color_Attachment10,
+		Color_Attachment11,
+		Color_Attachment12,
+		Color_Attachment13,
+		Color_Attachment14,
+		Color_Attachment15,
+		Color_Attachment16,
+		Color_Attachment17,
+		Color_Attachment18,
+		Color_Attachment19,
+		Color_Attachment20,
+		Color_Attachment21,
+		Color_Attachment22,
+		Color_Attachment23,
+		Color_Attachment24,
+		Color_Attachment25,
+		Color_Attachment26,
+		Color_Attachment27,
+		Color_Attachment28,
+		Color_Attachment29,
+		Color_Attachment30,
+		Color_Attachment31,
+	};
+
+	enum class ColorMaterialParameter : unsigned int
+	{
+		Ambient,
+		Diffuse,
+		Specular,
+		Emission,
+		Ambient_And_Diffuse,
+	};
+
+	enum class ColorPointerType : unsigned int
+	{
+		Byte,
+		Unsigned_Byte,
+		Short,
+		Unsigned_Short,
+		Int,
+		Unsigned_Int,
+		Float,
+		Double,
+	};
+
+	enum class ColorTableParameterPNameSGI : unsigned int
+	{
+		Color_Table_Scale,
+		Color_Table_Scale_Sgi,
+		Color_Table_Bias,
+		Color_Table_Bias_Sgi,
+	};
+
+	enum class ColorTableTarget : unsigned int
+	{
+		Color_Table,
+		Post_Convolution_Color_Table,
+		Post_Color_Matrix_Color_Table,
+	};
+
+	enum class ColorTableTargetSGI : unsigned int
+	{
+		Texture_Color_Table_Sgi,
+		Proxy_Texture_Color_Table_Sgi,
+		Color_Table_Sgi,
+		Post_Convolution_Color_Table_Sgi,
+		Post_Color_Matrix_Color_Table_Sgi,
+		Proxy_Color_Table,
+		Proxy_Color_Table_Sgi,
+		Proxy_Post_Convolution_Color_Table,
+		Proxy_Post_Convolution_Color_Table_Sgi,
+		Proxy_Post_Color_Matrix_Color_Table,
+		Proxy_Post_Color_Matrix_Color_Table_Sgi,
+	};
+
+	enum class ConvolutionBorderModeEXT : unsigned int
+	{
+		Reduce,
+		Reduce_Ext,
+	};
+
+	enum class ConvolutionParameterEXT : unsigned int
+	{
+		Convolution_Border_Mode,
+		Convolution_Border_Mode_Ext,
+		Convolution_Filter_Scale,
+		Convolution_Filter_Scale_Ext,
+		Convolution_Filter_Bias,
+		Convolution_Filter_Bias_Ext,
+	};
+
+	enum class ConvolutionTarget : unsigned int
+	{
+		Convolution_1D,
+		Convolution_2D,
+	};
+
+	enum class ConvolutionTargetEXT : unsigned int
+	{
+		Convolution_1D_Ext,
+		Convolution_2D_Ext,
+	};
+
+	enum class DebugSeverity : unsigned int
+	{
+		Dont_Care,
+		Debug_Severity_Notification,
+		Debug_Severity_High,
+		Debug_Severity_Medium,
+		Debug_Severity_Low,
+	};
+
+	enum class DebugSource : unsigned int
+	{
+		Debug_Source_Api,
+		Debug_Source_Window_System,
+		Debug_Source_Shader_Compiler,
+		Debug_Source_Third_Party,
+		Debug_Source_Application,
+		Debug_Source_Other,
+	};
+
+	enum class DebugType : unsigned int
+	{
+		Debug_Type_Error,
+		Debug_Type_Deprecated_Behavior,
+		Debug_Type_Undefined_Behavior,
+		Debug_Type_Portability,
+		Debug_Type_Performance,
+		Debug_Type_Other,
+		Debug_Type_Marker,
+		Debug_Type_Push_Group,
+		Debug_Type_Pop_Group,
+	};
+
+	enum class DrawBufferMode : unsigned int
+	{
+		Aux0,
+		Aux1,
+		Aux2,
+		Aux3,
+	};
+
+	enum class EnableCap : unsigned int
+	{
+		Point_Smooth,
+		Line_Smooth,
+		Line_Stipple,
+		Polygon_Smooth,
+		Polygon_Stipple,
+		Cull_Face,
+		Lighting,
+		Color_Material,
+		Fog,
+		Depth_Test,
+		Stencil_Test,
+		Normalize,
+		Alpha_Test,
+		Dither,
+		Blend,
+		Index_Logic_Op,
+		Color_Logic_Op,
+		Scissor_Test,
+		Texture_Gen_S,
+		Texture_Gen_T,
+		Texture_Gen_R,
+		Texture_Gen_Q,
+		Auto_Normal,
+		Map1_Color_4,
+		Map1_Index,
+		Map1_Normal,
+		Map1_Texture_Coord_1,
+		Map1_Texture_Coord_2,
+		Map1_Texture_Coord_3,
+		Map1_Texture_Coord_4,
+		Map1_Vertex_3,
+		Map1_Vertex_4,
+		Map2_Color_4,
+		Map2_Index,
+		Map2_Normal,
+		Map2_Texture_Coord_1,
+		Map2_Texture_Coord_2,
+		Map2_Texture_Coord_3,
+		Map2_Texture_Coord_4,
+		Map2_Vertex_3,
+		Map2_Vertex_4,
+		Texture_1D,
+		Texture_2D,
+		Polygon_Offset_Point,
+		Polygon_Offset_Line,
+		Light0,
+		Light1,
+		Light2,
+		Light3,
+		Light4,
+		Light5,
+		Light6,
+		Light7,
+		Separable_2D_Ext,
+		Histogram_Ext,
+		Minmax_Ext,
+		Polygon_Offset_Fill,
+		Rescale_Normal_Ext,
+		Texture_3D_Ext,
+		Vertex_Array,
+		Normal_Array,
+		Color_Array,
+		Index_Array,
+		Texture_Coord_Array,
+		Edge_Flag_Array,
+		Interlace_Sgix,
+		Multisample,
+		Multisample_Sgis,
+		Sample_Alpha_To_Coverage,
+		Sample_Alpha_To_Mask_Sgis,
+		Sample_Alpha_To_One,
+		Sample_Alpha_To_One_Sgis,
+		Sample_Coverage,
+		Sample_Mask_Sgis,
+		Texture_4D_Sgis,
+		Pixel_Tex_Gen_Sgix,
+		Sprite_Sgix,
+		Reference_Plane_Sgix,
+		Ir_Instrument1_Sgix,
+		Calligraphic_Fragment_Sgix,
+		Framezoom_Sgix,
+		Fog_Offset_Sgix,
+		Shared_Texture_Palette_Ext,
+		Debug_Output_Synchronous,
+		Async_Histogram_Sgix,
+		Pixel_Texture_Sgis,
+		Async_Tex_Image_Sgix,
+		Async_Draw_Pixels_Sgix,
+		Async_Read_Pixels_Sgix,
+		Fragment_Lighting_Sgix,
+		Fragment_Color_Material_Sgix,
+		Fragment_Light0_Sgix,
+		Fragment_Light1_Sgix,
+		Fragment_Light2_Sgix,
+		Fragment_Light3_Sgix,
+		Fragment_Light4_Sgix,
+		Fragment_Light5_Sgix,
+		Fragment_Light6_Sgix,
+		Fragment_Light7_Sgix,
+		Program_Point_Size,
+		Depth_Clamp,
+		Texture_Cube_Map_Seamless,
+		Sample_Shading,
+		Rasterizer_Discard,
+		Primitive_Restart_Fixed_Index,
+		Framebuffer_Srgb,
+		Sample_Mask,
+		Primitive_Restart,
+		Debug_Output,
+	};
+
+	enum class ErrorCode : unsigned int
+	{
+		No_Error,
+		Invalid_Enum,
+		Invalid_Value,
+		Invalid_Operation,
+		Stack_Overflow,
+		Stack_Underflow,
+		Out_Of_Memory,
+		Invalid_Framebuffer_Operation,
+		Invalid_Framebuffer_Operation_Ext,
+		Table_Too_Large,
+		Table_Too_Large_Ext,
+		Texture_Too_Large_Ext,
+	};
+
+	enum class ExternalHandleType : unsigned int
+	{
+		Handle_Type_Opaque_Fd_Ext,
+		Handle_Type_Opaque_Win32_Ext,
+		Handle_Type_Opaque_Win32_Kmt_Ext,
+		Handle_Type_D3D12_Tilepool_Ext,
+		Handle_Type_D3D12_Resource_Ext,
+		Handle_Type_D3D11_Image_Ext,
+		Handle_Type_D3D11_Image_Kmt_Ext,
+		Handle_Type_D3D12_Fence_Ext,
+	};
+
+	enum class FeedBackToken : unsigned int
+	{
+		Pass_Through_Token,
+		Point_Token,
+		Line_Token,
+		Polygon_Token,
+		Bitmap_Token,
+		Draw_Pixel_Token,
+		Copy_Pixel_Token,
+		Line_Reset_Token,
+	};
+
+	enum class FeedbackType : unsigned int
+	{
+		_2D,
+		_3D,
+		_3D_Color,
+		_3D_Color_Texture,
+		_4D_Color_Texture,
+	};
+
+	enum class FfdTargetSGIX : unsigned int
+	{
+		Geometry_Deformation_Sgix,
+		Texture_Deformation_Sgix,
+	};
+
+	enum class FogMode : unsigned int
+	{
+		Exp,
+		Exp2,
+		Fog_Func_Sgis,
+	};
+
+	enum class FogPName : unsigned int
+	{
+		Fog_Index,
+		Fog_Density,
+		Fog_Start,
+		Fog_End,
+		Fog_Mode,
+		Fog_Coord_Src,
+	};
+
+	enum class FogParameter : unsigned int
+	{
+		Fog_Color,
+		Fog_Offset_Value_Sgix,
+	};
+
+	enum class FragmentLightModelParameterSGIX : unsigned int
+	{
+		Fragment_Light_Model_Local_Viewer_Sgix,
+		Fragment_Light_Model_Two_Side_Sgix,
+		Fragment_Light_Model_Ambient_Sgix,
+		Fragment_Light_Model_Normal_Interpolation_Sgix,
+	};
+
+	enum class FragmentOpATI : unsigned int
+	{
+		Mov_Ati,
+		Add_Ati,
+		Mul_Ati,
+		Sub_Ati,
+		Dot3_Ati,
+		Dot4_Ati,
+		Mad_Ati,
+		Lerp_Ati,
+		Cnd_Ati,
+		Cnd0_Ati,
+		Dot2_Add_Ati,
+	};
+
+	enum class FramebufferAttachment : unsigned int
+	{
+		Depth_Stencil_Attachment,
+		Max_Color_Attachments,
+		Max_Color_Attachments_Ext,
+		Color_Attachment0_Ext,
+		Color_Attachment1_Ext,
+		Color_Attachment2_Ext,
+		Color_Attachment3_Ext,
+		Color_Attachment4_Ext,
+		Color_Attachment5_Ext,
+		Color_Attachment6_Ext,
+		Color_Attachment7_Ext,
+		Color_Attachment8_Ext,
+		Color_Attachment9_Ext,
+		Color_Attachment10_Ext,
+		Color_Attachment11_Ext,
+		Color_Attachment12_Ext,
+		Color_Attachment13_Ext,
+		Color_Attachment14_Ext,
+		Color_Attachment15_Ext,
+		Depth_Attachment,
+		Depth_Attachment_Ext,
+	};
+
+	enum class FramebufferAttachmentParameterName : unsigned int
+	{
+		Framebuffer_Attachment_Color_Encoding,
+		Framebuffer_Attachment_Component_Type,
+		Framebuffer_Attachment_Red_Size,
+		Framebuffer_Attachment_Green_Size,
+		Framebuffer_Attachment_Blue_Size,
+		Framebuffer_Attachment_Alpha_Size,
+		Framebuffer_Attachment_Depth_Size,
+		Framebuffer_Attachment_Stencil_Size,
+		Framebuffer_Attachment_Object_Name,
+		Framebuffer_Attachment_Texture_Level,
+		Framebuffer_Attachment_Texture_Cube_Map_Face,
+		Framebuffer_Attachment_Texture_Layer,
+		Framebuffer_Attachment_Layered,
+	};
+
+	enum class FramebufferParameterName : unsigned int
+	{
+		Framebuffer_Default_Width,
+		Framebuffer_Default_Height,
+		Framebuffer_Default_Layers,
+		Framebuffer_Default_Samples,
+		Framebuffer_Default_Fixed_Sample_Locations,
+	};
+
+	enum class FramebufferStatus : unsigned int
+	{
+		Framebuffer_Undefined,
+		Framebuffer_Complete,
+		Framebuffer_Incomplete_Attachment,
+		Framebuffer_Incomplete_Missing_Attachment,
+		Framebuffer_Incomplete_Draw_Buffer,
+		Framebuffer_Incomplete_Read_Buffer,
+		Framebuffer_Unsupported,
+		Framebuffer_Incomplete_Multisample,
+		Framebuffer_Incomplete_Layer_Targets,
+	};
+
+	enum class FrontFaceDirection : unsigned int
+	{
+		Cw,
+		Ccw,
+	};
+
+	enum class GetColorTableParameterPNameSGI : unsigned int
+	{
+		Color_Table_Format,
+		Color_Table_Format_Sgi,
+		Color_Table_Width,
+		Color_Table_Width_Sgi,
+		Color_Table_Red_Size,
+		Color_Table_Red_Size_Sgi,
+		Color_Table_Green_Size,
+		Color_Table_Green_Size_Sgi,
+		Color_Table_Blue_Size,
+		Color_Table_Blue_Size_Sgi,
+		Color_Table_Alpha_Size,
+		Color_Table_Alpha_Size_Sgi,
+		Color_Table_Luminance_Size,
+		Color_Table_Luminance_Size_Sgi,
+		Color_Table_Intensity_Size,
+		Color_Table_Intensity_Size_Sgi,
+	};
+
+	enum class GetConvolutionParameter : unsigned int
+	{
+		Convolution_Format,
+		Convolution_Format_Ext,
+		Convolution_Width,
+		Convolution_Width_Ext,
+		Convolution_Height,
+		Convolution_Height_Ext,
+		Max_Convolution_Width,
+		Max_Convolution_Width_Ext,
+		Max_Convolution_Height,
+		Max_Convolution_Height_Ext,
+		Convolution_Border_Color,
+	};
+
+	enum class GetFramebufferParameter : unsigned int
+	{
+		Doublebuffer,
+		Stereo,
+		Sample_Buffers,
+		Samples,
+		Implementation_Color_Read_Type,
+		Implementation_Color_Read_Format,
+	};
+
+	enum class GetHistogramParameterPNameEXT : unsigned int
+	{
+		Histogram_Width,
+		Histogram_Width_Ext,
+		Histogram_Format,
+		Histogram_Format_Ext,
+		Histogram_Red_Size,
+		Histogram_Red_Size_Ext,
+		Histogram_Green_Size,
+		Histogram_Green_Size_Ext,
+		Histogram_Blue_Size,
+		Histogram_Blue_Size_Ext,
+		Histogram_Alpha_Size,
+		Histogram_Alpha_Size_Ext,
+		Histogram_Luminance_Size,
+		Histogram_Luminance_Size_Ext,
+		Histogram_Sink,
+		Histogram_Sink_Ext,
+	};
+
+	enum class GetMapQuery : unsigned int
+	{
+		Coeff,
+		Order,
+		Domain,
+	};
+
+	enum class GetMinmaxParameterPNameEXT : unsigned int
+	{
+		Minmax_Format,
+		Minmax_Format_Ext,
+		Minmax_Sink,
+		Minmax_Sink_Ext,
+	};
+
+	enum class GetPName : unsigned int
+	{
+		Current_Color,
+		Current_Index,
+		Current_Normal,
+		Current_Texture_Coords,
+		Current_Raster_Color,
+		Current_Raster_Index,
+		Current_Raster_Texture_Coords,
+		Current_Raster_Position,
+		Current_Raster_Position_Valid,
+		Current_Raster_Distance,
+		Point_Size,
+		Point_Size_Range,
+		Smooth_Point_Size_Range,
+		Point_Size_Granularity,
+		Smooth_Point_Size_Granularity,
+		Line_Width,
+		Line_Width_Range,
+		Smooth_Line_Width_Range,
+		Line_Width_Granularity,
+		Smooth_Line_Width_Granularity,
+		Line_Stipple_Pattern,
+		Line_Stipple_Repeat,
+		List_Mode,
+		Max_List_Nesting,
+		List_Base,
+		List_Index,
+		Polygon_Mode,
+		Edge_Flag,
+		Cull_Face_Mode,
+		Front_Face,
+		Light_Model_Local_Viewer,
+		Light_Model_Two_Side,
+		Light_Model_Ambient,
+		Shade_Model,
+		Color_Material_Face,
+		Color_Material_Parameter,
+		Depth_Range,
+		Depth_Writemask,
+		Depth_Clear_Value,
+		Depth_Func,
+		Accum_Clear_Value,
+		Stencil_Clear_Value,
+		Stencil_Func,
+		Stencil_Value_Mask,
+		Stencil_Fail,
+		Stencil_Pass_Depth_Fail,
+		Stencil_Pass_Depth_Pass,
+		Stencil_Ref,
+		Stencil_Writemask,
+		Matrix_Mode,
+		Viewport,
+		Modelview0_Stack_Depth_Ext,
+		Modelview_Stack_Depth,
+		Projection_Stack_Depth,
+		Texture_Stack_Depth,
+		Modelview0_Matrix_Ext,
+		Modelview_Matrix,
+		Projection_Matrix,
+		Texture_Matrix,
+		Attrib_Stack_Depth,
+		Client_Attrib_Stack_Depth,
+		Alpha_Test_Func,
+		Alpha_Test_Ref,
+		Blend_Dst,
+		Blend_Src,
+		Logic_Op_Mode,
+		Logic_Op,
+		Aux_Buffers,
+		Draw_Buffer,
+		Read_Buffer,
+		Scissor_Box,
+		Index_Clear_Value,
+		Index_Writemask,
+		Color_Clear_Value,
+		Color_Writemask,
+		Index_Mode,
+		Rgba_Mode,
+		Render_Mode,
+		Perspective_Correction_Hint,
+		Point_Smooth_Hint,
+		Line_Smooth_Hint,
+		Polygon_Smooth_Hint,
+		Fog_Hint,
+		Pixel_Map_I_To_I_Size,
+		Pixel_Map_S_To_S_Size,
+		Pixel_Map_I_To_R_Size,
+		Pixel_Map_I_To_G_Size,
+		Pixel_Map_I_To_B_Size,
+		Pixel_Map_I_To_A_Size,
+		Pixel_Map_R_To_R_Size,
+		Pixel_Map_G_To_G_Size,
+		Pixel_Map_B_To_B_Size,
+		Pixel_Map_A_To_A_Size,
+		Unpack_Swap_Bytes,
+		Unpack_Lsb_First,
+		Unpack_Row_Length,
+		Unpack_Skip_Rows,
+		Unpack_Skip_Pixels,
+		Unpack_Alignment,
+		Pack_Swap_Bytes,
+		Pack_Lsb_First,
+		Pack_Row_Length,
+		Pack_Skip_Rows,
+		Pack_Skip_Pixels,
+		Pack_Alignment,
+		Map_Color,
+		Map_Stencil,
+		Index_Shift,
+		Index_Offset,
+		Red_Scale,
+		Red_Bias,
+		Zoom_X,
+		Zoom_Y,
+		Green_Scale,
+		Green_Bias,
+		Blue_Scale,
+		Blue_Bias,
+		Alpha_Scale,
+		Alpha_Bias,
+		Depth_Scale,
+		Depth_Bias,
+		Max_Eval_Order,
+		Max_Lights,
+		Max_Clip_Distances,
+		Max_Clip_Planes,
+		Max_Texture_Size,
+		Max_Pixel_Map_Table,
+		Max_Attrib_Stack_Depth,
+		Max_Modelview_Stack_Depth,
+		Max_Name_Stack_Depth,
+		Max_Projection_Stack_Depth,
+		Max_Texture_Stack_Depth,
+		Max_Viewport_Dims,
+		Max_Client_Attrib_Stack_Depth,
+		Subpixel_Bits,
+		Index_Bits,
+		Red_Bits,
+		Green_Bits,
+		Blue_Bits,
+		Alpha_Bits,
+		Depth_Bits,
+		Stencil_Bits,
+		Accum_Red_Bits,
+		Accum_Green_Bits,
+		Accum_Blue_Bits,
+		Accum_Alpha_Bits,
+		Name_Stack_Depth,
+		Map1_Grid_Domain,
+		Map1_Grid_Segments,
+		Map2_Grid_Domain,
+		Map2_Grid_Segments,
+		Feedback_Buffer_Size,
+		Feedback_Buffer_Type,
+		Selection_Buffer_Size,
+		Polygon_Offset_Units,
+		Blend_Color,
+		Blend_Color_Ext,
+		Blend_Equation_Ext,
+		Blend_Equation_Rgb,
+		Pack_Cmyk_Hint_Ext,
+		Unpack_Cmyk_Hint_Ext,
+		Post_Convolution_Red_Scale_Ext,
+		Post_Convolution_Green_Scale_Ext,
+		Post_Convolution_Blue_Scale_Ext,
+		Post_Convolution_Alpha_Scale_Ext,
+		Post_Convolution_Red_Bias_Ext,
+		Post_Convolution_Green_Bias_Ext,
+		Post_Convolution_Blue_Bias_Ext,
+		Post_Convolution_Alpha_Bias_Ext,
+		Polygon_Offset_Factor,
+		Polygon_Offset_Bias_Ext,
+		Texture_Binding_1D,
+		Texture_Binding_2D,
+		Texture_3D_Binding_Ext,
+		Texture_Binding_3D,
+		Pack_Skip_Images,
+		Pack_Skip_Images_Ext,
+		Pack_Image_Height,
+		Pack_Image_Height_Ext,
+		Unpack_Skip_Images,
+		Unpack_Skip_Images_Ext,
+		Unpack_Image_Height,
+		Unpack_Image_Height_Ext,
+		Max_3D_Texture_Size,
+		Max_3D_Texture_Size_Ext,
+		Vertex_Array_Size,
+		Vertex_Array_Type,
+		Vertex_Array_Stride,
+		Vertex_Array_Count_Ext,
+		Normal_Array_Type,
+		Normal_Array_Stride,
+		Normal_Array_Count_Ext,
+		Color_Array_Size,
+		Color_Array_Type,
+		Color_Array_Stride,
+		Color_Array_Count_Ext,
+		Index_Array_Type,
+		Index_Array_Stride,
+		Index_Array_Count_Ext,
+		Texture_Coord_Array_Size,
+		Texture_Coord_Array_Type,
+		Texture_Coord_Array_Stride,
+		Texture_Coord_Array_Count_Ext,
+		Edge_Flag_Array_Stride,
+		Edge_Flag_Array_Count_Ext,
+		Detail_Texture_2D_Binding_Sgis,
+		Sample_Buffers_Sgis,
+		Samples_Sgis,
+		Sample_Coverage_Value,
+		Sample_Mask_Value_Sgis,
+		Sample_Coverage_Invert,
+		Sample_Mask_Invert_Sgis,
+		Sample_Pattern_Sgis,
+		Color_Matrix_Sgi,
+		Color_Matrix_Stack_Depth_Sgi,
+		Max_Color_Matrix_Stack_Depth_Sgi,
+		Post_Color_Matrix_Red_Scale_Sgi,
+		Post_Color_Matrix_Green_Scale_Sgi,
+		Post_Color_Matrix_Blue_Scale_Sgi,
+		Post_Color_Matrix_Alpha_Scale_Sgi,
+		Post_Color_Matrix_Red_Bias_Sgi,
+		Post_Color_Matrix_Green_Bias_Sgi,
+		Post_Color_Matrix_Blue_Bias_Sgi,
+		Post_Color_Matrix_Alpha_Bias_Sgi,
+		Blend_Dst_Rgb,
+		Blend_Src_Rgb,
+		Blend_Dst_Alpha,
+		Blend_Src_Alpha,
+		Max_Elements_Vertices,
+		Max_Elements_Indices,
+		Point_Size_Min_Sgis,
+		Point_Size_Max_Sgis,
+		Point_Fade_Threshold_Size,
+		Point_Fade_Threshold_Size_Sgis,
+		Distance_Attenuation_Sgis,
+		Fog_Func_Points_Sgis,
+		Max_Fog_Func_Points_Sgis,
+		Pack_Skip_Volumes_Sgis,
+		Pack_Image_Depth_Sgis,
+		Unpack_Skip_Volumes_Sgis,
+		Unpack_Image_Depth_Sgis,
+		Max_4D_Texture_Size_Sgis,
+		Pixel_Tile_Best_Alignment_Sgix,
+		Pixel_Tile_Cache_Increment_Sgix,
+		Pixel_Tile_Width_Sgix,
+		Pixel_Tile_Height_Sgix,
+		Pixel_Tile_Grid_Width_Sgix,
+		Pixel_Tile_Grid_Height_Sgix,
+		Pixel_Tile_Grid_Depth_Sgix,
+		Pixel_Tile_Cache_Size_Sgix,
+		Sprite_Mode_Sgix,
+		Sprite_Axis_Sgix,
+		Sprite_Translation_Sgix,
+		Texture_4D_Binding_Sgis,
+		Max_Clipmap_Depth_Sgix,
+		Max_Clipmap_Virtual_Depth_Sgix,
+		Post_Texture_Filter_Bias_Range_Sgix,
+		Post_Texture_Filter_Scale_Range_Sgix,
+		Reference_Plane_Equation_Sgix,
+		Instrument_Measurements_Sgix,
+		Framezoom_Factor_Sgix,
+		Max_Framezoom_Factor_Sgix,
+		Generate_Mipmap_Hint_Sgis,
+		Deformations_Mask_Sgix,
+		Light_Model_Color_Control,
+		Major_Version,
+		Minor_Version,
+		Num_Extensions,
+		Context_Flags,
+		Program_Pipeline_Binding,
+		Max_Viewports,
+		Viewport_Subpixel_Bits,
+		Viewport_Bounds_Range,
+		Layer_Provoking_Vertex,
+		Viewport_Index_Provoking_Vertex,
+		Max_Compute_Uniform_Components,
+		Max_Compute_Atomic_Counter_Buffers,
+		Max_Compute_Atomic_Counters,
+		Max_Combined_Compute_Uniform_Components,
+		Max_Debug_Group_Stack_Depth,
+		Debug_Group_Stack_Depth,
+		Max_Uniform_Locations,
+		Vertex_Binding_Divisor,
+		Vertex_Binding_Offset,
+		Vertex_Binding_Stride,
+		Max_Vertex_Attrib_Relative_Offset,
+		Max_Vertex_Attrib_Bindings,
+		Max_Label_Length,
+		Convolution_Hint_Sgix,
+		Async_Marker_Sgix,
+		Pixel_Tex_Gen_Mode_Sgix,
+		Max_Async_Histogram_Sgix,
+		Max_Async_Tex_Image_Sgix,
+		Max_Async_Draw_Pixels_Sgix,
+		Max_Async_Read_Pixels_Sgix,
+		Vertex_Preclip_Sgix,
+		Vertex_Preclip_Hint_Sgix,
+		Fragment_Color_Material_Face_Sgix,
+		Fragment_Color_Material_Parameter_Sgix,
+		Max_Fragment_Lights_Sgix,
+		Max_Active_Lights_Sgix,
+		Light_Env_Mode_Sgix,
+		Pack_Resample_Sgix,
+		Unpack_Resample_Sgix,
+		Aliased_Point_Size_Range,
+		Aliased_Line_Width_Range,
+		Active_Texture,
+		Max_Renderbuffer_Size,
+		Texture_Compression_Hint,
+		Texture_Binding_Rectangle,
+		Max_Rectangle_Texture_Size,
+		Max_Texture_Lod_Bias,
+		Texture_Binding_Cube_Map,
+		Max_Cube_Map_Texture_Size,
+		Pack_Subsample_Rate_Sgix,
+		Unpack_Subsample_Rate_Sgix,
+		Vertex_Array_Binding,
+		Num_Compressed_Texture_Formats,
+		Compressed_Texture_Formats,
+		Num_Program_Binary_Formats,
+		Program_Binary_Formats,
+		Stencil_Back_Func,
+		Stencil_Back_Fail,
+		Stencil_Back_Pass_Depth_Fail,
+		Stencil_Back_Pass_Depth_Pass,
+		Max_Draw_Buffers,
+		Blend_Equation_Alpha,
+		Max_Vertex_Attribs,
+		Max_Texture_Image_Units,
+		Array_Buffer_Binding,
+		Element_Array_Buffer_Binding,
+		Pixel_Pack_Buffer_Binding,
+		Pixel_Unpack_Buffer_Binding,
+		Max_Dual_Source_Draw_Buffers,
+		Max_Array_Texture_Layers,
+		Min_Program_Texel_Offset,
+		Max_Program_Texel_Offset,
+		Sampler_Binding,
+		Uniform_Buffer_Binding,
+		Uniform_Buffer_Start,
+		Uniform_Buffer_Size,
+		Max_Vertex_Uniform_Blocks,
+		Max_Geometry_Uniform_Blocks,
+		Max_Fragment_Uniform_Blocks,
+		Max_Combined_Uniform_Blocks,
+		Max_Uniform_Buffer_Bindings,
+		Max_Uniform_Block_Size,
+		Max_Combined_Vertex_Uniform_Components,
+		Max_Combined_Geometry_Uniform_Components,
+		Max_Combined_Fragment_Uniform_Components,
+		Uniform_Buffer_Offset_Alignment,
+		Max_Fragment_Uniform_Components,
+		Max_Vertex_Uniform_Components,
+		Max_Varying_Components,
+		Max_Varying_Floats,
+		Max_Vertex_Texture_Image_Units,
+		Max_Combined_Texture_Image_Units,
+		Fragment_Shader_Derivative_Hint,
+		Current_Program,
+		Texture_Binding_1D_Array,
+		Texture_Binding_2D_Array,
+		Max_Geometry_Texture_Image_Units,
+		Max_Texture_Buffer_Size,
+		Texture_Binding_Buffer,
+		Transform_Feedback_Buffer_Start,
+		Transform_Feedback_Buffer_Size,
+		Transform_Feedback_Buffer_Binding,
+		Stencil_Back_Ref,
+		Stencil_Back_Value_Mask,
+		Stencil_Back_Writemask,
+		Draw_Framebuffer_Binding,
+		Renderbuffer_Binding,
+		Read_Framebuffer_Binding,
+		Max_Element_Index,
+		Max_Geometry_Uniform_Components,
+		Num_Shader_Binary_Formats,
+		Shader_Compiler,
+		Max_Vertex_Uniform_Vectors,
+		Max_Varying_Vectors,
+		Max_Fragment_Uniform_Vectors,
+		Timestamp,
+		Provoking_Vertex,
+		Max_Sample_Mask_Words,
+		Primitive_Restart_Index,
+		Min_Map_Buffer_Alignment,
+		Shader_Storage_Buffer_Binding,
+		Shader_Storage_Buffer_Start,
+		Shader_Storage_Buffer_Size,
+		Max_Vertex_Shader_Storage_Blocks,
+		Max_Geometry_Shader_Storage_Blocks,
+		Max_Tess_Control_Shader_Storage_Blocks,
+		Max_Tess_Evaluation_Shader_Storage_Blocks,
+		Max_Fragment_Shader_Storage_Blocks,
+		Max_Compute_Shader_Storage_Blocks,
+		Max_Combined_Shader_Storage_Blocks,
+		Max_Shader_Storage_Buffer_Bindings,
+		Shader_Storage_Buffer_Offset_Alignment,
+		Max_Compute_Work_Group_Invocations,
+		Dispatch_Indirect_Buffer_Binding,
+		Texture_Binding_2D_Multisample,
+		Texture_Binding_2D_Multisample_Array,
+		Max_Color_Texture_Samples,
+		Max_Depth_Texture_Samples,
+		Max_Integer_Samples,
+		Max_Server_Wait_Timeout,
+		Max_Vertex_Output_Components,
+		Max_Geometry_Input_Components,
+		Max_Geometry_Output_Components,
+		Max_Fragment_Input_Components,
+		Texture_Buffer_Offset_Alignment,
+		Max_Compute_Uniform_Blocks,
+		Max_Compute_Texture_Image_Units,
+		Max_Compute_Work_Group_Count,
+		Max_Compute_Work_Group_Size,
+		Max_Vertex_Atomic_Counters,
+		Max_Tess_Control_Atomic_Counters,
+		Max_Tess_Evaluation_Atomic_Counters,
+		Max_Geometry_Atomic_Counters,
+		Max_Fragment_Atomic_Counters,
+		Max_Combined_Atomic_Counters,
+		Max_Framebuffer_Width,
+		Max_Framebuffer_Height,
+		Max_Framebuffer_Layers,
+		Max_Framebuffer_Samples,
+		Num_Device_Uuids_Ext,
+		Device_Uuid_Ext,
+		Driver_Uuid_Ext,
+		Device_Luid_Ext,
+		Device_Node_Mask_Ext,
+	};
+
+	enum class GetPixelMap : unsigned int
+	{
+		Pixel_Map_I_To_I,
+		Pixel_Map_S_To_S,
+		Pixel_Map_I_To_R,
+		Pixel_Map_I_To_G,
+		Pixel_Map_I_To_B,
+		Pixel_Map_I_To_A,
+		Pixel_Map_R_To_R,
+		Pixel_Map_G_To_G,
+		Pixel_Map_B_To_B,
+		Pixel_Map_A_To_A,
+	};
+
+	enum class GetPointervPName : unsigned int
+	{
+		Feedback_Buffer_Pointer,
+		Selection_Buffer_Pointer,
+		Vertex_Array_Pointer,
+		Vertex_Array_Pointer_Ext,
+		Normal_Array_Pointer,
+		Normal_Array_Pointer_Ext,
+		Color_Array_Pointer,
+		Color_Array_Pointer_Ext,
+		Index_Array_Pointer,
+		Index_Array_Pointer_Ext,
+		Texture_Coord_Array_Pointer,
+		Texture_Coord_Array_Pointer_Ext,
+		Edge_Flag_Array_Pointer,
+		Edge_Flag_Array_Pointer_Ext,
+		Instrument_Buffer_Pointer_Sgix,
+		Debug_Callback_Function,
+		Debug_Callback_User_Param,
+	};
+
+	enum class GetTextureParameter : unsigned int
+	{
+		Texture_Width,
+		Texture_Height,
+		Texture_Components,
+		Texture_Internal_Format,
+		Texture_Border_Color,
+		Texture_Border,
+		Texture_Mag_Filter,
+		Texture_Min_Filter,
+		Texture_Wrap_S,
+		Texture_Wrap_T,
+		Texture_Red_Size,
+		Texture_Green_Size,
+		Texture_Blue_Size,
+		Texture_Alpha_Size,
+		Texture_Luminance_Size,
+		Texture_Intensity_Size,
+		Texture_Priority,
+		Texture_Resident,
+		Texture_Depth_Ext,
+		Texture_Wrap_R_Ext,
+		Detail_Texture_Level_Sgis,
+		Detail_Texture_Mode_Sgis,
+		Detail_Texture_Func_Points_Sgis,
+		Sharpen_Texture_Func_Points_Sgis,
+		Shadow_Ambient_Sgix,
+		Dual_Texture_Select_Sgis,
+		Quad_Texture_Select_Sgis,
+		Texture_4Dsize_Sgis,
+		Texture_Wrap_Q_Sgis,
+		Texture_Min_Lod_Sgis,
+		Texture_Max_Lod_Sgis,
+		Texture_Base_Level_Sgis,
+		Texture_Max_Level_Sgis,
+		Texture_Filter4_Size_Sgis,
+		Texture_Clipmap_Center_Sgix,
+		Texture_Clipmap_Frame_Sgix,
+		Texture_Clipmap_Offset_Sgix,
+		Texture_Clipmap_Virtual_Depth_Sgix,
+		Texture_Clipmap_Lod_Offset_Sgix,
+		Texture_Clipmap_Depth_Sgix,
+		Post_Texture_Filter_Bias_Sgix,
+		Post_Texture_Filter_Scale_Sgix,
+		Texture_Lod_Bias_S_Sgix,
+		Texture_Lod_Bias_T_Sgix,
+		Texture_Lod_Bias_R_Sgix,
+		Generate_Mipmap_Sgis,
+		Texture_Compare_Sgix,
+		Texture_Compare_Operator_Sgix,
+		Texture_Lequal_R_Sgix,
+		Texture_Gequal_R_Sgix,
+		Texture_Max_Clamp_S_Sgix,
+		Texture_Max_Clamp_T_Sgix,
+		Texture_Max_Clamp_R_Sgix,
+	};
+
+	enum class GraphicsResetStatus : unsigned int
+	{
+		Guilty_Context_Reset,
+		Innocent_Context_Reset,
+		Unknown_Context_Reset,
+	};
+
+	enum class HintMode : unsigned int
+	{
+		Fastest,
+		Nicest,
+	};
+
+	enum class HintTarget : unsigned int
+	{
+		Prefer_Doublebuffer_Hint_Pgi,
+		Conserve_Memory_Hint_Pgi,
+		Reclaim_Memory_Hint_Pgi,
+		Native_Graphics_Begin_Hint_Pgi,
+		Native_Graphics_End_Hint_Pgi,
+		Always_Fast_Hint_Pgi,
+		Always_Soft_Hint_Pgi,
+		Allow_Draw_Obj_Hint_Pgi,
+		Allow_Draw_Win_Hint_Pgi,
+		Allow_Draw_Frg_Hint_Pgi,
+		Allow_Draw_Mem_Hint_Pgi,
+		Strict_Depthfunc_Hint_Pgi,
+		Strict_Lighting_Hint_Pgi,
+		Strict_Scissor_Hint_Pgi,
+		Full_Stipple_Hint_Pgi,
+		Clip_Near_Hint_Pgi,
+		Clip_Far_Hint_Pgi,
+		Wide_Line_Hint_Pgi,
+		Back_Normals_Hint_Pgi,
+		Vertex_Data_Hint_Pgi,
+		Vertex_Consistent_Hint_Pgi,
+		Material_Side_Hint_Pgi,
+		Max_Vertex_Hint_Pgi,
+		Phong_Hint_Win,
+		Clip_Volume_Clipping_Hint_Ext,
+		Texture_Multi_Buffer_Hint_Sgix,
+		Generate_Mipmap_Hint,
+		Program_Binary_Retrievable_Hint,
+		Scalebias_Hint_Sgix,
+		Texture_Compression_Hint_Arb,
+		Vertex_Array_Storage_Hint_Apple,
+		Multisample_Filter_Hint_Nv,
+		Transform_Hint_Apple,
+		Texture_Storage_Hint_Apple,
+		Fragment_Shader_Derivative_Hint_Arb,
+	};
+
+	enum class HistogramTargetEXT : unsigned int
+	{
+		Histogram,
+		Proxy_Histogram,
+		Proxy_Histogram_Ext,
+	};
+
+	enum class InterleavedArrayFormat : unsigned int
+	{
+		V2F,
+		V3F,
+		C4Ub_V2F,
+		C4Ub_V3F,
+		C3F_V3F,
+		N3F_V3F,
+		C4F_N3F_V3F,
+		T2F_V3F,
+		T4F_V4F,
+		T2F_C4Ub_V3F,
+		T2F_C3F_V3F,
+		T2F_N3F_V3F,
+		T2F_C4F_N3F_V3F,
+		T4F_C4F_N3F_V4F,
+	};
+
+	enum class InternalFormat : unsigned int
+	{
+		Depth_Component,
+		Red,
+		Rgb,
+		Rgba,
+		R3_G3_B2,
+		Alpha4,
+		Alpha8,
+		Alpha12,
+		Alpha16,
+		Luminance4,
+		Luminance8,
+		Luminance12,
+		Luminance16,
+		Luminance4_Alpha4,
+		Luminance6_Alpha2,
+		Luminance8_Alpha8,
+		Luminance12_Alpha4,
+		Luminance12_Alpha12,
+		Luminance16_Alpha16,
+		Intensity,
+		Intensity4,
+		Intensity8,
+		Intensity12,
+		Intensity16,
+		Rgb2_Ext,
+		Rgb4,
+		Rgb4_Ext,
+		Rgb5,
+		Rgb5_Ext,
+		Rgb8,
+		Rgb8_Ext,
+		Rgb10,
+		Rgb10_Ext,
+		Rgb12,
+		Rgb12_Ext,
+		Rgb16,
+		Rgb16_Ext,
+		Rgba4,
+		Rgba4_Ext,
+		Rgb5_A1,
+		Rgb5_A1_Ext,
+		Rgba8,
+		Rgba8_Ext,
+		Rgb10_A2,
+		Rgb10_A2_Ext,
+		Rgba12,
+		Rgba12_Ext,
+		Rgba16,
+		Rgba16_Ext,
+		Dual_Alpha4_Sgis,
+		Dual_Alpha8_Sgis,
+		Dual_Alpha12_Sgis,
+		Dual_Alpha16_Sgis,
+		Dual_Luminance4_Sgis,
+		Dual_Luminance8_Sgis,
+		Dual_Luminance12_Sgis,
+		Dual_Luminance16_Sgis,
+		Dual_Intensity4_Sgis,
+		Dual_Intensity8_Sgis,
+		Dual_Intensity12_Sgis,
+		Dual_Intensity16_Sgis,
+		Dual_Luminance_Alpha4_Sgis,
+		Dual_Luminance_Alpha8_Sgis,
+		Quad_Alpha4_Sgis,
+		Quad_Alpha8_Sgis,
+		Quad_Luminance4_Sgis,
+		Quad_Luminance8_Sgis,
+		Quad_Intensity4_Sgis,
+		Quad_Intensity8_Sgis,
+		Depth_Component16,
+		Depth_Component16_Arb,
+		Depth_Component16_Sgix,
+		Depth_Component24_Arb,
+		Depth_Component24_Sgix,
+		Depth_Component32_Arb,
+		Depth_Component32_Sgix,
+		Compressed_Red,
+		Compressed_Rg,
+		Rg,
+		R8,
+		R16,
+		Rg8,
+		Rg16,
+		R16F,
+		R32F,
+		Rg16F,
+		Rg32F,
+		R8I,
+		R8Ui,
+		R16I,
+		R16Ui,
+		R32I,
+		R32Ui,
+		Rg8I,
+		Rg8Ui,
+		Rg16I,
+		Rg16Ui,
+		Rg32I,
+		Rg32Ui,
+		Compressed_Rgb_S3Tc_Dxt1_Ext,
+		Compressed_Rgba_S3Tc_Dxt1_Ext,
+		Compressed_Rgba_S3Tc_Dxt3_Ext,
+		Compressed_Rgba_S3Tc_Dxt5_Ext,
+		Compressed_Rgb,
+		Compressed_Rgba,
+		Depth_Stencil,
+		Depth_Stencil_Ext,
+		Depth_Stencil_Nv,
+		Rgba32F,
+		Rgba32F_Arb,
+		Rgba16F,
+		Rgba16F_Arb,
+		Rgb16F,
+		Rgb16F_Arb,
+		Depth24_Stencil8,
+		Depth24_Stencil8_Ext,
+		R11F_G11F_B10F,
+		R11F_G11F_B10F_Ext,
+		Rgb9_E5,
+		Rgb9_E5_Ext,
+		Srgb,
+		Srgb_Ext,
+		Srgb8,
+		Srgb8_Ext,
+		Srgb_Alpha,
+		Srgb_Alpha_Ext,
+		Srgb8_Alpha8,
+		Srgb8_Alpha8_Ext,
+		Compressed_Srgb,
+		Compressed_Srgb_Alpha,
+		Compressed_Srgb_S3Tc_Dxt1_Ext,
+		Compressed_Srgb_Alpha_S3Tc_Dxt1_Ext,
+		Compressed_Srgb_Alpha_S3Tc_Dxt3_Ext,
+		Compressed_Srgb_Alpha_S3Tc_Dxt5_Ext,
+		Depth_Component32F,
+		Depth32F_Stencil8,
+		Rgba32Ui,
+		Rgb32Ui,
+		Rgba16Ui,
+		Rgb16Ui,
+		Rgba8Ui,
+		Rgb8Ui,
+		Rgba32I,
+		Rgb32I,
+		Rgba16I,
+		Rgb16I,
+		Rgba8I,
+		Rgb8I,
+		Depth_Component32F_Nv,
+		Depth32F_Stencil8_Nv,
+		Compressed_Red_Rgtc1,
+		Compressed_Red_Rgtc1_Ext,
+		Compressed_Signed_Red_Rgtc1,
+		Compressed_Signed_Red_Rgtc1_Ext,
+		Compressed_Rg_Rgtc2,
+		Compressed_Signed_Rg_Rgtc2,
+		Compressed_Rgba_Bptc_Unorm,
+		Compressed_Srgb_Alpha_Bptc_Unorm,
+		Compressed_Rgb_Bptc_Signed_Float,
+		Compressed_Rgb_Bptc_Unsigned_Float,
+		R8_Snorm,
+		Rg8_Snorm,
+		Rgb8_Snorm,
+		Rgba8_Snorm,
+		R16_Snorm,
+		Rg16_Snorm,
+		Rgb16_Snorm,
+		Rgb10_A2Ui,
+		Compressed_R11_Eac,
+		Compressed_Signed_R11_Eac,
+		Compressed_Rg11_Eac,
+		Compressed_Signed_Rg11_Eac,
+		Compressed_Rgb8_Etc2,
+		Compressed_Srgb8_Etc2,
+		Compressed_Rgb8_Punchthrough_Alpha1_Etc2,
+		Compressed_Srgb8_Punchthrough_Alpha1_Etc2,
+		Compressed_Rgba8_Etc2_Eac,
+		Compressed_Srgb8_Alpha8_Etc2_Eac,
+	};
+
+	enum class InternalFormatPName : unsigned int
+	{
+		Generate_Mipmap,
+		Internalformat_Supported,
+		Internalformat_Preferred,
+		Internalformat_Red_Size,
+		Internalformat_Green_Size,
+		Internalformat_Blue_Size,
+		Internalformat_Alpha_Size,
+		Internalformat_Depth_Size,
+		Internalformat_Stencil_Size,
+		Internalformat_Shared_Size,
+		Internalformat_Red_Type,
+		Internalformat_Green_Type,
+		Internalformat_Blue_Type,
+		Internalformat_Alpha_Type,
+		Internalformat_Depth_Type,
+		Internalformat_Stencil_Type,
+		Max_Width,
+		Max_Height,
+		Max_Depth,
+		Max_Layers,
+		Color_Components,
+		Color_Renderable,
+		Depth_Renderable,
+		Stencil_Renderable,
+		Framebuffer_Renderable,
+		Framebuffer_Renderable_Layered,
+		Framebuffer_Blend,
+		Read_Pixels,
+		Read_Pixels_Format,
+		Read_Pixels_Type,
+		Texture_Image_Format,
+		Texture_Image_Type,
+		Get_Texture_Image_Format,
+		Get_Texture_Image_Type,
+		Mipmap,
+		Auto_Generate_Mipmap,
+		Color_Encoding,
+		Srgb_Read,
+		Srgb_Write,
+		Filter,
+		Vertex_Texture,
+		Tess_Control_Texture,
+		Tess_Evaluation_Texture,
+		Geometry_Texture,
+		Fragment_Texture,
+		Compute_Texture,
+		Texture_Shadow,
+		Texture_Gather,
+		Texture_Gather_Shadow,
+		Shader_Image_Load,
+		Shader_Image_Store,
+		Shader_Image_Atomic,
+		Image_Texel_Size,
+		Image_Compatibility_Class,
+		Image_Pixel_Format,
+		Image_Pixel_Type,
+		Simultaneous_Texture_And_Depth_Test,
+		Simultaneous_Texture_And_Stencil_Test,
+		Simultaneous_Texture_And_Depth_Write,
+		Simultaneous_Texture_And_Stencil_Write,
+		Texture_Compressed_Block_Width,
+		Texture_Compressed_Block_Height,
+		Texture_Compressed_Block_Size,
+		Clear_Buffer,
+		Texture_View,
+		View_Compatibility_Class,
+		Texture_Compressed,
+		Image_Format_Compatibility_Type,
+		Clear_Texture,
+		Num_Sample_Counts,
+	};
+
+	enum class LightEnvModeSGIX : unsigned int
+	{
+		Replace,
+		Modulate,
+	};
+
+	enum class LightModelColorControl : unsigned int
+	{
+		Single_Color,
+		Single_Color_Ext,
+		Separate_Specular_Color,
+		Separate_Specular_Color_Ext,
+	};
+
+	enum class LightModelParameter : unsigned int
+	{
+		Light_Model_Color_Control_Ext,
+	};
+
+	enum class LightParameter : unsigned int
+	{
+		Position,
+		Spot_Direction,
+		Spot_Exponent,
+		Spot_Cutoff,
+		Constant_Attenuation,
+		Linear_Attenuation,
+		Quadratic_Attenuation,
+	};
+
+	enum class ListMode : unsigned int
+	{
+		Compile,
+		Compile_And_Execute,
+	};
+
+	enum class ListNameType : unsigned int
+	{
+		_2_Bytes,
+		_3_Bytes,
+		_4_Bytes,
+	};
+
+	enum class ListParameterName : unsigned int
+	{
+		List_Priority_Sgix,
+	};
+
+	enum class LogicOp : unsigned int
+	{
+		Clear,
+		And,
+		And_Reverse,
+		Copy,
+		And_Inverted,
+		Noop,
+		Xor,
+		Or,
+		Nor,
+		Equiv,
+		Invert,
+		Or_Reverse,
+		Copy_Inverted,
+		Or_Inverted,
+		Nand,
+		Set,
+	};
+
+	enum class MapTextureFormatINTEL : unsigned int
+	{
+		Layout_Default_Intel,
+		Layout_Linear_Intel,
+		Layout_Linear_Cpu_Cached_Intel,
+	};
+
+	enum class MaterialParameter : unsigned int
+	{
+		Shininess,
+		Color_Indexes,
+	};
+
+	enum class MatrixMode : unsigned int
+	{
+		Modelview,
+		Modelview0_Ext,
+		Projection,
+		Texture,
+	};
+
+	enum class MemoryObjectParameterName : unsigned int
+	{
+		Dedicated_Memory_Object_Ext,
+		Protected_Memory_Object_Ext,
+	};
+
+	enum class MeshMode1 : unsigned int
+	{
+		Point,
+		Line,
+	};
+
+	enum class MeshMode2 : unsigned int
+	{
+		Fill,
+	};
+
+	enum class MinmaxTargetEXT : unsigned int
+	{
+		Minmax,
+	};
+
+	enum class ObjectIdentifier : unsigned int
+	{
+		Buffer,
+		Shader,
+		Program,
+		Query,
+		Program_Pipeline,
+		Sampler,
+		Renderbuffer,
+	};
+
+	enum class PatchParameterName : unsigned int
+	{
+		Patch_Vertices,
+		Patch_Default_Inner_Level,
+		Patch_Default_Outer_Level,
+	};
+
+	enum class PathColor : unsigned int
+	{
+		Primary_Color_Nv,
+		Secondary_Color_Nv,
+		Primary_Color,
+	};
+
+	enum class PathCoverMode : unsigned int
+	{
+		Path_Fill_Cover_Mode_Nv,
+		Convex_Hull_Nv,
+		Bounding_Box_Nv,
+		Bounding_Box_Of_Bounding_Boxes_Nv,
+	};
+
+	enum class PathElementType : unsigned int
+	{
+		Utf8_Nv,
+		Utf16_Nv,
+	};
+
+	enum class PathFillMode : unsigned int
+	{
+		Path_Fill_Mode_Nv,
+		Count_Up_Nv,
+		Count_Down_Nv,
+	};
+
+	enum class PathFontTarget : unsigned int
+	{
+		Standard_Font_Name_Nv,
+		System_Font_Name_Nv,
+		File_Name_Nv,
+	};
+
+	enum class PathGenMode : unsigned int
+	{
+		Eye_Linear,
+		Object_Linear,
+		Constant,
+		Path_Object_Bounding_Box_Nv,
+	};
+
+	enum class PathHandleMissingGlyphs : unsigned int
+	{
+		Skip_Missing_Glyph_Nv,
+		Use_Missing_Glyph_Nv,
+	};
+
+	enum class PathListMode : unsigned int
+	{
+		Accum_Adjacent_Pairs_Nv,
+		Adjacent_Pairs_Nv,
+		First_To_Rest_Nv,
+	};
+
+	enum class PathParameter : unsigned int
+	{
+		Path_Stroke_Width_Nv,
+		Path_End_Caps_Nv,
+		Path_Initial_End_Cap_Nv,
+		Path_Terminal_End_Cap_Nv,
+		Path_Join_Style_Nv,
+		Path_Miter_Limit_Nv,
+		Path_Dash_Caps_Nv,
+		Path_Initial_Dash_Cap_Nv,
+		Path_Terminal_Dash_Cap_Nv,
+		Path_Dash_Offset_Nv,
+		Path_Client_Length_Nv,
+		Path_Fill_Mask_Nv,
+		Path_Stroke_Cover_Mode_Nv,
+		Path_Stroke_Mask_Nv,
+		Path_Command_Count_Nv,
+		Path_Coord_Count_Nv,
+		Path_Dash_Array_Count_Nv,
+		Path_Computed_Length_Nv,
+		Path_Fill_Bounding_Box_Nv,
+		Path_Stroke_Bounding_Box_Nv,
+		Path_Dash_Offset_Reset_Nv,
+	};
+
+	enum class PathStringFormat : unsigned int
+	{
+		Path_Format_Svg_Nv,
+		Path_Format_Ps_Nv,
+	};
+
+	enum class PathTransformType : unsigned int
+	{
+		Translate_X_Nv,
+		Translate_Y_Nv,
+		Translate_2D_Nv,
+		Translate_3D_Nv,
+		Affine_2D_Nv,
+		Affine_3D_Nv,
+		Transpose_Affine_2D_Nv,
+		Transpose_Affine_3D_Nv,
+	};
+
+	enum class PipelineParameterName : unsigned int
+	{
+		Active_Program,
+		Fragment_Shader,
+		Vertex_Shader,
+		Info_Log_Length,
+		Geometry_Shader,
+		Tess_Evaluation_Shader,
+		Tess_Control_Shader,
+	};
+
+	enum class PixelFormat : unsigned int
+	{
+		Color_Index,
+		Stencil_Index,
+		Green,
+		Blue,
+		Alpha,
+		Luminance,
+		Luminance_Alpha,
+		Abgr_Ext,
+		Cmyk_Ext,
+		Cmyka_Ext,
+		Bgr,
+		Bgra,
+		Ycrcb_422_Sgix,
+		Ycrcb_444_Sgix,
+		Rg_Integer,
+		Red_Integer,
+		Green_Integer,
+		Blue_Integer,
+		Rgb_Integer,
+		Rgba_Integer,
+		Bgr_Integer,
+		Bgra_Integer,
+	};
+
+	enum class PixelStoreParameter : unsigned int
+	{
+		Pack_Resample_Oml,
+		Unpack_Resample_Oml,
+	};
+
+	enum class PixelStoreResampleMode : unsigned int
+	{
+		Resample_Decimate_Sgix,
+		Resample_Replicate_Sgix,
+		Resample_Zero_Fill_Sgix,
+	};
+
+	enum class PixelStoreSubsampleRate : unsigned int
+	{
+		Pixel_Subsample_4444_Sgix,
+		Pixel_Subsample_2424_Sgix,
+		Pixel_Subsample_4242_Sgix,
+	};
+
+	enum class PixelTexGenParameterNameSGIS : unsigned int
+	{
+		Pixel_Fragment_Rgb_Source_Sgis,
+		Pixel_Fragment_Alpha_Source_Sgis,
+	};
+
+	enum class PixelTransferParameter : unsigned int
+	{
+		Post_Convolution_Red_Scale,
+		Post_Convolution_Green_Scale,
+		Post_Convolution_Blue_Scale,
+		Post_Convolution_Alpha_Scale,
+		Post_Convolution_Red_Bias,
+		Post_Convolution_Green_Bias,
+		Post_Convolution_Blue_Bias,
+		Post_Convolution_Alpha_Bias,
+		Post_Color_Matrix_Red_Scale,
+		Post_Color_Matrix_Green_Scale,
+		Post_Color_Matrix_Blue_Scale,
+		Post_Color_Matrix_Alpha_Scale,
+		Post_Color_Matrix_Red_Bias,
+		Post_Color_Matrix_Green_Bias,
+		Post_Color_Matrix_Blue_Bias,
+		Post_Color_Matrix_Alpha_Bias,
+	};
+
+	enum class PixelType : unsigned int
+	{
+		Bitmap,
+		Unsigned_Byte_3_3_2,
+		Unsigned_Byte_3_3_2_Ext,
+		Unsigned_Short_4_4_4_4,
+		Unsigned_Short_4_4_4_4_Ext,
+		Unsigned_Short_5_5_5_1,
+		Unsigned_Short_5_5_5_1_Ext,
+		Unsigned_Int_8_8_8_8,
+		Unsigned_Int_8_8_8_8_Ext,
+		Unsigned_Int_10_10_10_2,
+		Unsigned_Int_10_10_10_2_Ext,
+	};
+
+	enum class PointParameterNameSGIS : unsigned int
+	{
+		Point_Size_Min,
+		Point_Size_Min_Arb,
+		Point_Size_Min_Ext,
+		Point_Size_Max,
+		Point_Size_Max_Arb,
+		Point_Size_Max_Ext,
+		Point_Fade_Threshold_Size_Arb,
+		Point_Fade_Threshold_Size_Ext,
+		Distance_Attenuation_Ext,
+		Point_Distance_Attenuation,
+		Point_Distance_Attenuation_Arb,
+	};
+
+	enum class PrecisionType : unsigned int
+	{
+		Low_Float,
+		Medium_Float,
+		High_Float,
+		Low_Int,
+		Medium_Int,
+		High_Int,
+	};
+
+	enum class PrimitiveType : unsigned int
+	{
+		Points,
+		Lines,
+		Line_Loop,
+		Line_Strip,
+		Triangles,
+		Triangle_Strip,
+		Triangle_Fan,
+		Quads,
+		Quad_Strip,
+		Polygon,
+		Lines_Adjacency,
+		Lines_Adjacency_Arb,
+		Lines_Adjacency_Ext,
+		Line_Strip_Adjacency,
+		Line_Strip_Adjacency_Arb,
+		Line_Strip_Adjacency_Ext,
+		Triangles_Adjacency,
+		Triangles_Adjacency_Arb,
+		Triangles_Adjacency_Ext,
+		Triangle_Strip_Adjacency,
+		Triangle_Strip_Adjacency_Arb,
+		Triangle_Strip_Adjacency_Ext,
+		Patches,
+	};
+
+	enum class ProgramInterface : unsigned int
+	{
+		Uniform,
+		Uniform_Block,
+		Program_Input,
+		Program_Output,
+		Buffer_Variable,
+		Shader_Storage_Block,
+		Vertex_Subroutine,
+		Tess_Control_Subroutine,
+		Tess_Evaluation_Subroutine,
+		Geometry_Subroutine,
+		Fragment_Subroutine,
+		Compute_Subroutine,
+		Vertex_Subroutine_Uniform,
+		Tess_Control_Subroutine_Uniform,
+		Tess_Evaluation_Subroutine_Uniform,
+		Geometry_Subroutine_Uniform,
+		Fragment_Subroutine_Uniform,
+		Compute_Subroutine_Uniform,
+		Transform_Feedback_Varying,
+	};
+
+	enum class ProgramInterfacePName : unsigned int
+	{
+		Active_Resources,
+		Max_Name_Length,
+		Max_Num_Active_Variables,
+		Max_Num_Compatible_Subroutines,
+	};
+
+	enum class ProgramParameterPName : unsigned int
+	{
+		Program_Separable,
+	};
+
+	enum class ProgramPropertyARB : unsigned int
+	{
+		Compute_Work_Group_Size,
+		Program_Binary_Length,
+		Geometry_Vertices_Out,
+		Geometry_Input_Type,
+		Geometry_Output_Type,
+		Active_Uniform_Block_Max_Name_Length,
+		Active_Uniform_Blocks,
+		Delete_Status,
+		Link_Status,
+		Validate_Status,
+		Attached_Shaders,
+		Active_Uniforms,
+		Active_Uniform_Max_Length,
+		Active_Attributes,
+		Active_Attribute_Max_Length,
+		Transform_Feedback_Varying_Max_Length,
+		Transform_Feedback_Buffer_Mode,
+		Transform_Feedback_Varyings,
+		Active_Atomic_Counter_Buffers,
+	};
+
+	enum class ProgramStagePName : unsigned int
+	{
+		Active_Subroutines,
+		Active_Subroutine_Uniforms,
+		Active_Subroutine_Uniform_Locations,
+		Active_Subroutine_Max_Length,
+		Active_Subroutine_Uniform_Max_Length,
+	};
+
+	enum class QueryObjectParameterName : unsigned int
+	{
+		Query_Target,
+		Query_Result,
+		Query_Result_Available,
+		Query_Result_No_Wait,
+	};
+
+	enum class QueryParameterName : unsigned int
+	{
+		Query_Counter_Bits,
+		Current_Query,
+	};
+
+	enum class QueryTarget : unsigned int
+	{
+		Time_Elapsed,
+		Samples_Passed,
+		Any_Samples_Passed,
+		Primitives_Generated,
+		Transform_Feedback_Primitives_Written,
+		Any_Samples_Passed_Conservative,
+	};
+
+	enum class RenderbufferParameterName : unsigned int
+	{
+		Renderbuffer_Samples,
+		Renderbuffer_Width,
+		Renderbuffer_Height,
+		Renderbuffer_Internal_Format,
+		Renderbuffer_Red_Size,
+		Renderbuffer_Green_Size,
+		Renderbuffer_Blue_Size,
+		Renderbuffer_Alpha_Size,
+		Renderbuffer_Depth_Size,
+		Renderbuffer_Stencil_Size,
+	};
+
+	enum class RenderingMode : unsigned int
+	{
+		Render,
+		Feedback,
+		Select,
+	};
+
+	enum class SamplePatternSGIS : unsigned int
+	{
+		_1Pass_Ext,
+		_1Pass_Sgis,
+		_2Pass_0_Ext,
+		_2Pass_0_Sgis,
+		_2Pass_1_Ext,
+		_2Pass_1_Sgis,
+		_4Pass_0_Ext,
+		_4Pass_0_Sgis,
+		_4Pass_1_Ext,
+		_4Pass_1_Sgis,
+		_4Pass_2_Ext,
+		_4Pass_2_Sgis,
+		_4Pass_3_Ext,
+		_4Pass_3_Sgis,
+	};
+
+	enum class SamplerParameterName : unsigned int
+	{
+		Texture_Wrap_R,
+		Texture_Min_Lod,
+		Texture_Max_Lod,
+		Texture_Compare_Mode,
+		Texture_Compare_Func,
+	};
+
+	enum class SemaphoreParameterName : unsigned int
+	{
+		D3D12_Fence_Value_Ext,
+	};
+
+	enum class SeparableTargetEXT : unsigned int
+	{
+		Separable_2D,
+	};
+
+	enum class ShaderParameterName : unsigned int
+	{
+		Shader_Type,
+		Compile_Status,
+		Shader_Source_Length,
+	};
+
+	enum class ShaderType : unsigned int
+	{
+		Fragment_Shader_Arb,
+		Vertex_Shader_Arb,
+		Compute_Shader,
+	};
+
+	enum class ShadingModel : unsigned int
+	{
+		Flat,
+		Smooth,
+	};
+
+	enum class StencilOp : unsigned int
+	{
+		Keep,
+		Incr,
+		Decr,
+		Incr_Wrap,
+		Decr_Wrap,
+	};
+
+	enum class StringName : unsigned int
+	{
+		Vendor,
+		Renderer,
+		Version,
+		Extensions,
+		Shading_Language_Version,
+	};
+
+	enum class SubroutineParameterName : unsigned int
+	{
+		Uniform_Size,
+		Uniform_Name_Length,
+		Num_Compatible_Subroutines,
+		Compatible_Subroutines,
+	};
+
+	enum class SyncCondition : unsigned int
+	{
+		Sync_Gpu_Commands_Complete,
+	};
+
+	enum class SyncParameterName : unsigned int
+	{
+		Object_Type,
+		Sync_Condition,
+		Sync_Status,
+		Sync_Flags,
+	};
+
+	enum class SyncStatus : unsigned int
+	{
+		Already_Signaled,
+		Timeout_Expired,
+		Condition_Satisfied,
+		Wait_Failed,
+	};
+
+	enum class TextureCoordName : unsigned int
+	{
+		S,
+		T,
+		R,
+		Q,
+	};
+
+	enum class TextureEnvMode : unsigned int
+	{
+		Decal,
+		Replace_Ext,
+		Texture_Env_Bias_Sgix,
+	};
+
+	enum class TextureEnvParameter : unsigned int
+	{
+		Texture_Env_Mode,
+		Texture_Env_Color,
+	};
+
+	enum class TextureEnvTarget : unsigned int
+	{
+		Texture_Env,
+	};
+
+	enum class TextureFilterFuncSGIS : unsigned int
+	{
+		Filter4_Sgis,
+	};
+
+	enum class TextureGenMode : unsigned int
+	{
+		Sphere_Map,
+		Eye_Distance_To_Point_Sgis,
+		Object_Distance_To_Point_Sgis,
+		Eye_Distance_To_Line_Sgis,
+		Object_Distance_To_Line_Sgis,
+	};
+
+	enum class TextureGenParameter : unsigned int
+	{
+		Texture_Gen_Mode,
+		Object_Plane,
+		Eye_Plane,
+		Eye_Point_Sgis,
+		Object_Point_Sgis,
+		Eye_Line_Sgis,
+		Object_Line_Sgis,
+	};
+
+	enum class TextureLayout : unsigned int
+	{
+		Layout_Depth_Read_Only_Stencil_Attachment_Ext,
+		Layout_Depth_Attachment_Stencil_Read_Only_Ext,
+		Layout_General_Ext,
+		Layout_Color_Attachment_Ext,
+		Layout_Depth_Stencil_Attachment_Ext,
+		Layout_Depth_Stencil_Read_Only_Ext,
+		Layout_Shader_Read_Only_Ext,
+		Layout_Transfer_Src_Ext,
+		Layout_Transfer_Dst_Ext,
+	};
+
+	enum class TextureMagFilter : unsigned int
+	{
+		Linear_Detail_Sgis,
+		Linear_Detail_Alpha_Sgis,
+		Linear_Detail_Color_Sgis,
+		Linear_Sharpen_Sgis,
+		Linear_Sharpen_Alpha_Sgis,
+		Linear_Sharpen_Color_Sgis,
+	};
+
+	enum class TextureMinFilter : unsigned int
+	{
+		Nearest_Mipmap_Nearest,
+		Linear_Mipmap_Nearest,
+		Nearest_Mipmap_Linear,
+		Linear_Mipmap_Linear,
+		Linear_Clipmap_Linear_Sgix,
+		Nearest_Clipmap_Nearest_Sgix,
+		Nearest_Clipmap_Linear_Sgix,
+		Linear_Clipmap_Nearest_Sgix,
+	};
+
+	enum class TextureParameterName : unsigned int
+	{
+		Texture_Priority_Ext,
+		Texture_Base_Level,
+		Texture_Max_Level,
+		Texture_Lod_Bias,
+		Texture_Swizzle_R,
+		Texture_Swizzle_G,
+		Texture_Swizzle_B,
+		Texture_Swizzle_A,
+		Texture_Swizzle_Rgba,
+		Depth_Stencil_Texture_Mode,
+		Texture_Tiling_Ext,
+	};
+
+	enum class TextureTarget : unsigned int
+	{
+		Proxy_Texture_1D,
+		Proxy_Texture_1D_Ext,
+		Proxy_Texture_2D,
+		Proxy_Texture_2D_Ext,
+		Texture_3D,
+		Proxy_Texture_3D,
+		Proxy_Texture_3D_Ext,
+		Detail_Texture_2D_Sgis,
+		Proxy_Texture_4D_Sgis,
+		Texture_Rectangle,
+		Proxy_Texture_Rectangle,
+		Proxy_Texture_Rectangle_Arb,
+		Proxy_Texture_Rectangle_Nv,
+		Texture_Cube_Map,
+		Texture_Cube_Map_Positive_X,
+		Texture_Cube_Map_Negative_X,
+		Texture_Cube_Map_Positive_Y,
+		Texture_Cube_Map_Negative_Y,
+		Texture_Cube_Map_Positive_Z,
+		Texture_Cube_Map_Negative_Z,
+		Proxy_Texture_Cube_Map,
+		Proxy_Texture_Cube_Map_Arb,
+		Proxy_Texture_Cube_Map_Ext,
+		Texture_1D_Array,
+		Proxy_Texture_1D_Array,
+		Proxy_Texture_1D_Array_Ext,
+		Texture_2D_Array,
+		Proxy_Texture_2D_Array,
+		Proxy_Texture_2D_Array_Ext,
+		Texture_Cube_Map_Array,
+		Texture_Cube_Map_Array_Arb,
+		Proxy_Texture_Cube_Map_Array,
+		Proxy_Texture_Cube_Map_Array_Arb,
+		Texture_2D_Multisample,
+		Proxy_Texture_2D_Multisample,
+		Texture_2D_Multisample_Array,
+		Proxy_Texture_2D_Multisample_Array,
+	};
+
+	enum class TextureUnit : unsigned int
+	{
+		Texture0,
+		Texture1,
+		Texture2,
+		Texture3,
+		Texture4,
+		Texture5,
+		Texture6,
+		Texture7,
+		Texture8,
+		Texture9,
+		Texture10,
+		Texture11,
+		Texture12,
+		Texture13,
+		Texture14,
+		Texture15,
+		Texture16,
+		Texture17,
+		Texture18,
+		Texture19,
+		Texture20,
+		Texture21,
+		Texture22,
+		Texture23,
+		Texture24,
+		Texture25,
+		Texture26,
+		Texture27,
+		Texture28,
+		Texture29,
+		Texture30,
+		Texture31,
+	};
+
+	enum class TextureWrapMode : unsigned int
+	{
+		Clamp,
+		Repeat,
+		Clamp_To_Border,
+		Clamp_To_Border_Arb,
+		Clamp_To_Border_Sgis,
+		Clamp_To_Edge,
+		Clamp_To_Edge_Sgis,
+	};
+
+	enum class TransformFeedbackPName : unsigned int
+	{
+		Transform_Feedback_Paused,
+		Transform_Feedback_Active,
+	};
+
+	enum class TypeEnum : unsigned int
+	{
+		Query_Wait,
+		Query_No_Wait,
+		Query_By_Region_Wait,
+		Query_By_Region_No_Wait,
+	};
+
+	enum class UniformBlockPName : unsigned int
+	{
+		Uniform_Block_Referenced_By_Tess_Control_Shader,
+		Uniform_Block_Referenced_By_Tess_Evaluation_Shader,
+		Uniform_Block_Binding,
+		Uniform_Block_Data_Size,
+		Uniform_Block_Name_Length,
+		Uniform_Block_Active_Uniforms,
+		Uniform_Block_Active_Uniform_Indices,
+		Uniform_Block_Referenced_By_Vertex_Shader,
+		Uniform_Block_Referenced_By_Geometry_Shader,
+		Uniform_Block_Referenced_By_Fragment_Shader,
+		Uniform_Block_Referenced_By_Compute_Shader,
+	};
+
+	enum class UniformPName : unsigned int
+	{
+		Uniform_Type,
+		Uniform_Block_Index,
+		Uniform_Offset,
+		Uniform_Array_Stride,
+		Uniform_Matrix_Stride,
+		Uniform_Is_Row_Major,
+		Uniform_Atomic_Counter_Buffer_Index,
+	};
+
+	enum class VertexArrayPName : unsigned int
+	{
+		Vertex_Attrib_Relative_Offset,
+		Vertex_Attrib_Array_Enabled,
+		Vertex_Attrib_Array_Size,
+		Vertex_Attrib_Array_Stride,
+		Vertex_Attrib_Array_Type,
+		Vertex_Attrib_Array_Long,
+		Vertex_Attrib_Array_Normalized,
+		Vertex_Attrib_Array_Integer,
+		Vertex_Attrib_Array_Divisor,
+	};
+
+	enum class VertexAttribEnum : unsigned int
+	{
+		Current_Vertex_Attrib,
+		Vertex_Attrib_Array_Buffer_Binding,
+	};
+
+	enum class VertexAttribPointerType : unsigned int
+	{
+		Half_Float,
+		Fixed,
+		Unsigned_Int_2_10_10_10_Rev,
+		Unsigned_Int_10F_11F_11F_Rev,
+		Int_2_10_10_10_Rev,
+	};
+
+	enum class VertexBufferObjectParameter : unsigned int
+	{
+		Buffer_Immutable_Storage,
+		Buffer_Storage_Flags,
+		Buffer_Size,
+		Buffer_Usage,
+		Buffer_Access,
+		Buffer_Mapped,
+		Buffer_Access_Flags,
+		Buffer_Map_Length,
+		Buffer_Map_Offset,
+	};
+
+	enum class VertexProvokingMode : unsigned int
+	{
+		First_Vertex_Convention,
+		Last_Vertex_Convention,
+	};
+

@@ -47,17 +47,17 @@
 			<tr>
 				<th>item to download</th>
 				<th>exc value</th>
-				<th>exc traceback</th>
+				<!-- th>exc traceback</th -->
 			</tr>
 			{%- for item in scrapper_result.items_failed -%}
 			<tr>
 				<td>{{ item.error_info.item_to_download|e }}</td>
 				<td>{{ item.error_info.e_info.value|e }}</td>
-				<td><pre style="text-align: left;">
+				<!-- td><pre style="text-align: left;">
 					{%- for tb_line in item.error_info.e_info.formatted_exception -%}
 					{{- tb_line|trim|e -}}<br/>
 					{%- endfor -%}
-				</pre></td>
+				</pre></td -->
 			</tr>
 			{% endfor %}
 		</table>
