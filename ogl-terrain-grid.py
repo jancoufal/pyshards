@@ -33,7 +33,7 @@ def generatePlane(screen, line_fractions: Point, edge_length: Point, starting_po
 	print(f"{len(vertices)=}")
 
 	print("index mode: triangle strip with reset point")
-	index_count = line_fractions.x * line_fractions.y * 2 + line_fractions.x - 1
+	index_count = (line_fractions.y + 1) * line_fractions.x * 2 + line_fractions.x
 	print(f"{index_count=}")
 	indices = []
 	reset_index = -1
