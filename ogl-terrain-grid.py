@@ -1,12 +1,12 @@
 import sys
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import List, Tuple
-from itertools import takewhile
 from functools import reduce
+from itertools import takewhile
 from operator import add
-import pygame
+from typing import List, Tuple
 
+import pygame
 
 GL_INDEX_RESET = -1
 
