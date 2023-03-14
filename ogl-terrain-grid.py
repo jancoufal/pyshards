@@ -143,19 +143,10 @@ def gl_draw_with_reset(screen, vertices: List[Point], indices: List[int]) -> Non
 
 def gl_draw_triangles(screen, vertices: List[Point], indices: List[int]) -> None:
 	c = [0, 0, 255]
-	errors = dict()
 	for i in range(0, len(indices), 3):
-		try:
-			t = Triangle(*map(lambda j: vertices[j], indices[i:i+3]))
-			t = t.scale(0.8)
-			pygame.draw.lines(screen, c, False, [p.as_tuple() for p in t.as_points_closed()])
-		except IndexError as e:
-			str_e = str(e)
-			if str_e not in errors.keys():
-				errors[str_e] = 0
-			errors[str_e] = errors[str_e] + 1
-	for error in errors:
-		print(f"{error} (x{errors[error]})", file=sys.stderr)
+		t = Triangle(*map(lambda j: vertices[j], indices[i:i+3]))
+		t = t.scale(0.8)
+		pygame.draw.lines(screen, c, False, [p.as_tuple() for p in t.as_points_closed()])
 
 
 def main():
